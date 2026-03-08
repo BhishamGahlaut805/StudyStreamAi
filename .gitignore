@@ -145,7 +145,7 @@ outputs/
 # =========================
 *.jpg
 *.jpeg
-*.png
+# *.png
 *.gif
 *.bmp
 *.svg
@@ -158,7 +158,6 @@ outputs/
 *.tif
 *.tiff
 media/
-# images/
 screenshots/
 videos/
 static/uploads/
