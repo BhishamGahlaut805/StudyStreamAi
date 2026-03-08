@@ -1,0 +1,170 @@
+{
+  "user_id": "STU000005",
+  "created_at": "2026-03-06T13:12:22.956700",
+  "last_micro_train": "2026-03-08T14:05:56.728481",
+  "last_meso_train": "2026-03-08T14:08:42.602328",
+  "last_macro_train": "2026-03-08T14:08:59.813640",
+  "interactions_since_micro": 0,
+  "interactions_since_meso": 0,
+  "interactions_since_macro": 0,
+  "meso_training_history": [
+    {
+      "date": "2026-03-08T13:45:07.644040",
+      "data_points": 1980,
+      "loss": 0.0
+    },
+    {
+      "date": "2026-03-08T13:45:20.753795",
+      "data_points": 1980,
+      "loss": 0.0
+    },
+    {
+      "date": "2026-03-08T13:45:44.668677",
+      "data_points": 1980,
+      "loss": 0.0
+    },
+    {
+      "date": "2026-03-08T13:46:00.130491",
+      "data_points": 1980,
+      "loss": 0.0
+    },
+    {
+      "date": "2026-03-08T13:46:06.165025",
+      "data_points": 1980,
+      "loss": 0.0
+    },
+    {
+      "date": "2026-03-08T13:46:10.635887",
+      "data_points": 1980,
+      "loss": 0.0
+    },
+    {
+      "date": "2026-03-08T14:07:24.577307",
+      "data_points": 2068,
+      "loss": 0.0
+    },
+    {
+      "date": "2026-03-08T14:07:58.627913",
+      "data_points": 2068,
+      "loss": 0.0
+    },
+    {
+      "date": "2026-03-08T14:08:25.417257",
+      "data_points": 2068,
+      "loss": 0.0
+    },
+    {
+      "date": "2026-03-08T14:08:42.658536",
+      "data_points": 2068,
+      "loss": 0.0
+    }
+  ],
+  "micro_training_history": [
+    {
+      "date": "2026-03-08T13:39:13.773080",
+      "data_points": 1476,
+      "loss": 0.0
+    },
+    {
+      "date": "2026-03-08T13:39:24.765290",
+      "data_points": 1380,
+      "loss": 0.0
+    },
+    {
+      "date": "2026-03-08T13:39:34.077579",
+      "data_points": 1404,
+      "loss": 0.0
+    },
+    {
+      "date": "2026-03-08T13:39:45.073320",
+      "data_points": 1428,
+      "loss": 0.0
+    },
+    {
+      "date": "2026-03-08T13:39:59.545680",
+      "data_points": 1476,
+      "loss": 0.0
+    },
+    {
+      "date": "2026-03-08T13:40:08.876045",
+      "data_points": 1404,
+      "loss": 0.0
+    },
+    {
+      "date": "2026-03-08T14:05:13.311668",
+      "data_points": 1564,
+      "loss": 0.0
+    },
+    {
+      "date": "2026-03-08T14:05:28.925012",
+      "data_points": 1520,
+      "loss": 0.0
+    },
+    {
+      "date": "2026-03-08T14:05:42.468891",
+      "data_points": 1498,
+      "loss": 0.0
+    },
+    {
+      "date": "2026-03-08T14:05:56.794895",
+      "data_points": 1542,
+      "loss": 0.0
+    }
+  ],
+  "macro_training_history": [
+    {
+      "date": "2026-03-08T13:46:27.288452",
+      "data_points": 159,
+      "loss": 0.0
+    },
+    {
+      "date": "2026-03-08T13:46:34.204473",
+      "data_points": 159,
+      "loss": 0.0
+    },
+    {
+      "date": "2026-03-08T13:46:34.526779",
+      "data_points": 159,
+      "loss": 0.0
+    },
+    {
+      "date": "2026-03-08T13:46:37.110979",
+      "data_points": 159,
+      "loss": 0.0
+    },
+    {
+      "date": "2026-03-08T13:46:37.947494",
+      "data_points": 159,
+      "loss": 0.0
+    },
+    {
+      "date": "2026-03-08T13:46:38.496387",
+      "data_points": 159,
+      "loss": 0.0
+    },
+    {
+      "date": "2026-03-08T14:08:21.353677",
+      "data_points": 163,
+      "loss": 0.0
+    },
+    {
+      "date": "2026-03-08T14:08:37.904266",
+      "data_points": 163,
+      "loss": 0.0
+    },
+    {
+      "date": "2026-03-08T14:08:53.989776",
+      "data_points": 163,
+      "loss": 0.0
+    },
+    {
+      "date": "2026-03-08T14:08:59.818649",
+      "data_points": 163,
+      "loss": 0.0
+    }
+  ],
+  "last_micro_trained_rows": 1564,
+  "last_meso_trained_rows": 2068,
+  "last_macro_trained_rows": 163,
+  "last_sequence_update": "2026-03-08T14:04:00.521880"
+}

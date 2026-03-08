@@ -1,0 +1,28 @@
+{
+  "generated_at": "2026-03-08T14:08:59.760309",
+  "projected_retention": 0.47,
+  "burnout_risk": 0.09,
+  "fatigue_burnout_check": {
+    "status": "low",
+    "recommended_break_minutes": 5
+  },
+  "optimal_daily_minutes": 25,
+  "weekly_structure": {
+    "revision_days": [
+      "Monday",
+      "Tuesday",
+      "Thursday",
+      "Friday"
+    ],
+    "new_learning_days": [
+      "Wednesday",
+      "Saturday"
+    ],
+    "light_review_day": "Sunday"
+  },
+  "optimal_long_term_sequence": {
+    "day_1_7": "reinforce_low_retention_topics",
+    "day_8_30": "mixed_revision_with_interleaving",
+    "day_31_90": "spaced_mastery_and_checkpoint_tests"
+  }
+}

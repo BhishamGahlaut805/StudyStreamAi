@@ -1,0 +1,280 @@
+# =========================
+# Environment and Config Files
+# =========================
+.env
+.env.*
+*.env
+*.env.*
+!*.env.example  # Keep template env files
+*.config
+# config/
+secrets/
+keys/
+# *.json
+*.yml
+*.yaml
+*.mp4
+
+# Ignore India GeoJSON file
+Frontend/public/india.geojson
+
+# =========================
+# Python and Virtual Environments
+# =========================
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pkl
+*.so
+*.egg-info/
+*.ipynb_checkpoints
+*.ipynb
+.DS_Store
+.env/
+.venv/
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+news/
+Upload/
+# =========================
+# Node.js / JavaScript / TypeScript
+# =========================
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+# package-lock.json
+# package.json
+.next/
+dist/
+build/
+coverage/
+*.map
+
+# =========================
+# 🤖 Machine Learning / Deep Learning
+# =========================
+# Model files
+*.h5
+*.hdf5
+*.ckpt
+*.pt
+*.pth
+*.tflite
+*.pb
+*.onnx
+*.joblib
+*.weights
+*.model
+*.bin
+*.pkl
+*.keras
+
+# Training outputs and experiments
+checkpoints/
+trained_models/
+saved_models/
+# models/
+outputs/
+results/
+experiments/
+runs/
+mlruns/
+wandb/
+tensorboard/
+
+# =========================
+# 📊 Data and Datasets
+# =========================
+*.csv
+*.tsv
+*.xls
+*.xlsx
+# *.json
+*.xml
+*.yaml
+*.yml
+*.parquet
+*.feather
+*.db
+*.sqlite
+*.npz
+*.npy
+*.zip
+*.rar
+*.7z
+*.tar
+*.gz
+*.bz2
+data/
+datasets/
+data_raw/
+data_processed/
+uploads/
+downloads/
+storage/
+
+# =========================
+# 🧾 Logs, Reports, PDFs, and Text Files
+# =========================
+*.log
+*.out
+*.err
+*.tmp
+*.dat
+*.txt
+*.pdf
+logs/
+reports/
+temp/
+tmp/
+cache/
+.cache/
+__logs__/
+experiments_results/
+outputs/
+
+# =========================
+# 🖼️ Media and Generated Files
+# =========================
+*.jpg
+*.jpeg
+*.png
+*.gif
+*.bmp
+*.svg
+*.ico
+*.mp4
+*.mov
+*.avi
+*.mkv
+*.webm
+*.tif
+*.tiff
+media/
+images/
+screenshots/
+videos/
+static/uploads/
+public/temp/
+frontend/public/uploads/
+
+# =========================
+# 💻 IDE and Editor Configurations
+# =========================
+.vscode/
+.idea/
+*.swp
+*.swo
+*.bak
+*.tmp
+
+# =========================
+# ⚙️ Framework / Build Artifacts
+# =========================
+frontend/node_modules/
+frontend/build/
+frontend/dist/
+server/node_modules/
+server/dist/
+server/build/
+__pypackages__/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+
+# =========================
+# 🧪 Testing / Coverage
+# =========================
+htmlcov/
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py.cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# =========================
+# 🧩 Documentation
+# =========================
+docs/_build/
+site/
+mkdocs.yml
+
+# =========================
+# 🗂️ System and Misc
+# =========================
+Thumbs.db
+desktop.ini
+pip-log.txt
+pip-delete-this-directory.txt
+*.manifest
+*.spec
+*.bak
+*.pid
+*.lock
+
+/uploads/
+
+
+# Environment variables
+.env
+.env.*
+AI/.env
+
+# Node modules
+node_modules/
+
+# Python cache
+__pycache__/
+*.pyc
+
+# ML models
+*.pt
+*.pth
+*.h5
+*.pkl
+*.joblib
+*.onnx
+
+# datasets
+data/
+datasets/
+
+# logs
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+.env
+.env.*
+
+.env
+.env.*
+AI/.env
+node_modules/
+__pycache__/
+*.pt
+*.pkl
+*.h5

@@ -1,0 +1,62 @@
+{
+  "user_id": "STU000005",
+  "subject": "gk",
+  "date": "2026-03-08",
+  "generated_at": "2026-03-08T14:08:59.964795",
+  "immediate_batch": {
+    "questions": [],
+    "total_questions": 0,
+    "focus_topics": []
+  },
+  "session_batch": {
+    "batches": [],
+    "batch_count": 0,
+    "total_questions": 0
+  },
+  "chapter_reviews": [
+    {
+      "topic_id": "unknown_topic",
+      "subject": "gk",
+      "timing": "next_day",
+      "questions": 3,
+      "repeat_in_seconds": 30,
+      "timer_frame_label": "30_seconds",
+      "next_repeat_at": "2026-03-08T14:09:29.964795"
+    },
+    {
+      "topic_id": "geography",
+      "subject": "gk",
+      "timing": "next_day",
+      "questions": 3,
+      "repeat_in_seconds": 300,
+      "timer_frame_label": "5_minutes",
+      "next_repeat_at": "2026-03-08T14:13:59.964795"
+    },
+    {
+      "topic_id": "history",
+      "subject": "gk",
+      "timing": "next_day",
+      "questions": 3,
+      "repeat_in_seconds": 300,
+      "timer_frame_label": "5_minutes",
+      "next_repeat_at": "2026-03-08T14:13:59.964795"
+    },
+    {
+      "topic_id": "science",
+      "subject": "gk",
+      "timing": "next_day",
+      "questions": 3,
+      "repeat_in_seconds": 300,
+      "timer_frame_label": "5_minutes",
+      "next_repeat_at": "2026-03-08T14:13:59.964795"
+    }
+  ],
+  "long_term_plan": {
+    "review_topics": [],
+    "mastered_topics": []
+  },
+  "summary": {
+    "total_topics": 4,
+    "estimated_total_questions": 12
+  }
+}

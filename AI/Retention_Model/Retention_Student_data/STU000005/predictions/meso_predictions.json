@@ -1,0 +1,134 @@
+[
+  {
+    "subject": "english",
+    "topic_id": "antonyms",
+    "retention_7d": 0.34,
+    "retention_30d": 0.3,
+    "retention_90d": 0.27,
+    "chapter_repeat_plan": {
+      "next_review_days": 3,
+      "target_questions": 12
+    },
+    "updated_at": "2026-03-08T14:08:42.304064"
+  },
+  {
+    "subject": "english",
+    "topic_id": "idioms",
+    "retention_7d": 0.34,
+    "retention_30d": 0.3,
+    "retention_90d": 0.27,
+    "chapter_repeat_plan": {
+      "next_review_days": 3,
+      "target_questions": 12
+    },
+    "updated_at": "2026-03-08T14:08:42.304064"
+  },
+  {
+    "subject": "english",
+    "topic_id": "one_word_substitution",
+    "retention_7d": 0.34,
+    "retention_30d": 0.3,
+    "retention_90d": 0.27,
+    "chapter_repeat_plan": {
+      "next_review_days": 3,
+      "target_questions": 12
+    },
+    "updated_at": "2026-03-08T14:08:42.304064"
+  },
+  {
+    "subject": "english",
+    "topic_id": "synonyms",
+    "retention_7d": 0.34,
+    "retention_30d": 0.3,
+    "retention_90d": 0.27,
+    "chapter_repeat_plan": {
+      "next_review_days": 3,
+      "target_questions": 12
+    },
+    "updated_at": "2026-03-08T14:08:42.304064"
+  },
+  {
+    "subject": "english",
+    "topic_id": "unknown_topic",
+    "retention_7d": 0.34,
+    "retention_30d": 0.3,
+    "retention_90d": 0.27,
+    "chapter_repeat_plan": {
+      "next_review_days": 3,
+      "target_questions": 12
+    },
+    "updated_at": "2026-03-08T14:08:42.304064"
+  },
+  {
+    "subject": "english",
+    "topic_id": "vocabulary",
+    "retention_7d": 0.34,
+    "retention_30d": 0.3,
+    "retention_90d": 0.27,
+    "chapter_repeat_plan": {
+      "next_review_days": 3,
+      "target_questions": 12
+    },
+    "updated_at": "2026-03-08T14:08:42.304064"
+  },
+  {
+    "subject": "gk",
+    "topic_id": "current_affairs",
+    "retention_7d": 0.34,
+    "retention_30d": 0.3,
+    "retention_90d": 0.27,
+    "chapter_repeat_plan": {
+      "next_review_days": 3,
+      "target_questions": 12
+    },
+    "updated_at": "2026-03-08T14:08:42.304064"
+  },
+  {
+    "subject": "gk",
+    "topic_id": "geography",
+    "retention_7d": 0.34,
+    "retention_30d": 0.3,
+    "retention_90d": 0.27,
+    "chapter_repeat_plan": {
+      "next_review_days": 3,
+      "target_questions": 12
+    },
+    "updated_at": "2026-03-08T14:08:42.304064"
+  },
+  {
+    "subject": "gk",
+    "topic_id": "history",
+    "retention_7d": 0.34,
+    "retention_30d": 0.3,
+    "retention_90d": 0.27,
+    "chapter_repeat_plan": {
+      "next_review_days": 3,
+      "target_questions": 12
+    },
+    "updated_at": "2026-03-08T14:08:42.304064"
+  },
+  {
+    "subject": "gk",
+    "topic_id": "science",
+    "retention_7d": 0.34,
+    "retention_30d": 0.3,
+    "retention_90d": 0.27,
+    "chapter_repeat_plan": {
+      "next_review_days": 3,
+      "target_questions": 12
+    },
+    "updated_at": "2026-03-08T14:08:42.304064"
+  },
+  {
+    "subject": "gk",
+    "topic_id": "unknown_topic",
+    "retention_7d": 0.34,
+    "retention_30d": 0.3,
+    "retention_90d": 0.27,
+    "chapter_repeat_plan": {
+      "next_review_days": 3,
+      "target_questions": 12
+    },
+    "updated_at": "2026-03-08T14:08:42.304064"
+  }
+]

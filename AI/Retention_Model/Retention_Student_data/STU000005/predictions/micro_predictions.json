@@ -1,0 +1,62 @@
+[
+  {
+    "topic_id": "unknown_topic",
+    "subject": "gk",
+    "current_retention": 0.27,
+    "next_retention": 0.27,
+    "stress_impact": 0.01,
+    "fatigue_level": 0.01,
+    "repeat_in_seconds": 30,
+    "timer_frame_label": "30_seconds",
+    "repeat_in_days": 0.0003,
+    "batch_type": "immediate",
+    "sequence_length": 20,
+    "windows_used": 1360,
+    "updated_at": "2026-03-08T14:05:55.965581"
+  },
+  {
+    "topic_id": "geography",
+    "subject": "gk",
+    "current_retention": 0.62,
+    "next_retention": 0.66,
+    "stress_impact": 0.02,
+    "fatigue_level": 0.35,
+    "repeat_in_seconds": 300,
+    "timer_frame_label": "5_minutes",
+    "repeat_in_days": 0.0035,
+    "batch_type": "short_term",
+    "sequence_length": 20,
+    "windows_used": 9,
+    "updated_at": "2026-03-08T14:05:55.965581"
+  },
+  {
+    "topic_id": "history",
+    "subject": "gk",
+    "current_retention": 0.63,
+    "next_retention": 0.68,
+    "stress_impact": 0.02,
+    "fatigue_level": 0.35,
+    "repeat_in_seconds": 300,
+    "timer_frame_label": "5_minutes",
+    "repeat_in_days": 0.0035,
+    "batch_type": "short_term",
+    "sequence_length": 20,
+    "windows_used": 13,
+    "updated_at": "2026-03-08T14:05:55.965581"
+  },
+  {
+    "topic_id": "science",
+    "subject": "gk",
+    "current_retention": 0.64,
+    "next_retention": 0.69,
+    "stress_impact": 0.02,
+    "fatigue_level": 0.28,
+    "repeat_in_seconds": 300,
+    "timer_frame_label": "5_minutes",
+    "repeat_in_days": 0.0035,
+    "batch_type": "short_term",
+    "sequence_length": 20,
+    "windows_used": 27,
+    "updated_at": "2026-03-08T14:05:55.965581"
+  }
+]

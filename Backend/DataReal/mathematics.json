@@ -1,0 +1,2078 @@
+{
+  "subject": "Mathematics",
+  "topics": [
+    "Number System", "Algebra", "Geometry", "Trigonometry", "Mensuration", "Statistics", "Probability", "Average", "Percentage", "Profit & Loss", "Simple Interest", "Compound Interest", "Time & Work", "Time & Distance", "Ratio & Proportion", "Mixture & Alligation"
+  ],
+  "questions": [
+    {
+      "id": "math_001",
+      "text": "Find the value of k in the number 3426k if the number is divisible by 6 but NOT divisible by 5.",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "4" },
+        { "id": "B", "text": "6" },
+        { "id": "C", "text": "3" },
+        { "id": "D", "text": "9" }
+      ],
+      "correct_answer": "B",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_002",
+      "text": "Find the smallest value that must be assigned to number 'a' in order for 91876a2 to be divisible by 8.",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "3" },
+        { "id": "B", "text": "0" },
+        { "id": "C", "text": "1" },
+        { "id": "D", "text": "2" }
+      ],
+      "correct_answer": "B",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_003",
+      "text": "A 6-digit number has digits as consecutive natural numbers. The number is always divisible by",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "4" },
+        { "id": "B", "text": "5" },
+        { "id": "C", "text": "2" },
+        { "id": "D", "text": "3" }
+      ],
+      "correct_answer": "D",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_004",
+      "text": "Replace * by the smallest digit so that 723*56*6 is divisible by 6.",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "4" },
+        { "id": "B", "text": "3" },
+        { "id": "C", "text": "2" },
+        { "id": "D", "text": "1" }
+      ],
+      "correct_answer": "C",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_005",
+      "text": "If 436P5 is divisible by 3, then the largest value of P is:",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "12" },
+        { "id": "B", "text": "6" },
+        { "id": "C", "text": "8" },
+        { "id": "D", "text": "9" }
+      ],
+      "correct_answer": "D",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_006",
+      "text": "The number 429714 is divisible by:",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "3 and 5" },
+        { "id": "B", "text": "6 and 5" },
+        { "id": "C", "text": "4 and 6" },
+        { "id": "D", "text": "3 and 6" }
+      ],
+      "correct_answer": "D",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_007",
+      "text": "Which composite number can divide the sum of the first 12 natural numbers?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "6" },
+        { "id": "B", "text": "12" },
+        { "id": "C", "text": "4" },
+        { "id": "D", "text": "8" }
+      ],
+      "correct_answer": "A",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_008",
+      "text": "If m is even, then (8^m - 1) is divisible by:",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "63" },
+        { "id": "B", "text": "42" },
+        { "id": "C", "text": "65" },
+        { "id": "D", "text": "8" }
+      ],
+      "correct_answer": "A",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_009",
+      "text": "If a number K = 42 x 25 x 54 x 135 is divisible by 3^a, then find the maximum value of a?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "6" },
+        { "id": "B", "text": "7" },
+        { "id": "C", "text": "4" },
+        { "id": "D", "text": "5" }
+      ],
+      "correct_answer": "B",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_010",
+      "text": "Find the least value of k for which a 7-digit number 249k876 is divisible by 6.",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "1" },
+        { "id": "B", "text": "0" },
+        { "id": "C", "text": "5" },
+        { "id": "D", "text": "7" }
+      ],
+      "correct_answer": "B",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_011",
+      "text": "Which of the following can be the value of 'k' so that the number 217924k is divisible by 6?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "4" },
+        { "id": "B", "text": "6" },
+        { "id": "C", "text": "2" },
+        { "id": "D", "text": "0" }
+      ],
+      "correct_answer": "C",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_012",
+      "text": "Find the least value of x for which 57x716 is divisible by 9.",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "1" },
+        { "id": "B", "text": "9" },
+        { "id": "C", "text": "0" },
+        { "id": "D", "text": "8" }
+      ],
+      "correct_answer": "A",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_013",
+      "text": "If P is a digit such that 6954P is divisible by 11, then P equals:",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "2" },
+        { "id": "B", "text": "8" },
+        { "id": "C", "text": "6" },
+        { "id": "D", "text": "7" }
+      ],
+      "correct_answer": "A",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_014",
+      "text": "Which of the following numbers is divisible by 6?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "7344" },
+        { "id": "B", "text": "5544" },
+        { "id": "C", "text": "438750" },
+        { "id": "D", "text": "62233" }
+      ],
+      "correct_answer": "C",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_015",
+      "text": "Which of the following numbers is NOT divisible by 8?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "128530" },
+        { "id": "B", "text": "12581" },
+        { "id": "C", "text": "7497" },
+        { "id": "D", "text": "4608" }
+      ],
+      "correct_answer": "C",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_016",
+      "text": "Which of the following numbers is divisible by both 2 and 5?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "63840" },
+        { "id": "B", "text": "20792" },
+        { "id": "C", "text": "37915" },
+        { "id": "D", "text": "37254" }
+      ],
+      "correct_answer": "A",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_017",
+      "text": "Which of the following numbers is divisible by 36?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "47502" },
+        { "id": "B", "text": "29412" },
+        { "id": "C", "text": "54732" },
+        { "id": "D", "text": "87064" }
+      ],
+      "correct_answer": "B",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_018",
+      "text": "The five-digit number 45yz0 is divisible by 40. What is the maximum possible value of (y + z)?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "15" },
+        { "id": "B", "text": "18" },
+        { "id": "C", "text": "16" },
+        { "id": "D", "text": "17" }
+      ],
+      "correct_answer": "C",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_019",
+      "text": "If 321y72 is a multiple of 6, where y is a digit, what is the least value of y?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "3" },
+        { "id": "B", "text": "0" },
+        { "id": "C", "text": "7" },
+        { "id": "D", "text": "2" }
+      ],
+      "correct_answer": "B",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_020",
+      "text": "For what least value of n, 2^2n + 2^n is completely divided by 6, where n is an integer?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "3" },
+        { "id": "B", "text": "1" },
+        { "id": "C", "text": "0" },
+        { "id": "D", "text": "2" }
+      ],
+      "correct_answer": "B",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_021",
+      "text": "Find the greatest value of 'k' in a 6-digit number 6745k2 such that the number is divisible by 3.",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "8" },
+        { "id": "B", "text": "6" },
+        { "id": "C", "text": "9" },
+        { "id": "D", "text": "7" }
+      ],
+      "correct_answer": "C",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_022",
+      "text": "3^50 + 9^26 + 27^18 + 9^28 + 9^29 is divisible by which of the following integers?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "11" },
+        { "id": "B", "text": "5" },
+        { "id": "C", "text": "7" },
+        { "id": "D", "text": "2" }
+      ],
+      "correct_answer": "A",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_023",
+      "text": "Any six-digit number that is formed by repeating a three-digit number, is always divisible by:",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "111" },
+        { "id": "B", "text": "1001" },
+        { "id": "C", "text": "7" },
+        { "id": "D", "text": "101" }
+      ],
+      "correct_answer": "B",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_024",
+      "text": "6^25 + 6^26 + 6^27 + 6^28 is divisible by:",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "256" },
+        { "id": "B", "text": "254" },
+        { "id": "C", "text": "255" },
+        { "id": "D", "text": "259" }
+      ],
+      "correct_answer": "D",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_025",
+      "text": "Which number among 9592450, 9592330, 9592885 and 9592741 is divisible by 11?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "9592885" },
+        { "id": "B", "text": "9592741" },
+        { "id": "C", "text": "9592450" },
+        { "id": "D", "text": "9592330" }
+      ],
+      "correct_answer": "D",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_026",
+      "text": "Which number among 34936, 35508, 35580 and 36508 is divisible by 33?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "35508" },
+        { "id": "B", "text": "35580" },
+        { "id": "C", "text": "36508" },
+        { "id": "D", "text": "34936" }
+      ],
+      "correct_answer": "A",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_027",
+      "text": "7^15 + 7^16 + 7^17 is divisible by which of the following given numbers?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "3" },
+        { "id": "B", "text": "5" },
+        { "id": "C", "text": "4" },
+        { "id": "D", "text": "57" }
+      ],
+      "correct_answer": "D",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_028",
+      "text": "If 7845K854 is divisible by 11, then what is the value of K?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "6" },
+        { "id": "B", "text": "4" },
+        { "id": "C", "text": "7" },
+        { "id": "D", "text": "3" }
+      ],
+      "correct_answer": "D",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_029",
+      "text": "Which digits should come in place of * and $, respectively, if the number 72864*$ is divisible by both 8 and 5?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "4 and 0" },
+        { "id": "B", "text": "2 and 0" },
+        { "id": "C", "text": "2 and 5" },
+        { "id": "D", "text": "4 and 5" }
+      ],
+      "correct_answer": "B",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_030",
+      "text": "Find the greatest number 23a68b, which is divisible by 3 but NOT divisible by 9.",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "238689" },
+        { "id": "B", "text": "239685" },
+        { "id": "C", "text": "239688" },
+        { "id": "D", "text": "237687" }
+      ],
+      "correct_answer": "B",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_031",
+      "text": "If the 9-digit number 7x79251y8 is divisible by 36, What is the value of (10x - 3y^2) for the largest possible value of y?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "490" },
+        { "id": "B", "text": "289" },
+        { "id": "C", "text": "192" },
+        { "id": "D", "text": "298" }
+      ],
+      "correct_answer": "C",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_032",
+      "text": "Which of the numbers is divisible by 99?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "31548" },
+        { "id": "B", "text": "60687" },
+        { "id": "C", "text": "44775" },
+        { "id": "D", "text": "84456" }
+      ],
+      "correct_answer": "D",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_033",
+      "text": "Which of the following numbers is divisible by 44?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "32802" },
+        { "id": "B", "text": "54736" },
+        { "id": "C", "text": "93472" },
+        { "id": "D", "text": "27048" }
+      ],
+      "correct_answer": "C",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_034",
+      "text": "The least number which must be subtracted from 7278745 so as to obtain a sum that is divisible by 11 is:",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "3" },
+        { "id": "B", "text": "1" },
+        { "id": "C", "text": "5" },
+        { "id": "D", "text": "2" }
+      ],
+      "correct_answer": "D",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_035",
+      "text": "Which of the following numbers is NOT divisible by 11?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "109153" },
+        { "id": "B", "text": "5445" },
+        { "id": "C", "text": "128041" },
+        { "id": "D", "text": "80124" }
+      ],
+      "correct_answer": "A",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_036",
+      "text": "Which of the following numbers is divisible by 2, 5, 10 and 11?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "203467" },
+        { "id": "B", "text": "830942" },
+        { "id": "C", "text": "589270" },
+        { "id": "D", "text": "1234560" }
+      ],
+      "correct_answer": "C",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_037",
+      "text": "Which of the following pairs of non-zero values of p and q make 6-digit number 674pq0 divisible by both 3 and 11?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "p=2 and q=2" },
+        { "id": "B", "text": "p=5 and q=4" },
+        { "id": "C", "text": "p=4 and q=2" },
+        { "id": "D", "text": "p=5 and q=2" }
+      ],
+      "correct_answer": "D",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_038",
+      "text": "Which digits should come in the place of * and #, respectively, if the 7-digit number 62684*# is divisible by both 8 and 5?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "2 and 0" },
+        { "id": "B", "text": "4 and 0" },
+        { "id": "C", "text": "5 and 0" },
+        { "id": "D", "text": "0 and 5" }
+      ],
+      "correct_answer": "B",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_039",
+      "text": "Which number among 38211, 38121, 32118, and 31128 is divisible by 24?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "32118" },
+        { "id": "B", "text": "31128" },
+        { "id": "C", "text": "38121" },
+        { "id": "D", "text": "38211" }
+      ],
+      "correct_answer": "B",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_040",
+      "text": "If the 7-digit number x8942y4 is divisible by 56, what is the value of (x^2 + y) for the largest value of y?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "33" },
+        { "id": "B", "text": "44" },
+        { "id": "C", "text": "55" },
+        { "id": "D", "text": "70" }
+      ],
+      "correct_answer": "D",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_041",
+      "text": "If the nine-digit number 9m2365n48 is completely divisible by 88, what is the value of (m^2 - n^2) for the smallest value of n?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "36" },
+        { "id": "B", "text": "64" },
+        { "id": "C", "text": "32" },
+        { "id": "D", "text": "20" }
+      ],
+      "correct_answer": "C",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_042",
+      "text": "Find the greatest number 234a5b, which is divisible by 22, but NOT divisible by 5.",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "234058" },
+        { "id": "B", "text": "234850" },
+        { "id": "C", "text": "234652" },
+        { "id": "D", "text": "234751" }
+      ],
+      "correct_answer": "A",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_043",
+      "text": "If 7-digit number 678p37q is divisible by 75 and p is not a composite, then the values of p and q are:",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "p=5, q=5" },
+        { "id": "B", "text": "p=3, q=0" },
+        { "id": "C", "text": "p=3, q=5" },
+        { "id": "D", "text": "p=2, q=5" }
+      ],
+      "correct_answer": "C",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_044",
+      "text": "If the seven-digit number 52A6B7C is divisible by 33, and A, B, C are primes, then the maximum value of 2A+3B+C is:",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "32" },
+        { "id": "B", "text": "23" },
+        { "id": "C", "text": "27" },
+        { "id": "D", "text": "34" }
+      ],
+      "correct_answer": "A",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_045",
+      "text": "A four-digit number abba is divisible by 4 and a < b. How many such numbers are there?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "10" },
+        { "id": "B", "text": "8" },
+        { "id": "C", "text": "12" },
+        { "id": "D", "text": "6" }
+      ],
+      "correct_answer": "B",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_046",
+      "text": "How many of the following numbers are divisible by 3 but NOT by 9? (5826, 5964, 6039, 6336, 6489, 6564, 6867 and 6960)",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "4" },
+        { "id": "B", "text": "5" },
+        { "id": "C", "text": "3" },
+        { "id": "D", "text": "6" }
+      ],
+      "correct_answer": "C",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_047",
+      "text": "From the given numbers A=712712, B=177210, C=64614, and D=756148, which number is NOT divisible by 11?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "C" },
+        { "id": "B", "text": "D" },
+        { "id": "C", "text": "B" },
+        { "id": "D", "text": "A" }
+      ],
+      "correct_answer": "B",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_048",
+      "text": "Find the greatest number which divides 108, 124 and 156, leaving the same remainder.",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "18" },
+        { "id": "B", "text": "10" },
+        { "id": "C", "text": "12" },
+        { "id": "D", "text": "16" }
+      ],
+      "correct_answer": "D",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_049",
+      "text": "What is the least number which when decreased by 7 is divisible by 15, 24, 28 and 32?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "10097" },
+        { "id": "B", "text": "10087" },
+        { "id": "C", "text": "10067" },
+        { "id": "D", "text": "10077" }
+      ],
+      "correct_answer": "B",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_050",
+      "text": "What is the greatest number by which when 156, 181 and 331 are divided, the remainder is 6 in each case?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "26" },
+        { "id": "B", "text": "17" },
+        { "id": "C", "text": "25" },
+        { "id": "D", "text": "13" }
+      ],
+      "correct_answer": "C",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_051",
+      "text": "Find the greatest 3-digit number which, when divided by 3, 4, 5 and 8, leaves remainder 2 in each case.",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "962" },
+        { "id": "B", "text": "122" },
+        { "id": "C", "text": "958" },
+        { "id": "D", "text": "482" }
+      ],
+      "correct_answer": "A",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_052",
+      "text": "The largest five-digit number which when divided by 7, 9 and 11, leaves the same remainder as 3 in each case, is:",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "95840" },
+        { "id": "B", "text": "98685" },
+        { "id": "C", "text": "96720" },
+        { "id": "D", "text": "99795" }
+      ],
+      "correct_answer": "B",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_053",
+      "text": "The largest three-digit number that gives the same remainder 2 when divided by 3, 5 and 9 is:",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "999" },
+        { "id": "B", "text": "984" },
+        { "id": "C", "text": "998" },
+        { "id": "D", "text": "992" }
+      ],
+      "correct_answer": "D",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_054",
+      "text": "When 860, 1712 and 3203 are divided by a two-digit number x, then the remainder in each case is y. If (2x + y) is written as p x q x r^2, what is the value of (p+q+r)?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "12" },
+        { "id": "B", "text": "10" },
+        { "id": "C", "text": "16" },
+        { "id": "D", "text": "15" }
+      ],
+      "correct_answer": "D",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_055",
+      "text": "What is the smallest perfect square which is completely divisible by each of 16, 18 and 36?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "144" },
+        { "id": "B", "text": "81" },
+        { "id": "C", "text": "196" },
+        { "id": "D", "text": "169" }
+      ],
+      "correct_answer": "A",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_056",
+      "text": "Which of the following is the smallest number that is a perfect square and is divisible by each of the numbers 6, 8 and 15?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "225" },
+        { "id": "B", "text": "121" },
+        { "id": "C", "text": "576" },
+        { "id": "D", "text": "3600" }
+      ],
+      "correct_answer": "D",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_057",
+      "text": "Find the greatest 5-digit number which is divisible by 11, 33, 99 and 121.",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "90099" },
+        { "id": "B", "text": "99990" },
+        { "id": "C", "text": "99099" },
+        { "id": "D", "text": "90909" }
+      ],
+      "correct_answer": "C",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_058",
+      "text": "The largest 5 digit number exactly divisible by 88 is:",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "99990" },
+        { "id": "B", "text": "99984" },
+        { "id": "C", "text": "99978" },
+        { "id": "D", "text": "99968" }
+      ],
+      "correct_answer": "B",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_059",
+      "text": "Which of the following is the smallest 5-digits number that is exactly divisible by 526?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "10520" },
+        { "id": "B", "text": "11046" },
+        { "id": "C", "text": "10516" },
+        { "id": "D", "text": "10426" }
+      ],
+      "correct_answer": "A",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_060",
+      "text": "Which of the following is the largest 5-digit number divisible by 47?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "99988" },
+        { "id": "B", "text": "99975" },
+        { "id": "C", "text": "99974" },
+        { "id": "D", "text": "99961" }
+      ],
+      "correct_answer": "C",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_061",
+      "text": "Find the smallest number which should be added to the smallest number divisible by 6, 9 and 15 to make it a perfect square.",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "10" },
+        { "id": "B", "text": "9" },
+        { "id": "C", "text": "19" },
+        { "id": "D", "text": "21" }
+      ],
+      "correct_answer": "A",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_062",
+      "text": "Find the smallest number to be added to 999, so that 99 divides the sum exactly.",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "99" },
+        { "id": "B", "text": "0" },
+        { "id": "C", "text": "90" },
+        { "id": "D", "text": "9" }
+      ],
+      "correct_answer": "C",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_063",
+      "text": "The least number that should be added to 35460 so that the sum is exactly divisible by 3, 4, 5 and 7 is:",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "84" },
+        { "id": "B", "text": "420" },
+        { "id": "C", "text": "240" },
+        { "id": "D", "text": "180" }
+      ],
+      "correct_answer": "D",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_064",
+      "text": "Find the smallest number that can be subtracted from 148109326 so that it becomes divisible by 8.",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "4" },
+        { "id": "B", "text": "8" },
+        { "id": "C", "text": "6" },
+        { "id": "D", "text": "10" }
+      ],
+      "correct_answer": "C",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_065",
+      "text": "The least number which should be added to 3627 so that the sum is exactly divisible by 4, 5, 6 and 8 is:",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "93" },
+        { "id": "B", "text": "39" },
+        { "id": "C", "text": "120" },
+        { "id": "D", "text": "113" }
+      ],
+      "correct_answer": "A",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_066",
+      "text": "When a number is divided by 14, the remainder is 9. If the square of the same number is divided by 14, what will be the remainder?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "11" },
+        { "id": "B", "text": "9" },
+        { "id": "C", "text": "8" },
+        { "id": "D", "text": "13" }
+      ],
+      "correct_answer": "A",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_067",
+      "text": "In a division sum, the divisor is 10 times the quotient and four times the remainder. What is the dividend if the remainder is 45?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "4123" },
+        { "id": "B", "text": "3285" },
+        { "id": "C", "text": "2895" },
+        { "id": "D", "text": "5412" }
+      ],
+      "correct_answer": "B",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_068",
+      "text": "In a division sum, the divisor is 13 times the quotient and 6 times the remainder. If the remainder is 39, then the dividend is?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "4251" },
+        { "id": "B", "text": "4151" },
+        { "id": "C", "text": "4250" },
+        { "id": "D", "text": "4150" }
+      ],
+      "correct_answer": "A",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_069",
+      "text": "A number when divided by 221 leaves a remainder of 30. If the same number is divided by 13, what will be the remainder?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "4" },
+        { "id": "B", "text": "3" },
+        { "id": "C", "text": "2" },
+        { "id": "D", "text": "1" }
+      ],
+      "correct_answer": "A",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_070",
+      "text": "When a number is divided by 119, the remainder is 19. If the same number is divided by 17, the remainder will be:",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "19" },
+        { "id": "B", "text": "10" },
+        { "id": "C", "text": "7" },
+        { "id": "D", "text": "2" }
+      ],
+      "correct_answer": "D",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_071",
+      "text": "When m^12 - 1 is divided by m + 1, the remainder is:",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "2" },
+        { "id": "B", "text": "1" },
+        { "id": "C", "text": "0" },
+        { "id": "D", "text": "-1" }
+      ],
+      "correct_answer": "C",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_072",
+      "text": "What will be the remainder when (265)^4081 + 9 is divided by 266?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "8" },
+        { "id": "B", "text": "6" },
+        { "id": "C", "text": "1" },
+        { "id": "D", "text": "9" }
+      ],
+      "correct_answer": "A",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_073",
+      "text": "Find the remainder, if 19^200 is divided by 20.",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "2" },
+        { "id": "B", "text": "-1" },
+        { "id": "C", "text": "1" },
+        { "id": "D", "text": "3" }
+      ],
+      "correct_answer": "C",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_074",
+      "text": "On dividing a number by 55, we get 28 as the remainder. On dividing the same number by 11, what is the remainder?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "5" },
+        { "id": "B", "text": "8" },
+        { "id": "C", "text": "7" },
+        { "id": "D", "text": "6" }
+      ],
+      "correct_answer": "D",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_075",
+      "text": "Without doing the actual division, find the remainder when 28735429 is divided by 9.",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "3" },
+        { "id": "B", "text": "4" },
+        { "id": "C", "text": "1" },
+        { "id": "D", "text": "2" }
+      ],
+      "correct_answer": "B",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_076",
+      "text": "Find the remainder when 7^42 is divided by 48.",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "7" },
+        { "id": "B", "text": "1" },
+        { "id": "C", "text": "48" },
+        { "id": "D", "text": "42" }
+      ],
+      "correct_answer": "B",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_077",
+      "text": "If (x^17 + 1) is divided by (x + 1), then the remainder is:",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "1" },
+        { "id": "B", "text": "0" },
+        { "id": "C", "text": "2" },
+        { "id": "D", "text": "x" }
+      ],
+      "correct_answer": "B",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_078",
+      "text": "If each of the two numbers 516 and 525 is divided by 6, the remainders R1 and R2 respectively are obtained. What is the value of R1 + R2?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "5" },
+        { "id": "B", "text": "6" },
+        { "id": "C", "text": "1" },
+        { "id": "D", "text": "3" }
+      ],
+      "correct_answer": "D",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_079",
+      "text": "What is the sum of those numbers between 400 and 500 which when divided by 6, 12 and 16 leave no remainder?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "40" },
+        { "id": "B", "text": "1024" },
+        { "id": "C", "text": "960" },
+        { "id": "D", "text": "912" }
+      ],
+      "correct_answer": "C",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_080",
+      "text": "If (77^77 + 77) is divided by 78, then the remainder will be:",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "76" },
+        { "id": "B", "text": "77" },
+        { "id": "C", "text": "78" },
+        { "id": "D", "text": "1" }
+      ],
+      "correct_answer": "A",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_081",
+      "text": "Find the remainder when 9^20 + 2 is divided by 4.",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "1" },
+        { "id": "B", "text": "3" },
+        { "id": "C", "text": "0" },
+        { "id": "D", "text": "2" }
+      ],
+      "correct_answer": "B",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_082",
+      "text": "A number r when divided by 8 leaves remainder 3. What will be the remainder when (r^2 + 6r + 7) is divided by 8?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "2" },
+        { "id": "B", "text": "3" },
+        { "id": "C", "text": "1" },
+        { "id": "D", "text": "4" }
+      ],
+      "correct_answer": "A",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_083",
+      "text": "The greatest number that divides 126, 224 and 608 leaving remainders 2, 7 and 19, respectively, is:",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "27" },
+        { "id": "B", "text": "31" },
+        { "id": "C", "text": "21" },
+        { "id": "D", "text": "37" }
+      ],
+      "correct_answer": "B",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_084",
+      "text": "Which is the smallest multiple of 7, which leaves 5 as remainder in each case, when divided by 8, 9, 12 and 15?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "365" },
+        { "id": "B", "text": "1085" },
+        { "id": "C", "text": "2525" },
+        { "id": "D", "text": "725" }
+      ],
+      "correct_answer": "B",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_085",
+      "text": "If 8A5146B is divisible by 88, then what is the value of AB?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "12" },
+        { "id": "B", "text": "15" },
+        { "id": "C", "text": "8" },
+        { "id": "D", "text": "10" }
+      ],
+      "correct_answer": "A",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_086",
+      "text": "How many numbers are there from 500 to 650 (including both) which are neither divisible by 3 nor by 7?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "87" },
+        { "id": "B", "text": "85" },
+        { "id": "C", "text": "121" },
+        { "id": "D", "text": "151" }
+      ],
+      "correct_answer": "A",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_087",
+      "text": "How many composite numbers are there from 53 to 97?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "36" },
+        { "id": "B", "text": "38" },
+        { "id": "C", "text": "37" },
+        { "id": "D", "text": "35" }
+      ],
+      "correct_answer": "D",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_088",
+      "text": "How many numbers are there from 400 to 700 in which the digit 6 occurs exactly twice?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "19" },
+        { "id": "B", "text": "20" },
+        { "id": "C", "text": "21" },
+        { "id": "D", "text": "18" }
+      ],
+      "correct_answer": "B",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_089",
+      "text": "What is the sum of the divisors of 484 that are perfect squares?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "125" },
+        { "id": "B", "text": "35" },
+        { "id": "C", "text": "610" },
+        { "id": "D", "text": "13" }
+      ],
+      "correct_answer": "C",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_090",
+      "text": "What is the sum of the first 20 terms of the series: 1x2 + 2x3 + 3x4 + 4x5 + ...?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "3160" },
+        { "id": "B", "text": "2940" },
+        { "id": "C", "text": "3240" },
+        { "id": "D", "text": "3080" }
+      ],
+      "correct_answer": "D",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_091",
+      "text": "What is the value of 99(11/99) + 99(13/99) + ... + 99(67/99)?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "94220/33" },
+        { "id": "B", "text": "95120/33" },
+        { "id": "C", "text": "97120/33" },
+        { "id": "D", "text": "96220/33" }
+      ],
+      "correct_answer": "D",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_092",
+      "text": "What is the sum of all the common terms between the given series S1: 2, 9, 16, ..., 632 and S2: 7, 11, 15, ..., 743?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "6974" },
+        { "id": "B", "text": "6750" },
+        { "id": "C", "text": "7140" },
+        { "id": "D", "text": "6860" }
+      ],
+      "correct_answer": "A",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_093",
+      "text": "What is the value of 7/2 + 11/6 + 7/12 + 11/20 + ... + 11/575?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "11" },
+        { "id": "B", "text": "12" },
+        { "id": "C", "text": "15" },
+        { "id": "D", "text": "35" }
+      ],
+      "correct_answer": "D",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_094",
+      "text": "Which fraction among the following is the least? (5/11, 7/12, 8/13, 9/17)",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "5/11" },
+        { "id": "B", "text": "7/12" },
+        { "id": "C", "text": "9/17" },
+        { "id": "D", "text": "8/13" }
+      ],
+      "correct_answer": "A",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_095",
+      "text": "7 is added to a certain number and the sum is multiplied by 5. The product is then divided by 3 and 4 is subtracted from the quotient. If the result comes to 16, then what is the original number?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "3" },
+        { "id": "B", "text": "1" },
+        { "id": "C", "text": "5" },
+        { "id": "D", "text": "4" }
+      ],
+      "correct_answer": "C",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_096",
+      "text": "Choose the option in which the numbers are in correct ascending order. (4/5, 2/3, 1/11, 2/9)",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "4/5, 2/3, 1/11, 2/9" },
+        { "id": "B", "text": "2/9, 1/11, 2/3, 4/5" },
+        { "id": "C", "text": "1/11, 2/9, 2/3, 4/5" },
+        { "id": "D", "text": "2/3, 4/5, 1/11, 2/9" }
+      ],
+      "correct_answer": "C",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_097",
+      "text": "Which of the following numbers is a divisor of (49^15 - 1)?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "46" },
+        { "id": "B", "text": "14" },
+        { "id": "C", "text": "8" },
+        { "id": "D", "text": "50" }
+      ],
+      "correct_answer": "C",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_098",
+      "text": "In a class of students, the first student has 2 toffees, second has 4 toffees, third has 6 toffees and so on. If the number of students in the class is 25, find the total number of toffees.",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "650" },
+        { "id": "B", "text": "600" },
+        { "id": "C", "text": "550" },
+        { "id": "D", "text": "700" }
+      ],
+      "correct_answer": "A",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_099",
+      "text": "The difference between the cubes of two given natural numbers is 1728, while the product of these two given numbers is 108. Find the positive difference between the cubes of these two given numbers?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "4104" },
+        { "id": "B", "text": "5616" },
+        { "id": "C", "text": "2160" },
+        { "id": "D", "text": "5626" }
+      ],
+      "correct_answer": "B",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_100",
+      "text": "Find the quotient, when the mean proportional of 1/5 and 1/245 is divided by an even prime number?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "49" },
+        { "id": "B", "text": "42" },
+        { "id": "C", "text": "21" },
+        { "id": "D", "text": "36" }
+      ],
+      "correct_answer": "C",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_101",
+      "text": "If N lies between 6^2 and 7^2, where N is an integer then how many values can N take?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "126" },
+        { "id": "B", "text": "127" },
+        { "id": "C", "text": "128" },
+        { "id": "D", "text": "125" }
+      ],
+      "correct_answer": "B",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_102",
+      "text": "x, y and z are distinct prime numbers where x < y < z. If x + y + z = 70, then what is the value of z?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "29" },
+        { "id": "B", "text": "43" },
+        { "id": "C", "text": "31" },
+        { "id": "D", "text": "37" }
+      ],
+      "correct_answer": "D",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_103",
+      "text": "The difference between the cubes of two given natural numbers is 6272, while the positive difference between the two given numbers is 8. What is the sum of the cubes of the two given numbers?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "9728" },
+        { "id": "B", "text": "9828" },
+        { "id": "C", "text": "9628" },
+        { "id": "D", "text": "9528" }
+      ],
+      "correct_answer": "A",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_104",
+      "text": "The sum of the cubes of two natural numbers is 9728, while the sum of the two given numbers is 32. What will be the positive difference between the cubes of the two given numbers?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "6272" },
+        { "id": "B", "text": "5832" },
+        { "id": "C", "text": "4662" },
+        { "id": "D", "text": "7904" }
+      ],
+      "correct_answer": "A",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_105",
+      "text": "What is the value of 100^2 - 99^2 + 98^2 - 97^2 + ... + 12^2 - 11^2?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "5050" },
+        { "id": "B", "text": "4985" },
+        { "id": "C", "text": "4995" },
+        { "id": "D", "text": "4950" }
+      ],
+      "correct_answer": "C",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_106",
+      "text": "The square of the sum of two given natural numbers is 784, while the product of the two given numbers is 192. Find the positive difference between the squares of these two given numbers.",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "512" },
+        { "id": "B", "text": "122" },
+        { "id": "C", "text": "400" },
+        { "id": "D", "text": "112" }
+      ],
+      "correct_answer": "D",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_107",
+      "text": "The difference of two numbers is 1564. After dividing the larger number by the smaller, we get 6 as quotient and 19 as remainder. What is the smaller number?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "456" },
+        { "id": "B", "text": "287" },
+        { "id": "C", "text": "623" },
+        { "id": "D", "text": "309" }
+      ],
+      "correct_answer": "D",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_108",
+      "text": "A four-digit pin abcd of a lock has different non-zero digits. The digits are such that b = 2a, c = 2b and d = 2c. The pin is divisible by:",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "2, 3 and 7" },
+        { "id": "B", "text": "2, 3 and 8" },
+        { "id": "C", "text": "3, 5 and 7" },
+        { "id": "D", "text": "2, 5 and 8" }
+      ],
+      "correct_answer": "B",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_109",
+      "text": "While solving a problem, Pranjal by mistake took a number as the dividend which was 10% more than the original dividend. He also mistakenly took a number as the divisor which was 25% more than the original divisor. If the correct quotient of the original question was 25 and the remainder was 0, what quotient did Pranjal get?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "21.75" },
+        { "id": "B", "text": "21.25" },
+        { "id": "C", "text": "28.75" },
+        { "id": "D", "text": "22" }
+      ],
+      "correct_answer": "D",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_110",
+      "text": "While solving a problem, Suhas by mistake took a number as the dividend which was 10% less than the original dividend. He also mistakenly took a number as the divisor which was 20% less than the original divisor. If the correct quotient was 24 and the remainder was 0, what quotient did Suhas get?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "27" },
+        { "id": "B", "text": "21.6" },
+        { "id": "C", "text": "26.4" },
+        { "id": "D", "text": "30" }
+      ],
+      "correct_answer": "A",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_111",
+      "text": "Find the value of x such that 34x68 is divisible by 9.",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "6" },
+        { "id": "B", "text": "7" },
+        { "id": "C", "text": "8" },
+        { "id": "D", "text": "5" }
+      ],
+      "correct_answer": "A",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_112",
+      "text": "The sum of the digits of a 3-digit number is subtracted from the number. The resulting number is always divisible by:",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "9" },
+        { "id": "B", "text": "6" },
+        { "id": "C", "text": "7" },
+        { "id": "D", "text": "8" }
+      ],
+      "correct_answer": "A",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_113",
+      "text": "Which of the following numbers is divisible by 15?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "34560" },
+        { "id": "B", "text": "23456" },
+        { "id": "C", "text": "12344" },
+        { "id": "D", "text": "45674" }
+      ],
+      "correct_answer": "A",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_114",
+      "text": "If n is an integer, then n^3 - n is always divisible by:",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "4" },
+        { "id": "B", "text": "5" },
+        { "id": "C", "text": "6" },
+        { "id": "D", "text": "7" }
+      ],
+      "correct_answer": "C",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    },
+    {
+      "id": "math_115",
+      "text": "What is the remainder when 7^19 + 2 is divided by 6?",
+      "type": "MCQ",
+      "difficulty": 0.5,
+      "difficulty_level": "medium",
+      "topic": "Number System",
+      "options": [
+        { "id": "A", "text": "3" },
+        { "id": "B", "text": "1" },
+        { "id": "C", "text": "2" },
+        { "id": "D", "text": "0" }
+      ],
+      "correct_answer": "A",
+      "explanation": "DEFAULT",
+      "marks": 2,
+      "expected_time": 100
+    }
+  ]
+}

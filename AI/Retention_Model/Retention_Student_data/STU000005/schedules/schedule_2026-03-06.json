@@ -1,0 +1,32 @@
+{
+  "user_id": "STU000005",
+  "subject": "english",
+  "date": "2026-03-06",
+  "generated_at": "2026-03-06T20:11:16.473840",
+  "immediate_batch": {
+    "questions": [],
+    "total_questions": 0,
+    "focus_topics": []
+  },
+  "session_batch": {
+    "batches": [],
+    "batch_count": 0,
+    "total_questions": 0
+  },
+  "chapter_reviews": [
+    {
+      "topic_id": "unknown_topic",
+      "subject": "unknown",
+      "timing": "next_day",
+      "questions": 3
+    }
+  ],
+  "long_term_plan": {
+    "review_topics": [],
+    "mastered_topics": []
+  },
+  "summary": {
+    "total_topics": 1,
+    "estimated_total_questions": 3
+  }
+}
