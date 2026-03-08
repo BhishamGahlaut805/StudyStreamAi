@@ -158,7 +158,7 @@ outputs/
 *.tif
 *.tiff
 media/
-images/
+# images/
 screenshots/
 videos/
 static/uploads/
