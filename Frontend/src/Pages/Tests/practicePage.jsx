@@ -125,13 +125,19 @@ const PracticePage = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
 
   // ==================== FLASK PREDICTIONS ====================
-  const DIFFICULTY_WINDOW_SIZE = 5;
+  const DIFFICULTY_WINDOW_SIZE = 100;
   const [flaskPredictions, setFlaskPredictions] = useState({
     nextDifficulty: 0.5,
+    difficultyLevel: "medium-hard",
     confidence: 0,
     method: "initial",
     windowSize: DIFFICULTY_WINDOW_SIZE,
     windowRemaining: 0,
+    entriesLeftForRetraining: DIFFICULTY_WINDOW_SIZE,
+    modelTrained: false,
+    featureRows: 0,
+    retrainInterval: DIFFICULTY_WINDOW_SIZE,
+    lastTrainedAt: null,
     lastUpdatedAt: null,
     learningVelocity: null,
     burnoutRisk: null,
@@ -616,17 +622,15 @@ const PracticePage = () => {
         setFlaskPredictions((prev) => ({
           ...prev,
           nextDifficulty: configuredInitialDifficulty,
+          difficultyLevel: getDifficultyBadge(configuredInitialDifficulty)
+            .toLowerCase()
+            .replace(" ", "-"),
           method: "starter-lock",
-          windowSize: DIFFICULTY_WINDOW_SIZE,
-          windowRemaining: DIFFICULTY_WINDOW_SIZE,
           lastUpdatedAt: new Date().toISOString(),
         }));
 
         testService.practiceMode.currentDifficulty =
           configuredInitialDifficulty;
-        testService.practiceMode.difficultyWindowSize = DIFFICULTY_WINDOW_SIZE;
-        testService.practiceMode.difficultyWindowRemaining =
-          DIFFICULTY_WINDOW_SIZE;
       }
 
       const profileStudentId = authService.getStudentId();
@@ -645,15 +649,36 @@ const PracticePage = () => {
               shouldApplyStarterLock && prev.windowRemaining > 0
                 ? prev.nextDifficulty
                 : profileDifficulty,
+            difficultyLevel:
+              profile.currentDifficultyLevel || prev.difficultyLevel,
             confidence: profile.modelTrained ? 0.8 : prev.confidence,
             method: profile.modelTrained ? "trained" : "warmup",
-            windowSize: DIFFICULTY_WINDOW_SIZE,
-            windowRemaining:
-              shouldApplyStarterLock && prev.windowRemaining > 0
-                ? prev.windowRemaining
-                : 0,
+            windowSize: Number(
+              profile.retrainInterval || DIFFICULTY_WINDOW_SIZE,
+            ),
+            windowRemaining: Number(
+              profile.rowsToNextTraining ?? DIFFICULTY_WINDOW_SIZE,
+            ),
+            modelTrained: !!profile.modelTrained,
+            featureRows: Number(profile.featureRows || 0),
+            retrainInterval: Number(
+              profile.retrainInterval || DIFFICULTY_WINDOW_SIZE,
+            ),
+            entriesLeftForRetraining: Number(
+              profile.entriesLeftForRetraining ??
+                profile.rowsToNextTraining ??
+                DIFFICULTY_WINDOW_SIZE,
+            ),
+            lastTrainedAt: profile.lastTrainedAt || null,
             lastUpdatedAt: new Date().toISOString(),
           }));
+
+          testService.practiceMode.difficultyWindowSize = Number(
+            profile.retrainInterval || DIFFICULTY_WINDOW_SIZE,
+          );
+          testService.practiceMode.difficultyWindowRemaining = Number(
+            profile.rowsToNextTraining ?? DIFFICULTY_WINDOW_SIZE,
+          );
         }
       }
 
@@ -984,6 +1009,7 @@ const PracticePage = () => {
         setFlaskPredictions((prev) => ({
           ...prev,
           windowRemaining: remainingAfter,
+          entriesLeftForRetraining: remainingAfter,
         }));
         testService.practiceMode.difficultyWindowRemaining = remainingAfter;
 
@@ -1212,10 +1238,27 @@ const PracticePage = () => {
         setFlaskPredictions((prev) => ({
           ...prev,
           nextDifficulty: difficultyResponse.nextDifficulty || 0.5,
+          difficultyLevel:
+            difficultyResponse.difficultyLevel || prev.difficultyLevel,
           confidence: difficultyResponse.confidence || 0,
           method: difficultyResponse.method || "unknown",
-          windowSize: DIFFICULTY_WINDOW_SIZE,
-          windowRemaining: DIFFICULTY_WINDOW_SIZE,
+          windowSize: Number(
+            difficultyResponse.retrainInterval || DIFFICULTY_WINDOW_SIZE,
+          ),
+          windowRemaining: Number(
+            difficultyResponse.rowsToNextTraining ?? DIFFICULTY_WINDOW_SIZE,
+          ),
+          entriesLeftForRetraining: Number(
+            difficultyResponse.entriesLeftForRetraining ??
+              difficultyResponse.rowsToNextTraining ??
+              DIFFICULTY_WINDOW_SIZE,
+          ),
+          modelTrained: !!difficultyResponse.modelTrained,
+          featureRows: Number(difficultyResponse.featureRows || 0),
+          retrainInterval: Number(
+            difficultyResponse.retrainInterval || DIFFICULTY_WINDOW_SIZE,
+          ),
+          lastTrainedAt: difficultyResponse.lastTrainedAt || prev.lastTrainedAt,
           lastUpdatedAt: new Date().toISOString(),
           learningVelocity: velocityResponse,
           burnoutRisk: burnoutResponse,
@@ -1224,9 +1267,12 @@ const PracticePage = () => {
         // Update test service's current difficulty
         testService.practiceMode.currentDifficulty =
           difficultyResponse.nextDifficulty || 0.5;
-        testService.practiceMode.difficultyWindowSize = DIFFICULTY_WINDOW_SIZE;
-        testService.practiceMode.difficultyWindowRemaining =
-          DIFFICULTY_WINDOW_SIZE;
+        testService.practiceMode.difficultyWindowSize = Number(
+          difficultyResponse.retrainInterval || DIFFICULTY_WINDOW_SIZE,
+        );
+        testService.practiceMode.difficultyWindowRemaining = Number(
+          difficultyResponse.rowsToNextTraining ?? DIFFICULTY_WINDOW_SIZE,
+        );
       }
     } catch (err) {
       console.error("Error updating Flask predictions:", err);
@@ -1735,7 +1781,10 @@ const PracticePage = () => {
               <div className="flex items-center space-x-2 px-3 py-1.5 bg-purple-50 dark:bg-purple-900/30 rounded-full">
                 <FiZap className="w-4 h-4 text-purple-600" />
                 <span className="text-sm font-medium text-purple-600">
-                  Level: {toPercent(flaskPredictions.nextDifficulty)} ·{" "}
+                  {String(
+                    flaskPredictions.difficultyLevel || "medium-hard",
+                  ).toUpperCase()}{" "}
+                  · Level: {toPercent(flaskPredictions.nextDifficulty)} ·{" "}
                   {flaskPredictions.windowRemaining}/
                   {flaskPredictions.windowSize}
                 </span>
@@ -1846,7 +1895,9 @@ const PracticePage = () => {
             <div className="rounded-lg bg-purple-50 dark:bg-purple-900/30 px-2 py-1.5 text-center">
               <p className="text-[10px] text-purple-500">Level</p>
               <p className="text-xs font-semibold text-purple-700 dark:text-purple-300">
-                {toPercent(flaskPredictions.nextDifficulty)}
+                {String(
+                  flaskPredictions.difficultyLevel || "medium-hard",
+                ).toUpperCase()}
               </p>
             </div>
           </div>
@@ -1950,12 +2001,30 @@ const PracticePage = () => {
                       {toPercent(flaskPredictions.nextDifficulty)}
                     </p>
                     <p className="text-xs opacity-80 mt-1">
+                      Difficulty:{" "}
+                      {String(
+                        flaskPredictions.difficultyLevel || "medium-hard",
+                      ).toUpperCase()}
+                    </p>
+                    <p className="text-xs opacity-80 mt-1">
                       Confidence:{" "}
                       {(flaskPredictions.confidence * 100).toFixed(0)}%
                     </p>
                     <p className="text-xs opacity-80 mt-1">
-                      Applies for next {flaskPredictions.windowRemaining}/
-                      {flaskPredictions.windowSize} questions
+                      Model retrain in {flaskPredictions.windowRemaining}/
+                      {flaskPredictions.windowSize} feature rows
+                    </p>
+                    <p className="text-xs opacity-80 mt-1">
+                      Entries left for retraining:{" "}
+                      {flaskPredictions.entriesLeftForRetraining}
+                    </p>
+                    <p className="text-xs opacity-80 mt-1">
+                      Last trained:{" "}
+                      {flaskPredictions.lastTrainedAt
+                        ? new Date(
+                            flaskPredictions.lastTrainedAt,
+                          ).toLocaleString()
+                        : "Not trained yet"}
                     </p>
                     <p className="text-xs opacity-80 mt-1">
                       Status:{" "}
@@ -2115,7 +2184,7 @@ const PracticePage = () => {
                     </p>
                   </div>
                   <div className="rounded-xl px-3 py-2 bg-emerald-50 dark:bg-emerald-900/30 border border-emerald-200 dark:border-emerald-800">
-                    <p className="text-xs text-emerald-500">Questions Left</p>
+                    <p className="text-xs text-emerald-500">Rows to Retrain</p>
                     <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-300">
                       {flaskPredictions.windowRemaining}/
                       {flaskPredictions.windowSize}

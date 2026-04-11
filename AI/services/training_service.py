@@ -2,7 +2,7 @@ import os
 import threading
 import logging
 import numpy as np
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, Optional, List, Tuple
 from datetime import datetime
 import traceback
 import time
@@ -49,6 +49,44 @@ class TrainingService:
         job_info = self.training_jobs.get(student_id, {})
         return bool(job_info.get('practice_cancelled', False))
 
+    def _get_retrain_interval(self) -> int:
+        """Return row-based retrain interval across models."""
+        return int(getattr(self.config, 'MODEL_RETRAIN_INTERVAL_ROWS', getattr(self.config, 'PRACTICE_RETRAIN_INTERVAL', 100)))
+
+    def _last_trained_rows(self, metadata_history: List[Dict[str, Any]]) -> Optional[int]:
+        """Extract last recorded feature_rows_at_training from metadata history."""
+        if not metadata_history:
+            return None
+
+        for item in reversed(metadata_history):
+            if isinstance(item, dict) and item.get('feature_rows_at_training') is not None:
+                try:
+                    return int(item.get('feature_rows_at_training'))
+                except Exception:
+                    continue
+        return None
+
+    def _should_train_for_new_rows(self, model_name: str, current_rows: int, min_samples: int,
+                                   data_manager: StudentDataManager, training_id: str) -> Tuple[bool, Optional[int]]:
+        """Gate training until enough new rows are available since previous model training."""
+        if current_rows < min_samples:
+            return False, None
+
+        metadata_history = data_manager.load_model_metadata(model_name)
+        last_rows = self._last_trained_rows(metadata_history)
+
+        if last_rows is None:
+            return True, None
+
+        retrain_interval = self._get_retrain_interval()
+        should_train = (current_rows - last_rows) >= retrain_interval
+        if not should_train:
+            logger.info(
+                f"[{training_id}] Skipping {model_name} training. rows={current_rows}, "
+                f"last_rows={last_rows}, interval={retrain_interval}"
+            )
+        return should_train, last_rows
+
     def _log_training_start(self, student_id: str, model_type: str, data_size: int):
         """Log training start with details"""
         logger.info(f"╔══════════════════════════════════════════════════════════╗")
@@ -73,7 +111,7 @@ class TrainingService:
 
     # ==================== PRACTICE DIFFICULTY MODEL ====================
 
-    def train_practice_model(self, student_id: str) -> Dict[str, Any]:
+    def train_practice_model(self, student_id: str, force_retrain: bool = False) -> Dict[str, Any]:
         """
         Train practice difficulty model with enhanced error handling and validation
         """
@@ -118,6 +156,27 @@ class TrainingService:
                     'training_id': training_id
                 }
 
+            if not force_retrain:
+                should_train, last_rows = self._should_train_for_new_rows(
+                    'practice_difficulty',
+                    int(len(practice_df)),
+                    int(self.config.MIN_PRACTICE_SAMPLES),
+                    data_manager,
+                    training_id
+                )
+                if not should_train:
+                    return {
+                        'success': False,
+                        'skipped': True,
+                        'error': 'Retrain interval not reached',
+                        'feature_rows': int(len(practice_df)),
+                        'last_trained_rows': int(last_rows) if last_rows is not None else None,
+                        'retrain_interval': self._get_retrain_interval(),
+                        'training_id': training_id
+                    }
+            else:
+                logger.info(f"[{training_id}] Force retrain requested, bypassing row interval gate")
+
             # Log training start
             self._log_training_start(student_id, 'practice', len(training_data['X_train']))
 
@@ -127,6 +186,7 @@ class TrainingService:
                 sequence_length=self.config.SEQUENCE_LENGTH_PRACTICE,
                 n_features=self.config.PRACTICE_FEATURES_COUNT
             )
+            model.feature_names = list(training_data.get('feature_names', []))
 
             # Build model
             logger.info(f"[{training_id}] Building model architecture")
@@ -173,14 +233,12 @@ class TrainingService:
             test_loss, test_mae = None, None
             if training_data.get('X_test') is not None and len(training_data['X_test']) > 0:
                 logger.info(f"[{training_id}] Evaluating on test set ({len(training_data['X_test'])} samples)")
-                evaluation = model.model.evaluate(
+                evaluation = model.evaluate(
                     training_data['X_test'],
-                    training_data['y_test'],
-                    verbose=0
+                    training_data['y_test']
                 )
 
-                # Handle different return formats
-                if isinstance(evaluation, list):
+                if isinstance(evaluation, (list, tuple)):
                     test_loss = float(evaluation[0])
                     test_mae = float(evaluation[1]) if len(evaluation) > 1 else None
                 else:
@@ -203,7 +261,7 @@ class TrainingService:
                 'test_mae': float(test_mae) if test_mae else None,
                 'epochs_completed': int(len(history.history['loss'])),
                 'feature_names': training_data.get('feature_names', []),
-                'model_architecture': 'Bidirectional LSTM with Batch Normalization',
+                'model_architecture': 'RandomForestRegressor',
                 'sequence_length': self.config.SEQUENCE_LENGTH_PRACTICE,
                 'n_features': self.config.PRACTICE_FEATURES_COUNT
             }
@@ -211,6 +269,26 @@ class TrainingService:
             # Save metadata
             data_manager.save_model_metadata('practice_difficulty', metadata)
             logger.info(f"[{training_id}] Training metadata saved")
+
+            retrain_interval = self._get_retrain_interval()
+            model_weights_path = os.path.join(model_path, 'practice_difficulty_model.pkl')
+            retrain_status = {
+                'last_trained_at': metadata.get('timestamp'),
+                'last_trained_feature_rows': int(len(practice_df)),
+                'total_feature_rows': int(len(practice_df)),
+                'min_samples_required': int(self.config.MIN_PRACTICE_SAMPLES),
+                'retrain_interval': int(retrain_interval),
+                'rows_to_next_training': int(retrain_interval),
+                'entries_left_for_retraining': int(retrain_interval),
+                'next_training_at_feature_rows': int(len(practice_df) + retrain_interval),
+                'training_ready': False,
+                'training_triggered': False,
+                'model_weights_saved': os.path.exists(model_weights_path),
+                'model_weights_path': model_weights_path,
+                'training_id': training_id,
+            }
+            data_manager.save_retrain_status('practice_difficulty', retrain_status)
+            logger.info(f"[{training_id}] Practice retrain status saved")
 
             # Log completion
             self._log_training_complete(student_id, 'practice', metadata)
@@ -240,7 +318,7 @@ class TrainingService:
                 'training_id': training_id
             }
 
-    def train_practice_model_async(self, student_id: str) -> bool:
+    def train_practice_model_async(self, student_id: str, force_retrain: bool = False) -> bool:
         """
         Train practice model asynchronously with job tracking
         """
@@ -270,7 +348,7 @@ class TrainingService:
 
                 # Perform training
                 logger.info(f"[Thread:{thread_id}] Executing practice model training")
-                result = self.train_practice_model(student_id)
+                result = self.train_practice_model(student_id, force_retrain=force_retrain)
 
                 # Update job with results
                 self.training_jobs[student_id]['practice_result'] = result
@@ -422,6 +500,24 @@ class TrainingService:
 
             logger.info(f"[{training_id}] Loaded {len(global_df)} global feature rows")
 
+            should_train, last_rows = self._should_train_for_new_rows(
+                'global_readiness',
+                int(len(global_df)),
+                int(self.config.SEQUENCE_LENGTH_GLOBAL + 2),
+                data_manager,
+                training_id
+            )
+            if not should_train:
+                return {
+                    'success': False,
+                    'skipped': True,
+                    'error': 'Retrain interval not reached',
+                    'feature_rows': int(len(global_df)),
+                    'last_trained_rows': int(last_rows) if last_rows is not None else None,
+                    'retrain_interval': self._get_retrain_interval(),
+                    'training_id': training_id
+                }
+
             # Prepare sequences for global model
             from config import Config
             feature_cols = Config.GLOBAL_FEATURES
@@ -485,18 +581,20 @@ class TrainingService:
             )
 
             # Evaluate
-            test_loss, test_mae = model.model.evaluate(X_test, y_test, verbose=0)
+            test_loss, test_mae = model.evaluate(X_test, y_test)
 
             metadata = {
                 'training_id': training_id,
                 'timestamp': datetime.now().isoformat(),
                 'samples': len(X_train),
                 'test_samples': len(X_test),
+                'feature_rows_at_training': int(len(global_df)),
                 'final_loss': float(history.history['loss'][-1]),
                 'test_loss': float(test_loss),
                 'test_mae': float(test_mae) if test_mae else None,
                 'epochs_completed': len(history.history['loss']),
-                'feature_names': available_cols
+                'feature_names': available_cols,
+                'model_architecture': 'RandomForestRegressor'
             }
 
             data_manager.save_model_metadata('global_readiness', metadata)
@@ -571,6 +669,24 @@ class TrainingService:
 
             logger.info(f"[{training_id}] Loaded {len(exam_df)} exam feature rows")
 
+            should_train, last_rows = self._should_train_for_new_rows(
+                'exam_difficulty',
+                int(len(exam_df)),
+                int(self.config.MIN_EXAM_SAMPLES),
+                data_manager,
+                training_id
+            )
+            if not should_train:
+                return {
+                    'success': False,
+                    'skipped': True,
+                    'error': 'Retrain interval not reached',
+                    'feature_rows': int(len(exam_df)),
+                    'last_trained_rows': int(last_rows) if last_rows is not None else None,
+                    'retrain_interval': self._get_retrain_interval(),
+                    'training_id': training_id
+                }
+
             # Prepare training data
             training_data = data_manager.prepare_exam_training_data(
                 self.config.MIN_EXAM_SAMPLES
@@ -608,12 +724,14 @@ class TrainingService:
             metadata = {
                 'training_id': training_id,
                 'timestamp': datetime.now().isoformat(),
+                'feature_rows_at_training': int(len(exam_df)),
                 'samples': len(training_data['X_train']),
                 'val_samples': len(training_data.get('X_val', [])) if training_data.get('X_val') is not None else 0,
                 'final_loss': float(history.history['loss'][-1]),
                 'final_mae': float(history.history['mae'][-1]) if 'mae' in history.history else None,
                 'epochs_completed': len(history.history['loss']),
-                'feature_names': training_data['feature_names']
+                'feature_names': training_data['feature_names'],
+                'model_architecture': 'RandomForestRegressor'
             }
 
             data_manager.save_model_metadata('exam_difficulty', metadata)
@@ -686,22 +804,40 @@ class TrainingService:
                 }
 
             feat = concept_features[concept]
-            history = feat.get('concept_mastery_history', [])
+            mastery_history = feat.get('concept_mastery_history', [])
 
-            logger.info(f"[{training_id}] Concept mastery history length: {len(history)}")
+            logger.info(f"[{training_id}] Concept mastery history length: {len(mastery_history)}")
 
-            if len(history) < self.config.SEQUENCE_LENGTH_DAILY + 5:
-                logger.warning(f"[{training_id}] Insufficient history: {len(history)} < {self.config.SEQUENCE_LENGTH_DAILY + 5}")
+            if len(mastery_history) < self.config.SEQUENCE_LENGTH_DAILY + 5:
+                logger.warning(f"[{training_id}] Insufficient history: {len(mastery_history)} < {self.config.SEQUENCE_LENGTH_DAILY + 5}")
                 return {
                     'success': False,
                     'error': f'Insufficient history. Need at least {self.config.SEQUENCE_LENGTH_DAILY + 5} points',
                     'training_id': training_id
                 }
 
+            should_train, last_rows = self._should_train_for_new_rows(
+                f'learning_velocity_{concept}',
+                int(len(mastery_history)),
+                int(self.config.SEQUENCE_LENGTH_DAILY + 5),
+                data_manager,
+                training_id
+            )
+            if not should_train:
+                return {
+                    'success': False,
+                    'skipped': True,
+                    'error': 'Retrain interval not reached',
+                    'feature_rows': int(len(mastery_history)),
+                    'last_trained_rows': int(last_rows) if last_rows is not None else None,
+                    'retrain_interval': self._get_retrain_interval(),
+                    'training_id': training_id
+                }
+
             # Prepare training data
             X, y = [], []
-            for i in range(len(history) - self.config.SEQUENCE_LENGTH_DAILY):
-                seq = history[i:i + self.config.SEQUENCE_LENGTH_DAILY]
+            for i in range(len(mastery_history) - self.config.SEQUENCE_LENGTH_DAILY):
+                seq = mastery_history[i:i + self.config.SEQUENCE_LENGTH_DAILY]
                 feature_seq = []
                 for mastery in seq:
                     feature_seq.append([
@@ -716,7 +852,7 @@ class TrainingService:
                         float(feat.get('confidence_growth', 0.6))
                     ])
                 X.append(feature_seq)
-                y.append(history[i + self.config.SEQUENCE_LENGTH_DAILY])
+                y.append(mastery_history[i + self.config.SEQUENCE_LENGTH_DAILY])
 
             logger.info(f"[{training_id}] Created {len(X)} training sequences")
 
@@ -750,7 +886,7 @@ class TrainingService:
             )
             os.makedirs(concept_model_path, exist_ok=True)
 
-            history = model.train(
+            train_history = model.train(
                 X_train, y_train,
                 X_val=X_test, y_val=y_test,
                 epochs=min(self.config.EPOCHS, 50),
@@ -760,20 +896,22 @@ class TrainingService:
             )
 
             # Evaluate
-            test_loss, test_mae = model.model.evaluate(X_test, y_test, verbose=0)
+            test_loss, test_mae = model.evaluate(X_test, y_test)
 
             # Save metadata
             metadata = {
                 'training_id': training_id,
                 'timestamp': datetime.now().isoformat(),
                 'concept': concept,
+                'feature_rows_at_training': int(len(mastery_history)),
                 'samples': len(X_train),
                 'test_samples': len(X_test),
-                'final_loss': float(history.history['loss'][-1]),
-                'final_mae': float(history.history['mae'][-1]) if 'mae' in history.history else None,
+                'final_loss': float(train_history.history['loss'][-1]),
+                'final_mae': float(train_history.history['mae'][-1]) if 'mae' in train_history.history else None,
                 'test_loss': float(test_loss),
                 'test_mae': float(test_mae) if test_mae else None,
-                'epochs_completed': len(history.history['loss'])
+                'epochs_completed': len(train_history.history['loss']),
+                'model_architecture': 'RandomForestRegressor'
             }
 
             data_manager.save_model_metadata(f'learning_velocity_{concept}', metadata)
@@ -813,6 +951,24 @@ class TrainingService:
                 return {
                     'success': False,
                     'error': 'Insufficient practice data for burnout model',
+                    'training_id': training_id
+                }
+
+            should_train, last_rows = self._should_train_for_new_rows(
+                'burnout_risk',
+                int(len(practice_df)),
+                50,
+                data_manager,
+                training_id
+            )
+            if not should_train:
+                return {
+                    'success': False,
+                    'skipped': True,
+                    'error': 'Retrain interval not reached',
+                    'feature_rows': int(len(practice_df)),
+                    'last_trained_rows': int(last_rows) if last_rows is not None else None,
+                    'retrain_interval': self._get_retrain_interval(),
                     'training_id': training_id
                 }
 
@@ -907,8 +1063,8 @@ class TrainingService:
             )
 
             # Evaluate
-            evaluation = model.model.evaluate(X_test, y_test, verbose=0)
-            if isinstance(evaluation, list):
+            evaluation = model.evaluate(X_test, y_test)
+            if isinstance(evaluation, (list, tuple)):
                 test_loss = float(evaluation[0])
                 test_accuracy = float(evaluation[1]) if len(evaluation) > 1 else None
             else:
@@ -919,13 +1075,15 @@ class TrainingService:
             metadata = {
                 'training_id': training_id,
                 'timestamp': datetime.now().isoformat(),
+                'feature_rows_at_training': int(len(practice_df)),
                 'samples': len(X_train),
                 'test_samples': len(X_test),
                 'final_loss': float(history.history['loss'][-1]),
                 'final_accuracy': float(history.history['accuracy'][-1]) if 'accuracy' in history.history else None,
                 'test_loss': test_loss,
                 'test_accuracy': test_accuracy,
-                'epochs_completed': len(history.history['loss'])
+                'epochs_completed': len(history.history['loss']),
+                'model_architecture': 'RandomForestRegressor'
             }
 
             data_manager.save_model_metadata('burnout_risk', metadata)
@@ -965,6 +1123,24 @@ class TrainingService:
                 return {
                     'success': False,
                     'error': f'Insufficient concept data. Need at least 3 concepts, got {len(concept_features)}',
+                    'training_id': training_id
+                }
+
+            should_train, last_rows = self._should_train_for_new_rows(
+                'adaptive_scheduling',
+                int(len(concept_features)),
+                3,
+                data_manager,
+                training_id
+            )
+            if not should_train:
+                return {
+                    'success': False,
+                    'skipped': True,
+                    'error': 'Retrain interval not reached',
+                    'feature_rows': int(len(concept_features)),
+                    'last_trained_rows': int(last_rows) if last_rows is not None else None,
+                    'retrain_interval': self._get_retrain_interval(),
                     'training_id': training_id
                 }
 
@@ -1033,11 +1209,12 @@ class TrainingService:
             )
 
             # Evaluate
-            test_loss, test_mae = model.model.evaluate(X_test, y_test, verbose=0)
+            test_loss, test_mae = model.evaluate(X_test, y_test)
 
             metadata = {
                 'training_id': training_id,
                 'timestamp': datetime.now().isoformat(),
+                'feature_rows_at_training': int(len(concept_features)),
                 'samples': len(X_train),
                 'test_samples': len(X_test),
                 'concepts_trained': len(concept_features),
@@ -1045,7 +1222,8 @@ class TrainingService:
                 'final_mae': float(history.history['mae'][-1]) if 'mae' in history.history else None,
                 'test_loss': float(test_loss),
                 'test_mae': float(test_mae) if test_mae else None,
-                'epochs_completed': len(history.history['loss'])
+                'epochs_completed': len(history.history['loss']),
+                'model_architecture': 'RandomForestRegressor'
             }
 
             data_manager.save_model_metadata('adaptive_scheduling', metadata)

@@ -1,5 +1,4 @@
-import tensorflow as tf
-from tensorflow.keras.layers import LSTM, Dense, Dropout
+from sklearn.ensemble import RandomForestRegressor
 from .base_model import BaseLSTM
 import numpy as np
 
@@ -18,36 +17,17 @@ class LearningVelocityModel(BaseLSTM):
         self.target = 'future_mastery_score'
 
     def build_model(self):
-        """Build LSTM model for learning velocity prediction"""
-        model = tf.keras.Sequential([
-            # First LSTM layer
-            LSTM(128, return_sequences=True,
-                 input_shape=(self.sequence_length, self.n_features),
-                 dropout=0.2, recurrent_dropout=0.2,
-                 kernel_initializer='he_normal'),
-
-            # Second LSTM layer
-            LSTM(64, return_sequences=False,
-                 dropout=0.2, recurrent_dropout=0.2,
-                 kernel_initializer='he_normal'),
-
-            # Dense layers
-            Dense(32, activation='relu', kernel_initializer='he_normal'),
-            Dropout(0.3),
-            Dense(16, activation='relu', kernel_initializer='he_normal'),
-            Dropout(0.2),
-            Dense(1, activation='sigmoid')  # Output: mastery score 0-1
-        ])
-
-        model.compile(
-            optimizer=tf.keras.optimizers.Adam(learning_rate=0.001, clipnorm=1.0),
-            loss='mse',
-            metrics=['mae']
+        """Build Random Forest regressor for learning velocity prediction."""
+        self.model = RandomForestRegressor(
+            n_estimators=300,
+            max_depth=10,
+            min_samples_split=6,
+            min_samples_leaf=2,
+            random_state=42,
+            n_jobs=-1
         )
-
-        self.model = model
         self.built = True
-        return model
+        return self.model
 
     def predict_next_7_days(self, X):
         """Predict mastery for next 7 days"""

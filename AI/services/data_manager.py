@@ -21,6 +21,7 @@ class StudentDataManager:
     GLOBAL_FEATURES_FILE = 'global_features.csv'
     EXAM_FEATURES_FILE = 'exam_features.csv'
     CONCEPT_FEATURES_FILE = 'concept_features.csv'
+    PRACTICE_RETRAIN_STATUS_FILE = 'practice_difficulty_retrain_status.json'
 
     def __init__(self, base_dir: str, student_id: str):
         """
@@ -627,6 +628,66 @@ class StudentDataManager:
             logger.error(f"Error loading model metadata: {e}")
             return []
 
+    def save_retrain_status(self, model_name: str, status: Dict[str, Any]) -> bool:
+        """
+        Persist retrain scheduling status for a model in the student metrics folder.
+
+        Args:
+            model_name: Name of the model
+            status: Dictionary containing retrain state
+
+        Returns:
+            True if successful, False otherwise
+        """
+        filename = f'{model_name}_retrain_status.json'
+        if model_name == 'practice_difficulty':
+            filename = self.PRACTICE_RETRAIN_STATUS_FILE
+
+        filepath = os.path.join(self.dirs['metrics'], filename)
+
+        try:
+            payload = dict(status or {})
+            payload['model_name'] = model_name
+            payload['student_id'] = self.student_id
+            payload['updated_at'] = datetime.now().isoformat()
+
+            for key, value in list(payload.items()):
+                if isinstance(value, float):
+                    payload[key] = round(value, 4)
+
+            with open(filepath, 'w') as f:
+                json.dump(payload, f, indent=2)
+
+            return True
+        except Exception as e:
+            logger.error(f"Error saving retrain status for {model_name}: {e}")
+            return False
+
+    def load_retrain_status(self, model_name: str) -> Dict[str, Any]:
+        """
+        Load retrain scheduling status for a model from the student metrics folder.
+
+        Args:
+            model_name: Name of the model
+
+        Returns:
+            Dictionary with retrain status or empty dict
+        """
+        filename = f'{model_name}_retrain_status.json'
+        if model_name == 'practice_difficulty':
+            filename = self.PRACTICE_RETRAIN_STATUS_FILE
+
+        filepath = os.path.join(self.dirs['metrics'], filename)
+
+        try:
+            if os.path.exists(filepath):
+                with open(filepath, 'r') as f:
+                    return json.load(f)
+            return {}
+        except Exception as e:
+            logger.error(f"Error loading retrain status for {model_name}: {e}")
+            return {}
+
     # ==================== DATA VALIDATION AND UTILITIES ====================
 
     def _validate_and_clean_features(self, df: pd.DataFrame, expected_cols: List[str]) -> pd.DataFrame:
@@ -839,11 +900,13 @@ class StudentDataManager:
             os.path.join(self.dirs['features'], self.GLOBAL_FEATURES_FILE),
             os.path.join(self.dirs['features'], self.CONCEPT_FEATURES_FILE),
             os.path.join(self.dirs['models'], 'practice_difficulty_metadata.json'),
+            os.path.join(self.dirs['models'], 'practice_difficulty', 'practice_difficulty_model.pkl'),
             os.path.join(self.dirs['models'], 'practice_difficulty', 'practice_difficulty_model.h5'),
             os.path.join(self.dirs['models'], 'practice_difficulty', 'practice_difficulty_scaler_X.pkl'),
             os.path.join(self.dirs['models'], 'practice_difficulty', 'practice_difficulty_scaler_y.pkl'),
             os.path.join(self.dirs['models'], 'practice_difficulty', 'practice_difficulty_metadata.json'),
             os.path.join(self.dirs['cache'], 'practice_features_hash.json'),
+            os.path.join(self.dirs['metrics'], self.PRACTICE_RETRAIN_STATUS_FILE),
         ]
 
         for path in practice_artifacts:

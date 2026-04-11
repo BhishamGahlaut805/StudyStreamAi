@@ -401,6 +401,14 @@ StudentPerformanceSchema.methods.calculateAnalytics = function () {
 
   // 12. Adaptive Time Allocation Model
   analytics.timeAllocation = this.calculateTimeAllocation(analytics);
+  analytics.timeAllocation = (
+    Array.isArray(analytics.timeAllocation) ? analytics.timeAllocation : []
+  ).filter(
+    (item) =>
+      item &&
+      Number.isFinite(Number(item.recommendedMinutes)) &&
+      Number(item.recommendedMinutes) >= 0,
+  );
 
   this.analytics = analytics;
   return analytics;
@@ -420,9 +428,10 @@ StudentPerformanceSchema.methods.calculateConceptMastery = function () {
 
     // Get recent performance signal (last 5 questions)
     const recentHistory = topic.conceptMasteryHistory?.slice(-5) || [];
-    const performanceSignal = recentHistory.length > 0
-      ? recentHistory.reduce((a, b) => a + b, 0) / recentHistory.length
-      : topic.accuracy / 100;
+    const performanceSignal =
+      recentHistory.length > 0
+        ? recentHistory.reduce((a, b) => a + b, 0) / recentHistory.length
+        : topic.accuracy / 100;
 
     // EMA formula with confidence weighting
     const oldMastery =
@@ -431,7 +440,8 @@ StudentPerformanceSchema.methods.calculateConceptMastery = function () {
         : 0.5;
 
     // Adjust learning rate based on question count (more data = more stable)
-    const adjustedRate = learningRate * (1 - Math.min(0.5, topic.questionsAttempted / 100));
+    const adjustedRate =
+      learningRate * (1 - Math.min(0.5, topic.questionsAttempted / 100));
 
     const newMastery =
       oldMastery + adjustedRate * (performanceSignal - oldMastery);
@@ -459,20 +469,28 @@ StudentPerformanceSchema.methods.calculateStabilityIndex = function () {
     const weights = recent.map((_, i) => Math.exp(i / recent.length)); // More weight to recent
     const weightSum = weights.reduce((a, b) => a + b, 0);
 
-    const weightedMean = recent.reduce((sum, val, i) => sum + val * weights[i], 0) / weightSum;
-    const weightedVariance = recent.reduce((sum, val, i) =>
-      sum + weights[i] * Math.pow(val - weightedMean, 2), 0) / weightSum;
+    const weightedMean =
+      recent.reduce((sum, val, i) => sum + val * weights[i], 0) / weightSum;
+    const weightedVariance =
+      recent.reduce(
+        (sum, val, i) => sum + weights[i] * Math.pow(val - weightedMean, 2),
+        0,
+      ) / weightSum;
 
     const maxPossibleVariance = 0.25;
 
     // Stability score with trend adjustment
     const trend = this.calculateTrend(recent);
-    const baseStability = 1 - Math.min(1, weightedVariance / maxPossibleVariance);
+    const baseStability =
+      1 - Math.min(1, weightedVariance / maxPossibleVariance);
 
     // If improving trend, boost stability slightly
     const trendBoost = trend > 0.01 ? 0.1 : trend < -0.01 ? -0.1 : 0;
 
-    stability[topic.topic] = Math.max(0, Math.min(1, baseStability + trendBoost));
+    stability[topic.topic] = Math.max(
+      0,
+      Math.min(1, baseStability + trendBoost),
+    );
   });
 
   return stability;
@@ -503,8 +521,8 @@ StudentPerformanceSchema.methods.calculateConfidenceCalibration = function () {
       easy: 0,
       medium: 0,
       hard: 0,
-      very_hard: 0
-    }
+      very_hard: 0,
+    },
   };
 
   // If we have test history with confidence data
@@ -515,7 +533,7 @@ StudentPerformanceSchema.methods.calculateConfidenceCalibration = function () {
       easy: 0.08,
       medium: 0.12,
       hard: 0.18,
-      very_hard: 0.22
+      very_hard: 0.22,
     };
   }
 
@@ -529,18 +547,21 @@ StudentPerformanceSchema.methods.calculateErrorPatterns = function () {
     careless: 0,
     guess: 0,
     overconfidence: 0,
-    byTopic: {}
+    byTopic: {},
   };
 
   // Analyze topic performance to infer error patterns
-  this.topicPerformance.forEach(topic => {
+  this.topicPerformance.forEach((topic) => {
     const mastery = topic.accuracy / 100;
     const attempts = topic.questionsAttempted;
 
     if (attempts < 5) return;
 
     // Infer patterns based on mastery and consistency
-    let conceptual = 0, careless = 0, guess = 0, overconfidence = 0;
+    let conceptual = 0,
+      careless = 0,
+      guess = 0,
+      overconfidence = 0;
 
     if (mastery < 0.4) {
       // Low mastery suggests conceptual errors
@@ -571,7 +592,7 @@ StudentPerformanceSchema.methods.calculateErrorPatterns = function () {
       conceptual,
       careless,
       guess,
-      overconfidence
+      overconfidence,
     };
 
     // Aggregate to overall
@@ -582,7 +603,11 @@ StudentPerformanceSchema.methods.calculateErrorPatterns = function () {
   });
 
   // Normalize overall patterns
-  const total = patterns.conceptual + patterns.careless + patterns.guess + patterns.overconfidence;
+  const total =
+    patterns.conceptual +
+    patterns.careless +
+    patterns.guess +
+    patterns.overconfidence;
   if (total > 0) {
     patterns.conceptual /= total;
     patterns.careless /= total;
@@ -597,45 +622,62 @@ StudentPerformanceSchema.methods.calculateErrorPatterns = function () {
 StudentPerformanceSchema.methods.calculateWeaknessPriority = function () {
   const priorities = [];
 
+  const safeNumber = (value, fallback = 0) => {
+    const numeric = Number(value);
+    return Number.isFinite(numeric) ? numeric : fallback;
+  };
+
   this.topicPerformance.forEach((topic) => {
     if (topic.questionsAttempted < 3) return; // Not enough data
 
-    const mastery = topic.accuracy / 100;
-    const errorRate = 1 - mastery;
+    const mastery = Math.min(
+      1,
+      Math.max(0, safeNumber(topic.accuracy, 0) / 100),
+    );
+    const errorRate = Math.min(1, Math.max(0, 1 - mastery));
 
     // Exam weightage - could be configured per exam
     const examWeights = {
-      'Mathematics': 1.0,
-      'Number System': 0.9,
-      'Algebra': 0.9,
-      'Geometry': 0.8,
-      'Trigonometry': 0.7,
-      'English': 0.8,
-      'Grammar': 0.8,
-      'Vocabulary': 0.7,
-      'Reasoning': 0.9,
-      'General Knowledge': 0.6
+      Mathematics: 1.0,
+      "Number System": 0.9,
+      Algebra: 0.9,
+      Geometry: 0.8,
+      Trigonometry: 0.7,
+      English: 0.8,
+      Grammar: 0.8,
+      Vocabulary: 0.7,
+      Reasoning: 0.9,
+      "General Knowledge": 0.6,
     };
 
-    const weightage = examWeights[topic.topic] || 0.7;
+    const weightage = safeNumber(examWeights[topic.topic], 0.7);
 
     // Retention decay (how long since practiced)
     const daysSince = topic.lastPracticed
-      ? Math.floor((new Date() - new Date(topic.lastPracticed)) / (1000 * 60 * 60 * 24))
+      ? Math.floor(
+          (new Date() - new Date(topic.lastPracticed)) / (1000 * 60 * 60 * 24),
+        )
       : 30;
     const retentionDecay = Math.min(1, daysSince / 14); // 14 days = full decay
 
     // Stability factor (unstable topics need more attention)
-    const stability = topic.stabilityIndex || 0.5;
+    const stability = Math.min(
+      1,
+      Math.max(0, safeNumber(topic.stabilityIndex, 0.5)),
+    );
     const instabilityFactor = 1 - stability;
 
     // weakness_score = (1 - mastery) × weightage × error_rate × retention_decay × instability
-    const weaknessScore =
-      (1 - mastery) *
-      weightage *
-      errorRate *
-      retentionDecay *
-      (1 + instabilityFactor);
+    const weaknessScore = Math.max(
+      0,
+      safeNumber(
+        (1 - mastery) *
+          weightage *
+          errorRate *
+          retentionDecay *
+          (1 + instabilityFactor, 0),
+      ),
+    );
 
     priorities.push({
       topic: topic.topic,
@@ -643,7 +685,7 @@ StudentPerformanceSchema.methods.calculateWeaknessPriority = function () {
       score: weaknessScore,
       mastery: mastery,
       questionsAttempted: topic.questionsAttempted,
-      lastPracticed: topic.lastPracticed
+      lastPracticed: topic.lastPracticed,
     });
   });
 
@@ -660,7 +702,9 @@ StudentPerformanceSchema.methods.calculateWeaknessPriority = function () {
 };
 
 // Generate recommendation for weakness
-StudentPerformanceSchema.methods.generateWeaknessRecommendation = function (weakness) {
+StudentPerformanceSchema.methods.generateWeaknessRecommendation = function (
+  weakness,
+) {
   if (weakness.mastery < 0.3) {
     return `Critical: Review fundamental concepts in ${weakness.topic}`;
   } else if (weakness.mastery < 0.5) {
@@ -685,7 +729,7 @@ StudentPerformanceSchema.methods.calculateForgettingCurve = function () {
     if (!topic.lastPracticed) return;
 
     const daysSince = Math.floor(
-      (new Date() - new Date(topic.lastPracticed)) / (1000 * 60 * 60 * 24)
+      (new Date() - new Date(topic.lastPracticed)) / (1000 * 60 * 60 * 24),
     );
 
     if (daysSince < 0) return;
@@ -705,7 +749,7 @@ StudentPerformanceSchema.methods.calculateForgettingCurve = function () {
       daysSince,
       decayRate: decayConstant,
       predicted7Day: mastery * Math.exp(-decayConstant * 7),
-      predicted30Day: mastery * Math.exp(-decayConstant * 30)
+      predicted30Day: mastery * Math.exp(-decayConstant * 30),
     };
 
     totalDecayConstant += decayConstant;
@@ -715,24 +759,28 @@ StudentPerformanceSchema.methods.calculateForgettingCurve = function () {
   return {
     decayConstant: topicCount > 0 ? totalDecayConstant / topicCount : 0.1,
     retentionScores: retention,
-    reviewRecommendations: this.generateReviewRecommendations(retention)
+    reviewRecommendations: this.generateReviewRecommendations(retention),
   };
 };
 
 // Generate review recommendations based on forgetting curve
-StudentPerformanceSchema.methods.generateReviewRecommendations = function (retention) {
+StudentPerformanceSchema.methods.generateReviewRecommendations = function (
+  retention,
+) {
   const recommendations = [];
   const now = new Date();
 
   Object.entries(retention).forEach(([topic, data]) => {
     if (data.retentionScore < 0.6) {
       // Needs review soon
-      const reviewDay = Math.ceil(Math.log(0.7 / data.mastery) / -data.decayRate);
+      const reviewDay = Math.ceil(
+        Math.log(0.7 / data.mastery) / -data.decayRate,
+      );
       recommendations.push({
         topic,
-        priority: data.retentionScore < 0.4 ? 'high' : 'medium',
+        priority: data.retentionScore < 0.4 ? "high" : "medium",
         reviewIn: Math.max(0, reviewDay),
-        reason: `Retention dropped to ${Math.round(data.retentionScore * 100)}%`
+        reason: `Retention dropped to ${Math.round(data.retentionScore * 100)}%`,
       });
     }
   });
@@ -749,9 +797,9 @@ StudentPerformanceSchema.methods.calculateFatigueIndex = function () {
   if (recentTests.length < 3) {
     return {
       current: 0.2,
-      trend: 'stable',
+      trend: "stable",
       bySession: [0.2],
-      recommendations: ['Take more tests to establish fatigue pattern']
+      recommendations: ["Take more tests to establish fatigue pattern"],
     };
   }
 
@@ -761,36 +809,42 @@ StudentPerformanceSchema.methods.calculateFatigueIndex = function () {
     // - Accuracy drop from first half to second half (if we had that data)
     // - Time spent relative to average
     // - For now, use simple inverse of accuracy
-    const fatigueScore = 1 - (test.accuracy / 100);
+    const fatigueScore = 1 - test.accuracy / 100;
     bySession.push(fatigueScore);
   });
 
   // Calculate trend
   const trend = this.calculateTrend(bySession);
-  const trendDirection = trend > 0.02 ? 'increasing' : trend < -0.02 ? 'decreasing' : 'stable';
+  const trendDirection =
+    trend > 0.02 ? "increasing" : trend < -0.02 ? "decreasing" : "stable";
 
   // Current fatigue (weighted average of recent sessions)
   const weights = [0.4, 0.3, 0.2, 0.1]; // More weight to recent
-  const current = bySession.slice(-4).reduce((sum, score, i) =>
-    sum + score * (weights[i] || 0.1), 0) / weights.slice(0, bySession.slice(-4).length).reduce((a, b) => a + b, 0);
+  const current =
+    bySession
+      .slice(-4)
+      .reduce((sum, score, i) => sum + score * (weights[i] || 0.1), 0) /
+    weights.slice(0, bySession.slice(-4).length).reduce((a, b) => a + b, 0);
 
   // Generate recommendations
   const recommendations = [];
   if (current > 0.6) {
-    recommendations.push('High fatigue detected - take a longer break');
+    recommendations.push("High fatigue detected - take a longer break");
   } else if (current > 0.4) {
-    recommendations.push('Moderate fatigue - consider a short break');
+    recommendations.push("Moderate fatigue - consider a short break");
   }
 
-  if (trendDirection === 'increasing') {
-    recommendations.push('Fatigue is increasing - consider reducing session length');
+  if (trendDirection === "increasing") {
+    recommendations.push(
+      "Fatigue is increasing - consider reducing session length",
+    );
   }
 
   return {
     current: Math.min(1, Math.max(0, current)),
     trend: trendDirection,
     bySession,
-    recommendations
+    recommendations,
   };
 };
 
@@ -806,37 +860,39 @@ StudentPerformanceSchema.methods.calculateBehaviorProfile = function () {
     hardQuestionRate: 0,
     answerChangeFrequency: 0.2,
     difficultyPreference: 0.5,
-    confidenceLevel: 0.6
+    confidenceLevel: 0.6,
   };
 
   // Calculate hard question rate from topic performance
-  const hardTopics = this.topicPerformance.filter(t =>
-    t.averageDifficulty > 0.7 && t.questionsAttempted > 5
+  const hardTopics = this.topicPerformance.filter(
+    (t) => t.averageDifficulty > 0.7 && t.questionsAttempted > 5,
   );
-  metrics.hardQuestionRate = hardTopics.length / Math.max(1, this.topicPerformance.length);
+  metrics.hardQuestionRate =
+    hardTopics.length / Math.max(1, this.topicPerformance.length);
 
   // Determine cluster based on metrics
-  let cluster = 'balanced';
-  let description = 'Balanced learner with good mix of speed and accuracy';
+  let cluster = "balanced";
+  let description = "Balanced learner with good mix of speed and accuracy";
 
   if (metrics.averageTime < 40 && metrics.answerChangeFrequency < 0.1) {
-    cluster = 'impulsive';
-    description = 'Tends to answer quickly, sometimes without full consideration';
+    cluster = "impulsive";
+    description =
+      "Tends to answer quickly, sometimes without full consideration";
   } else if (metrics.averageTime > 90 && metrics.answerChangeFrequency > 0.3) {
-    cluster = 'overthinker';
-    description = 'Takes time to analyze, may second-guess answers';
+    cluster = "overthinker";
+    description = "Takes time to analyze, may second-guess answers";
   } else if (metrics.difficultyPreference < 0.3) {
-    cluster = 'risk-averse';
-    description = 'Prefers easier questions, avoids challenging topics';
+    cluster = "risk-averse";
+    description = "Prefers easier questions, avoids challenging topics";
   } else if (metrics.hardQuestionRate > 0.5) {
-    cluster = 'challenge-seeker';
-    description = 'Actively seeks difficult questions to improve';
+    cluster = "challenge-seeker";
+    description = "Actively seeks difficult questions to improve";
   }
 
   return {
     cluster,
     description,
-    metrics
+    metrics,
   };
 };
 
@@ -846,14 +902,20 @@ StudentPerformanceSchema.methods.calculateDifficultyTolerance = function () {
   // This would need actual answer data with difficulty ratings
 
   // For now, derive from topic performance
-  let easyTotal = 0, easyCorrect = 0;
-  let mediumTotal = 0, mediumCorrect = 0;
-  let hardTotal = 0, hardCorrect = 0;
-  let veryHardTotal = 0, veryHardCorrect = 0;
+  let easyTotal = 0,
+    easyCorrect = 0;
+  let mediumTotal = 0,
+    mediumCorrect = 0;
+  let hardTotal = 0,
+    hardCorrect = 0;
+  let veryHardTotal = 0,
+    veryHardCorrect = 0;
 
-  this.topicPerformance.forEach(topic => {
+  this.topicPerformance.forEach((topic) => {
     const diff = topic.averageDifficulty || 0.5;
-    const correct = Math.round(topic.accuracy * topic.questionsAttempted / 100);
+    const correct = Math.round(
+      (topic.accuracy * topic.questionsAttempted) / 100,
+    );
 
     if (diff < 0.3) {
       easyTotal += topic.questionsAttempted;
@@ -873,7 +935,8 @@ StudentPerformanceSchema.methods.calculateDifficultyTolerance = function () {
   const easyAcc = easyTotal > 0 ? (easyCorrect / easyTotal) * 100 : 70;
   const mediumAcc = mediumTotal > 0 ? (mediumCorrect / mediumTotal) * 100 : 60;
   const hardAcc = hardTotal > 0 ? (hardCorrect / hardTotal) * 100 : 50;
-  const veryHardAcc = veryHardTotal > 0 ? (veryHardCorrect / veryHardTotal) * 100 : 40;
+  const veryHardAcc =
+    veryHardTotal > 0 ? (veryHardCorrect / veryHardTotal) * 100 : 40;
 
   // Determine max sustainable difficulty
   let maxSustainable = 0.5;
@@ -891,21 +954,24 @@ StudentPerformanceSchema.methods.calculateDifficultyTolerance = function () {
     mediumAccuracy: mediumAcc,
     hardAccuracy: hardAcc,
     veryHardAccuracy: veryHardAcc,
-    recommendation: this.getDifficultyRecommendation(maxSustainable, hardAcc)
+    recommendation: this.getDifficultyRecommendation(maxSustainable, hardAcc),
   };
 };
 
 // Helper for difficulty recommendation
-StudentPerformanceSchema.methods.getDifficultyRecommendation = function (maxSustainable, hardAcc) {
+StudentPerformanceSchema.methods.getDifficultyRecommendation = function (
+  maxSustainable,
+  hardAcc,
+) {
   if (maxSustainable >= 0.8) {
-    return 'You can handle very difficult questions. Focus on advanced topics.';
+    return "You can handle very difficult questions. Focus on advanced topics.";
   } else if (maxSustainable >= 0.6) {
     if (hardAcc < 50) {
-      return 'Build confidence with medium-hard questions before attempting very hard ones.';
+      return "Build confidence with medium-hard questions before attempting very hard ones.";
     }
-    return 'Good progress. Gradually increase difficulty.';
+    return "Good progress. Gradually increase difficulty.";
   } else {
-    return 'Focus on mastering easy and medium difficulty questions first.';
+    return "Focus on mastering easy and medium difficulty questions first.";
   }
 };
 
@@ -918,8 +984,8 @@ StudentPerformanceSchema.methods.calculateStudyEfficiency = function () {
     return {
       score: 0.5,
       improvementPerHour: 0,
-      trend: 'stable',
-      efficiencyRating: 'Insufficient data'
+      trend: "stable",
+      efficiencyRating: "Insufficient data",
     };
   }
 
@@ -927,37 +993,47 @@ StudentPerformanceSchema.methods.calculateStudyEfficiency = function () {
   const firstTest = recentTests[0];
   const lastTest = recentTests[recentTests.length - 1];
 
-  const totalTimeSpent = recentTests.reduce((sum, t) => sum + (t.timeSpent || 0), 0);
+  const totalTimeSpent = recentTests.reduce(
+    (sum, t) => sum + (t.timeSpent || 0),
+    0,
+  );
   const avgTimePerTest = totalTimeSpent / recentTests.length;
 
   const improvement = lastTest.accuracy - firstTest.accuracy;
-  const improvementPerHour = totalTimeSpent > 0 ? (improvement / totalTimeSpent) * 60 : 0; // per hour
+  const improvementPerHour =
+    totalTimeSpent > 0 ? (improvement / totalTimeSpent) * 60 : 0; // per hour
 
   // Calculate rolling efficiency
   const efficiencies = [];
   for (let i = 1; i < recentTests.length; i++) {
     const timeDiff = recentTests[i].timeSpent || 0;
-    const accDiff = recentTests[i].accuracy - recentTests[i-1].accuracy;
+    const accDiff = recentTests[i].accuracy - recentTests[i - 1].accuracy;
     if (timeDiff > 0) {
       efficiencies.push(accDiff / timeDiff);
     }
   }
 
-  const avgEfficiency = efficiencies.length > 0
-    ? efficiencies.reduce((a, b) => a + b, 0) / efficiencies.length
-    : 0;
+  const avgEfficiency =
+    efficiencies.length > 0
+      ? efficiencies.reduce((a, b) => a + b, 0) / efficiencies.length
+      : 0;
 
-  const trend = avgEfficiency > 0.1 ? 'improving' : avgEfficiency < -0.1 ? 'declining' : 'stable';
+  const trend =
+    avgEfficiency > 0.1
+      ? "improving"
+      : avgEfficiency < -0.1
+        ? "declining"
+        : "stable";
 
   // Efficiency score (0-1)
   const score = Math.max(0, Math.min(1, 0.5 + improvementPerHour * 2));
 
   // Efficiency rating
-  let efficiencyRating = 'Average';
-  if (score > 0.8) efficiencyRating = 'Excellent';
-  else if (score > 0.6) efficiencyRating = 'Good';
-  else if (score > 0.4) efficiencyRating = 'Average';
-  else efficiencyRating = 'Needs Improvement';
+  let efficiencyRating = "Average";
+  if (score > 0.8) efficiencyRating = "Excellent";
+  else if (score > 0.6) efficiencyRating = "Good";
+  else if (score > 0.4) efficiencyRating = "Average";
+  else efficiencyRating = "Needs Improvement";
 
   return {
     score,
@@ -965,24 +1041,31 @@ StudentPerformanceSchema.methods.calculateStudyEfficiency = function () {
     trend,
     avgTimePerTest: Math.round(avgTimePerTest),
     efficiencyRating,
-    recommendations: this.getEfficiencyRecommendations(score, trend)
+    recommendations: this.getEfficiencyRecommendations(score, trend),
   };
 };
 
 // Helper for efficiency recommendations
-StudentPerformanceSchema.methods.getEfficiencyRecommendations = function (score, trend) {
+StudentPerformanceSchema.methods.getEfficiencyRecommendations = function (
+  score,
+  trend,
+) {
   const recs = [];
   if (score < 0.4) {
-    recs.push('Focus on understanding concepts rather than just answering');
-    recs.push('Review explanations for all questions, especially incorrect ones');
+    recs.push("Focus on understanding concepts rather than just answering");
+    recs.push(
+      "Review explanations for all questions, especially incorrect ones",
+    );
   } else if (score < 0.6) {
-    recs.push('Good progress. Try to identify patterns in your mistakes');
+    recs.push("Good progress. Try to identify patterns in your mistakes");
   } else {
-    recs.push('Great efficiency! Challenge yourself with harder questions');
+    recs.push("Great efficiency! Challenge yourself with harder questions");
   }
 
-  if (trend === 'declining') {
-    recs.push('Recent efficiency decline - consider taking a break or changing study method');
+  if (trend === "declining") {
+    recs.push(
+      "Recent efficiency decline - consider taking a break or changing study method",
+    );
   }
 
   return recs;
@@ -998,7 +1081,7 @@ StudentPerformanceSchema.methods.calculateFocusLoss = function () {
     frequency: 0,
     lastDetected: null,
     triggers: [],
-    pattern: 'unknown'
+    pattern: "unknown",
   };
 
   // Analyze recent tests for focus loss indicators
@@ -1015,7 +1098,9 @@ StudentPerformanceSchema.methods.calculateFocusLoss = function () {
       if (currAcc < prevAcc - 20) {
         focusLossEvents++;
         focusLoss.lastDetected = test.date;
-        focusLoss.triggers.push(`Significant accuracy drop in test on ${new Date(test.date).toLocaleDateString()}`);
+        focusLoss.triggers.push(
+          `Significant accuracy drop in test on ${new Date(test.date).toLocaleDateString()}`,
+        );
       }
     }
   });
@@ -1024,60 +1109,96 @@ StudentPerformanceSchema.methods.calculateFocusLoss = function () {
 
   // Determine pattern
   if (focusLoss.frequency > 0.3) {
-    focusLoss.pattern = 'frequent';
-    focusLoss.recommendation = 'Consider shorter study sessions with breaks';
+    focusLoss.pattern = "frequent";
+    focusLoss.recommendation = "Consider shorter study sessions with breaks";
   } else if (focusLoss.frequency > 0.1) {
-    focusLoss.pattern = 'occasional';
-    focusLoss.recommendation = 'Monitor your focus during longer sessions';
+    focusLoss.pattern = "occasional";
+    focusLoss.recommendation = "Monitor your focus during longer sessions";
   } else {
-    focusLoss.pattern = 'rare';
-    focusLoss.recommendation = 'Good focus maintenance';
+    focusLoss.pattern = "rare";
+    focusLoss.recommendation = "Good focus maintenance";
   }
 
   return focusLoss;
 };
 
 // 12. Adaptive Time Allocation
-StudentPerformanceSchema.methods.calculateTimeAllocation = function (analytics) {
+StudentPerformanceSchema.methods.calculateTimeAllocation = function (
+  analytics,
+) {
   const allocation = [];
   const totalTime = 120; // minutes available per day
+  const safeNumber = (value, fallback = 0) => {
+    const numeric = Number(value);
+    return Number.isFinite(numeric) ? numeric : fallback;
+  };
 
   // Get weakness priorities
   const weaknesses = analytics.weaknessPriority || [];
 
   if (weaknesses.length === 0) {
-    return [{
-      topic: 'General Practice',
-      recommendedMinutes: 60,
-      priority: 'medium',
-      reason: 'Start with mixed practice to identify areas for improvement'
-    }];
+    return [
+      {
+        topic: "General Practice",
+        recommendedMinutes: 60,
+        priority: "medium",
+        reason: "Start with mixed practice to identify areas for improvement",
+      },
+    ];
   }
 
   // Calculate total weakness score for normalization
-  const totalScore = weaknesses.reduce((sum, w) => sum + w.score, 0);
+  const totalScore = weaknesses.reduce(
+    (sum, w) => sum + Math.max(0, safeNumber(w?.score, 0)),
+    0,
+  );
+
+  if (!Number.isFinite(totalScore) || totalScore <= 0) {
+    return [
+      {
+        topic: "General Practice",
+        recommendedMinutes: 60,
+        priority: "medium",
+        reason: "Start with mixed practice to identify areas for improvement",
+      },
+    ];
+  }
 
   // Allocate time based on weakness score, with diminishing returns
   weaknesses.forEach((w) => {
+    const score = Math.max(0, safeNumber(w?.score, 0));
+    if (!Number.isFinite(score) || score <= 0) return;
+
     // Normalize score with square root to avoid extreme allocations
-    const normalizedScore = Math.sqrt(w.score / totalScore);
-    const normalizedTotal = weaknesses.reduce((sum, w2) =>
-      sum + Math.sqrt(w2.score / totalScore), 0);
+    const normalizedScore = Math.sqrt(score / totalScore);
+    const normalizedTotal = weaknesses.reduce((sum, w2) => {
+      const candidateScore = Math.max(0, safeNumber(w2?.score, 0));
+      if (!candidateScore) return sum;
+      return sum + Math.sqrt(candidateScore / totalScore);
+    }, 0);
+
+    if (
+      !Number.isFinite(normalizedScore) ||
+      !Number.isFinite(normalizedTotal) ||
+      normalizedTotal <= 0
+    ) {
+      return;
+    }
 
     // Calculate minutes, with min/max bounds
     let minutes = Math.round((normalizedScore / normalizedTotal) * totalTime);
     minutes = Math.min(45, Math.max(10, minutes)); // Between 10 and 45 minutes
 
     // Determine priority based on rank and mastery
-    let priority = 'medium';
+    let priority = "medium";
     if (w.rank <= 3 && w.mastery < 0.5) {
-      priority = 'high';
+      priority = "high";
     } else if (w.rank > 8 || w.mastery > 0.8) {
-      priority = 'low';
+      priority = "low";
     }
 
     // Generate reason
-    let reason = '';
+    let reason = "";
     if (w.mastery < 0.3) {
       reason = `Critical weakness - needs fundamental review`;
     } else if (w.mastery < 0.5) {
@@ -1093,20 +1214,38 @@ StudentPerformanceSchema.methods.calculateTimeAllocation = function (analytics) 
       recommendedMinutes: minutes,
       priority,
       reason,
-      currentMastery: Math.round(w.mastery * 100)
+      currentMastery: Math.round(
+        Math.min(1, Math.max(0, safeNumber(w.mastery, 0))) * 100,
+      ),
     });
   });
 
+  const cleanedAllocation = allocation.filter(
+    (item) =>
+      Number.isFinite(item.recommendedMinutes) && item.recommendedMinutes > 0,
+  );
+
+  if (cleanedAllocation.length === 0) {
+    return [
+      {
+        topic: "General Practice",
+        recommendedMinutes: 60,
+        priority: "medium",
+        reason: "Start with mixed practice to identify areas for improvement",
+      },
+    ];
+  }
+
   // Sort by priority (high first) then by minutes
   const priorityOrder = { high: 1, medium: 2, low: 3 };
-  allocation.sort((a, b) => {
+  cleanedAllocation.sort((a, b) => {
     if (priorityOrder[a.priority] !== priorityOrder[b.priority]) {
       return priorityOrder[a.priority] - priorityOrder[b.priority];
     }
     return b.recommendedMinutes - a.recommendedMinutes;
   });
 
-  return allocation.slice(0, 8); // Top 8 topics
+  return cleanedAllocation.slice(0, 8); // Top 8 topics
 };
 
 module.exports = mongoose.model("StudentPerformance", StudentPerformanceSchema);

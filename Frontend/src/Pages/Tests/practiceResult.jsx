@@ -15,6 +15,7 @@ import {
   FiActivity,
   FiZap,
   FiInfo,
+  FiHelpCircle,
   FiRefreshCw,
 } from "react-icons/fi";
 import { FaBrain, FaChartLine, FaFire } from "react-icons/fa";
@@ -114,6 +115,77 @@ const normalizeModelData = (modelsData = {}) => ({
     ? modelsData.timeAllocation
     : [],
 });
+
+const TOOLTIP_THEMES = {
+  sky: {
+    shell: "from-sky-500 via-cyan-500 to-blue-500",
+    bullet: "bg-cyan-100/90 text-cyan-900",
+    icon: "text-cyan-200",
+  },
+  emerald: {
+    shell: "from-emerald-500 via-teal-500 to-lime-500",
+    bullet: "bg-emerald-100/90 text-emerald-900",
+    icon: "text-emerald-200",
+  },
+  amber: {
+    shell: "from-amber-500 via-orange-500 to-rose-500",
+    bullet: "bg-amber-100/90 text-amber-900",
+    icon: "text-amber-200",
+  },
+  violet: {
+    shell: "from-fuchsia-500 via-violet-500 to-indigo-500",
+    bullet: "bg-violet-100/90 text-violet-900",
+    icon: "text-violet-200",
+  },
+};
+
+const InsightTooltip = ({
+  title,
+  description,
+  bullets = [],
+  theme = "sky",
+  position = "right",
+}) => {
+  const palette = TOOLTIP_THEMES[theme] || TOOLTIP_THEMES.sky;
+  const positionClass =
+    position === "top"
+      ? "bottom-full left-1/2 mb-3 -translate-x-1/2"
+      : "left-full top-1/2 ml-3 -translate-y-1/2";
+
+  return (
+    <span className="group/tooltip relative inline-flex">
+      <button
+        type="button"
+        aria-label={`More info about ${title}`}
+        className={`inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-900/70 text-white transition hover:scale-105 focus:outline-none focus:ring-2 focus:ring-cyan-400 dark:bg-slate-100/20 ${palette.icon}`}
+      >
+        <FiHelpCircle className="h-3.5 w-3.5" />
+      </button>
+      <span
+        className={`pointer-events-none absolute z-30 w-72 rounded-xl bg-gradient-to-br p-[1px] opacity-0 shadow-2xl transition-all duration-200 group-hover/tooltip:opacity-100 group-focus-within/tooltip:opacity-100 ${palette.shell} ${positionClass}`}
+      >
+        <span className="block rounded-[11px] bg-slate-950/95 p-3 text-left text-white backdrop-blur-sm">
+          <span className="block text-sm font-semibold">{title}</span>
+          <span className="mt-1 block text-xs leading-relaxed text-slate-200">
+            {description}
+          </span>
+          {bullets.length > 0 && (
+            <span className="mt-2 block space-y-1">
+              {bullets.map((bullet, index) => (
+                <span
+                  key={`${title}-bullet-${index}`}
+                  className={`block rounded-md px-2 py-1 text-[11px] leading-relaxed ${palette.bullet}`}
+                >
+                  {bullet}
+                </span>
+              ))}
+            </span>
+          )}
+        </span>
+      </span>
+    </span>
+  );
+};
 
 const PracticeResult = () => {
   const location = useLocation();
@@ -391,6 +463,81 @@ const PracticeResult = () => {
     : "bg-white border-slate-200 text-slate-900";
   const mutedClass = isDark ? "text-slate-300" : "text-slate-600";
 
+  const metricTooltips = {
+    Accuracy: {
+      description:
+        "Accuracy measures your outcome quality in this session. It is the ratio of correct answers to all solved questions.",
+      bullets: [
+        "Higher than 70% usually means your fundamentals are stable for this topic set.",
+        "Track this with confidence to ensure your score is not a lucky spike.",
+      ],
+      theme: "emerald",
+    },
+    Correct: {
+      description:
+        "Correct shows the total number of questions answered accurately in this session.",
+      bullets: [
+        "Use this with Total Solved to estimate consistency.",
+        "A rising correct count across sessions indicates healthy progress.",
+      ],
+      theme: "sky",
+    },
+    Wrong: {
+      description:
+        "Wrong indicates how many responses missed the expected answer key.",
+      bullets: [
+        "Review repeated mistakes to detect concept-level gaps.",
+        "Check whether errors come from speed pressure or weak understanding.",
+      ],
+      theme: "amber",
+    },
+    Solved: {
+      description:
+        "Solved is your attempt volume for this session and reflects practice exposure.",
+      bullets: [
+        "A balanced session mixes enough volume with focused review.",
+        "If solved is high but accuracy is low, reduce pace and deepen review.",
+      ],
+      theme: "violet",
+    },
+    "Time Taken": {
+      description:
+        "Time Taken is your real total effort spent answering all solved questions.",
+      bullets: [
+        "Compare this with Expected Time to understand pacing behavior.",
+        "Large delays on specific questions can reveal hesitation patterns.",
+      ],
+      theme: "amber",
+    },
+    "Expected Time": {
+      description:
+        "Expected Time is the estimated benchmark duration suggested by question difficulty.",
+      bullets: [
+        "When Time Taken is far above this, time management needs tuning.",
+        "When it is lower with good accuracy, your fluency is improving.",
+      ],
+      theme: "sky",
+    },
+    Confidence: {
+      description:
+        "Confidence is your self-reported certainty while answering each question.",
+      bullets: [
+        "High confidence + wrong answers means calibration needs work.",
+        "Low confidence + correct answers suggests underestimation of ability.",
+      ],
+      theme: "violet",
+    },
+    "Next Difficulty": {
+      description:
+        "Next Difficulty is the adaptive level forecast for your upcoming practice set.",
+      bullets: [
+        "It uses session behavior, trends, and model feedback to set challenge level.",
+        "Aim for a level that stretches you without crashing your accuracy.",
+      ],
+      theme: "emerald",
+    },
+  };
+
   const handlePrint = () => {
     window.print();
   };
@@ -465,6 +612,7 @@ const PracticeResult = () => {
             <button
               type="button"
               onClick={() => navigate("/test/practice")}
+              title="Start another practice session with fresh questions and updated adaptive settings."
               className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium ${
                 isDark
                   ? "bg-slate-800 text-slate-100 hover:bg-slate-700"
@@ -477,6 +625,7 @@ const PracticeResult = () => {
             <button
               type="button"
               onClick={() => window.location.reload()}
+              title="Reload this page to refresh model insights, trend data, and latest backend analytics."
               className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
             >
               <FiRefreshCw className="h-4 w-4" />
@@ -485,6 +634,7 @@ const PracticeResult = () => {
             <button
               type="button"
               onClick={handlePrint}
+              title="Open the print dialog to save this full report as a PDF for revision later."
               className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700"
             >
               <FiBookOpen className="h-4 w-4" />
@@ -493,6 +643,7 @@ const PracticeResult = () => {
             <button
               type="button"
               onClick={handleExportPdfData}
+              title="Download the backend-generated PDF data bundle for deeper archival or reporting."
               className="inline-flex items-center gap-2 rounded-lg bg-violet-600 px-3 py-2 text-sm font-medium text-white hover:bg-violet-700"
             >
               <FiBarChart2 className="h-4 w-4" />
@@ -511,12 +662,42 @@ const PracticeResult = () => {
           <div className="flex flex-wrap items-center gap-3 text-sm">
             <span className="inline-flex items-center gap-1 rounded-full bg-white/20 px-3 py-1 backdrop-blur-sm">
               <FiZap className="h-4 w-4" /> Adaptive analytics enabled
+              <InsightTooltip
+                title="Adaptive Analytics"
+                description="Your result page is dynamically generated from performance, timing, and confidence behavior for personalized feedback."
+                bullets={[
+                  "It helps identify both immediate score patterns and long-term learning risks.",
+                  "Use these insights to choose smarter revision and practice intensity.",
+                ]}
+                theme="sky"
+                position="top"
+              />
             </span>
             <span className="inline-flex items-center gap-1 rounded-full bg-white/20 px-3 py-1 backdrop-blur-sm">
               <FiTrendingUp className="h-4 w-4" /> Difficulty trend + confidence
+              <InsightTooltip
+                title="Trend Signals"
+                description="This combines evolving difficulty and your self-confidence to reveal adaptation quality during the session."
+                bullets={[
+                  "Stable confidence with rising difficulty usually shows healthy growth.",
+                  "Erratic confidence at medium difficulty can indicate conceptual instability.",
+                ]}
+                theme="amber"
+                position="top"
+              />
             </span>
             <span className="inline-flex items-center gap-1 rounded-full bg-white/20 px-3 py-1 backdrop-blur-sm">
               <FaBrain className="h-4 w-4" /> 12 model insights
+              <InsightTooltip
+                title="Model Intelligence Layer"
+                description="Twelve analytics models inspect mastery, errors, fatigue, memory decay, and pacing to produce an explainable report."
+                bullets={[
+                  "Treat these as guidance signals, not a single final judgment.",
+                  "Best results come from combining model insights with topic-wise review.",
+                ]}
+                theme="violet"
+                position="top"
+              />
             </span>
           </div>
         </div>
@@ -573,7 +754,16 @@ const PracticeResult = () => {
               <div className="text-lg font-semibold md:text-xl">
                 {item.value}
               </div>
-              <div className={`text-xs ${mutedClass}`}>{item.label}</div>
+              <div className={`flex items-center gap-1 text-xs ${mutedClass}`}>
+                <span>{item.label}</span>
+                <InsightTooltip
+                  title={item.label}
+                  description={metricTooltips[item.label]?.description}
+                  bullets={metricTooltips[item.label]?.bullets || []}
+                  theme={metricTooltips[item.label]?.theme || "sky"}
+                  position="top"
+                />
+              </div>
             </div>
           ))}
         </div>
@@ -584,6 +774,15 @@ const PracticeResult = () => {
               <h2 className="flex items-center gap-2 text-lg font-semibold">
                 <FaChartLine className="h-4 w-4" />
                 Difficulty Trend Across Session
+                <InsightTooltip
+                  title="Difficulty Trend"
+                  description="This curve shows how question challenge level evolved while you progressed through the test."
+                  bullets={[
+                    "An upward smooth curve suggests adaptive challenge growth.",
+                    "Sudden spikes can create pressure points to revisit in practice.",
+                  ]}
+                  theme="sky"
+                />
               </h2>
               <span className={`text-xs ${mutedClass}`}>
                 {flaskDifficultySeries.length
@@ -614,6 +813,15 @@ const PracticeResult = () => {
               <h2 className="flex items-center gap-2 text-lg font-semibold">
                 <FiTrendingUp className="h-4 w-4" />
                 Learning & Confidence Graph
+                <InsightTooltip
+                  title="Learning vs Confidence"
+                  description="Green tracks actual performance trend while orange tracks perceived certainty, helping you calibrate self-judgment."
+                  bullets={[
+                    "When both lines improve together, learning is dependable.",
+                    "If orange stays high while green drops, review conceptual accuracy.",
+                  ]}
+                  theme="emerald"
+                />
               </h2>
               <span className={`text-xs ${mutedClass}`}>
                 Accuracy vs confidence
@@ -647,6 +855,15 @@ const PracticeResult = () => {
             <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold">
               <FiAward className="h-4 w-4" />
               Strong Topics
+              <InsightTooltip
+                title="Strong Topics"
+                description="Topics shown here are areas where your recent answers indicate comparatively stable and repeatable performance."
+                bullets={[
+                  "Keep them active with short revision to prevent forgetting.",
+                  "Use strong areas to build momentum before hard topic blocks.",
+                ]}
+                theme="emerald"
+              />
             </h2>
             {strongTopics.length ? (
               <div className="space-y-3">
@@ -680,6 +897,15 @@ const PracticeResult = () => {
             <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold">
               <FiAlertCircle className="h-4 w-4" />
               Weak Topics & Work Plan
+              <InsightTooltip
+                title="Weak Topics"
+                description="These topics currently show low correctness and need targeted reinforcement before increasing difficulty."
+                bullets={[
+                  "Start with core concept revision, then medium-level timed sets.",
+                  "Track improvement by checking both accuracy and confidence shifts.",
+                ]}
+                theme="amber"
+              />
             </h2>
             {weakTopics.length ? (
               <div className="space-y-3">
@@ -714,6 +940,15 @@ const PracticeResult = () => {
             <h2 className="flex items-center gap-2 text-lg font-semibold">
               <FiBookOpen className="h-4 w-4" />
               Selected Topics Learning Coverage
+              <InsightTooltip
+                title="Learning Coverage"
+                description="Coverage combines topic mastery and confidence to estimate how much of each selected topic is currently internalized."
+                bullets={[
+                  "High coverage with low attempts can be unstable, so validate with more practice.",
+                  "Balanced attempts, mastery, and confidence indicate durable learning.",
+                ]}
+                theme="violet"
+              />
             </h2>
             <span className={`text-xs ${mutedClass}`}>
               Mastery-confidence weighted learning percentage
@@ -764,6 +999,15 @@ const PracticeResult = () => {
           <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold">
             <FaBrain className="h-4 w-4" />
             12 Models Results (Session View)
+            <InsightTooltip
+              title="12 Model Results"
+              description="Each model highlights one behavioral or cognitive dimension so you can review your session from multiple learning angles."
+              bullets={[
+                "Use this section to prioritize the highest-impact improvements first.",
+                "Do not optimize one metric alone; aim for balanced growth.",
+              ]}
+              theme="sky"
+            />
           </h2>
           <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
             {MODEL_TITLES.map((title, index) => {
@@ -796,6 +1040,18 @@ const PracticeResult = () => {
                   <p className={`mt-1 text-xs ${mutedClass}`}>
                     {content[modelIndex]}
                   </p>
+                  <div className="mt-2">
+                    <InsightTooltip
+                      title={title}
+                      description="This card summarizes one model output for this session and gives a compact status signal for focused action."
+                      bullets={[
+                        "Compare this with topic and question-wise review before deciding next practice plan.",
+                        "If a model signal looks unusual, re-check your timing and confidence behavior.",
+                      ]}
+                      theme={modelIndex % 2 === 0 ? "violet" : "emerald"}
+                      position="top"
+                    />
+                  </div>
                 </div>
               );
             })}
@@ -807,6 +1063,15 @@ const PracticeResult = () => {
             <h2 className="flex items-center gap-2 text-lg font-semibold">
               <FiBarChart2 className="h-4 w-4" />
               Question-wise Deep Review
+              <InsightTooltip
+                title="Question-wise Review"
+                description="This section breaks down each attempt with timing, confidence, answer comparison, and explanation for precise correction."
+                bullets={[
+                  "Use it to detect whether mistakes are conceptual, careless, or speed-related.",
+                  "Review wrong questions first, then revisit slow but correct questions.",
+                ]}
+                theme="amber"
+              />
             </h2>
             <span className={`text-xs ${mutedClass}`}>
               All solved questions with answer and timing
@@ -872,6 +1137,11 @@ const PracticeResult = () => {
                       Q{attempt.index}. {attempt.questionText}
                     </div>
                     <span
+                      title={
+                        attempt.isCorrect
+                          ? "You answered this question correctly based on the official key."
+                          : "Your answer did not match the expected key; review the explanation and steps below."
+                      }
                       className={`rounded-full px-2 py-1 text-xs font-medium ${
                         attempt.isCorrect
                           ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
@@ -943,6 +1213,16 @@ const PracticeResult = () => {
                   >
                     <div className="mb-1 flex items-center gap-1 text-xs font-semibold uppercase tracking-wide">
                       <FiInfo className="h-3 w-3" /> Answer Description
+                      <InsightTooltip
+                        title="Answer Description"
+                        description="This explanation tells why the correct option is valid and where common mistakes usually happen."
+                        bullets={[
+                          "Follow solution steps in order to strengthen reasoning flow.",
+                          "Link the explanation back to concept notes for retention.",
+                        ]}
+                        theme="sky"
+                        position="top"
+                      />
                     </div>
                     <p className={mutedClass}>{explanationText}</p>
                     {Array.isArray(solutionSteps) &&
@@ -968,6 +1248,15 @@ const PracticeResult = () => {
           <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold">
             <FaFire className="h-4 w-4" />
             Flask CSV + Model Backend Insights
+            <InsightTooltip
+              title="Backend Insights"
+              description="These metrics come from backend model pipelines and show readiness, risk, streak, and model training status."
+              bullets={[
+                "Use readiness and burnout together to balance performance and sustainability.",
+                "A trained model status usually means more reliable adaptive predictions.",
+              ]}
+              theme="violet"
+            />
           </h2>
           {paperLoading && (
             <p className={`mb-2 text-xs ${mutedClass}`}>
@@ -985,7 +1274,19 @@ const PracticeResult = () => {
                 className={`rounded-xl p-3 ${isDark ? "bg-slate-800" : "bg-slate-50"}`}
               >
                 <div className="text-xs uppercase tracking-wide text-cyan-500">
-                  Readiness Score
+                  <span className="inline-flex items-center gap-1">
+                    Readiness Score
+                    <InsightTooltip
+                      title="Readiness Score"
+                      description="Estimated preparedness for upcoming practice or exam load based on recent behavior and performance trends."
+                      bullets={[
+                        "Low readiness suggests revision and recovery before harder sets.",
+                        "High readiness supports gradual challenge escalation.",
+                      ]}
+                      theme="sky"
+                      position="top"
+                    />
+                  </span>
                 </div>
                 <div className="text-xl font-semibold">
                   {toPercent(flaskDashboard?.summary?.readiness_score || 0.5)}
@@ -995,7 +1296,19 @@ const PracticeResult = () => {
                 className={`rounded-xl p-3 ${isDark ? "bg-slate-800" : "bg-slate-50"}`}
               >
                 <div className="text-xs uppercase tracking-wide text-rose-500">
-                  Burnout Risk
+                  <span className="inline-flex items-center gap-1">
+                    Burnout Risk
+                    <InsightTooltip
+                      title="Burnout Risk"
+                      description="Probability of cognitive overload from recent study intensity, errors under pressure, and sustained fatigue patterns."
+                      bullets={[
+                        "If this rises, prioritize spaced breaks and shorter focused sessions.",
+                        "Burnout control improves long-term retention and consistency.",
+                      ]}
+                      theme="amber"
+                      position="top"
+                    />
+                  </span>
                 </div>
                 <div className="text-xl font-semibold">
                   {toPercent(flaskDashboard?.summary?.burnout_risk || 0.3)}
@@ -1005,7 +1318,19 @@ const PracticeResult = () => {
                 className={`rounded-xl p-3 ${isDark ? "bg-slate-800" : "bg-slate-50"}`}
               >
                 <div className="text-xs uppercase tracking-wide text-emerald-500">
-                  Current Streak
+                  <span className="inline-flex items-center gap-1">
+                    Current Streak
+                    <InsightTooltip
+                      title="Current Streak"
+                      description="Consecutive active practice days, useful for habit consistency and momentum tracking."
+                      bullets={[
+                        "Long streaks are useful only when paired with good quality sessions.",
+                        "Break streak anxiety by focusing on consistency, not perfection.",
+                      ]}
+                      theme="emerald"
+                      position="top"
+                    />
+                  </span>
                 </div>
                 <div className="text-xl font-semibold">
                   {flaskDashboard?.recent_activity?.streak_days || 0} days
@@ -1015,7 +1340,19 @@ const PracticeResult = () => {
                 className={`rounded-xl p-3 ${isDark ? "bg-slate-800" : "bg-slate-50"}`}
               >
                 <div className="text-xs uppercase tracking-wide text-indigo-500">
-                  Practice Model
+                  <span className="inline-flex items-center gap-1">
+                    Practice Model
+                    <InsightTooltip
+                      title="Practice Model Status"
+                      description="Shows whether the practice recommendation model is trained and ready to serve adaptive decisions."
+                      bullets={[
+                        "Trained means predictions can leverage your historical behavior.",
+                        "Not trained means recommendations may rely on fallback defaults.",
+                      ]}
+                      theme="violet"
+                      position="top"
+                    />
+                  </span>
                 </div>
                 <div className="text-sm font-medium">
                   {flaskDashboard?.predictions?.practice_model?.trained
@@ -1027,7 +1364,19 @@ const PracticeResult = () => {
                 className={`rounded-xl p-3 ${isDark ? "bg-slate-800" : "bg-slate-50"}`}
               >
                 <div className="text-xs uppercase tracking-wide text-amber-500">
-                  Exam Model
+                  <span className="inline-flex items-center gap-1">
+                    Exam Model
+                    <InsightTooltip
+                      title="Exam Model Status"
+                      description="Indicates readiness of exam-focused prediction logic used for scenario forecasting and final preparedness signals."
+                      bullets={[
+                        "Trained status improves confidence in exam planning outputs.",
+                        "If not trained, keep building consistent data through sessions.",
+                      ]}
+                      theme="amber"
+                      position="top"
+                    />
+                  </span>
                 </div>
                 <div className="text-sm font-medium">
                   {flaskDashboard?.predictions?.exam_model?.trained
@@ -1039,7 +1388,19 @@ const PracticeResult = () => {
                 className={`rounded-xl p-3 ${isDark ? "bg-slate-800" : "bg-slate-50"}`}
               >
                 <div className="text-xs uppercase tracking-wide text-fuchsia-500">
-                  Questions Today
+                  <span className="inline-flex items-center gap-1">
+                    Questions Today
+                    <InsightTooltip
+                      title="Questions Today"
+                      description="Total number of questions practiced today, used to estimate daily training load."
+                      bullets={[
+                        "High volume should still preserve answer quality.",
+                        "Combine this with fatigue and burnout signals for balance.",
+                      ]}
+                      theme="sky"
+                      position="top"
+                    />
+                  </span>
                 </div>
                 <div className="text-xl font-semibold">
                   {flaskDashboard?.recent_activity?.questions_today || 0}

@@ -2,92 +2,48 @@
   "unknown_topic": [
     {
       "day": 1,
-      "retention": 0.3,
-      "needs_review": true,
-      "optimal_review_day": 1
-    },
-    {
-      "day": 3,
-      "retention": 0.29,
+      "retention": 0.28,
       "needs_review": true,
       "optimal_review_day": 0
     },
     {
-      "day": 7,
+      "day": 3,
       "retention": 0.27,
       "needs_review": true,
       "optimal_review_day": 0
     },
     {
-      "day": 14,
-      "retention": 0.23,
-      "needs_review": true,
-      "optimal_review_day": 0
-    },
-    {
-      "day": 30,
-      "retention": 0.16,
-      "needs_review": true,
-      "optimal_review_day": 0
-    },
-    {
-      "day": 60,
-      "retention": 0.06,
-      "needs_review": true,
-      "optimal_review_day": 0
-    },
-    {
-      "day": 90,
-      "retention": 0.03,
-      "needs_review": true,
-      "optimal_review_day": 0
-    }
-  ],
-  "geography": [
-    {
-      "day": 1,
-      "retention": 0.7,
-      "needs_review": false,
-      "optimal_review_day": 7
-    },
-    {
-      "day": 3,
-      "retention": 0.68,
-      "needs_review": false,
-      "optimal_review_day": 3
-    },
-    {
       "day": 7,
-      "retention": 0.63,
-      "needs_review": false,
-      "optimal_review_day": 3
+      "retention": 0.24,
+      "needs_review": true,
+      "optimal_review_day": 0
     },
     {
       "day": 14,
-      "retention": 0.56,
-      "needs_review": false,
-      "optimal_review_day": 3
+      "retention": 0.21,
+      "needs_review": true,
+      "optimal_review_day": 0
     },
     {
       "day": 30,
-      "retention": 0.43,
+      "retention": 0.15,
       "needs_review": true,
-      "optimal_review_day": 1
+      "optimal_review_day": 0
     },
     {
       "day": 60,
-      "retention": 0.18,
+      "retention": 0.05,
       "needs_review": true,
       "optimal_review_day": 0
     },
     {
       "day": 90,
-      "retention": 0.1,
+      "retention": 0.02,
       "needs_review": true,
       "optimal_review_day": 0
     }
   ],
-  "history": [
+  "science": [
     {
       "day": 1,
       "retention": 0.71,
@@ -131,34 +87,34 @@
       "optimal_review_day": 0
     }
   ],
-  "science": [
+  "history": [
     {
       "day": 1,
-      "retention": 0.72,
+      "retention": 0.73,
       "needs_review": false,
       "optimal_review_day": 7
     },
     {
       "day": 3,
-      "retention": 0.7,
+      "retention": 0.71,
       "needs_review": false,
-      "optimal_review_day": 3
+      "optimal_review_day": 7
     },
     {
       "day": 7,
-      "retention": 0.65,
+      "retention": 0.66,
       "needs_review": false,
       "optimal_review_day": 3
     },
     {
       "day": 14,
-      "retention": 0.58,
+      "retention": 0.59,
       "needs_review": false,
       "optimal_review_day": 3
     },
     {
       "day": 30,
-      "retention": 0.44,
+      "retention": 0.45,
       "needs_review": true,
       "optimal_review_day": 1
     },
@@ -170,7 +126,51 @@
     },
     {
       "day": 90,
-      "retention": 0.1,
+      "retention": 0.11,
+      "needs_review": true,
+      "optimal_review_day": 0
+    }
+  ],
+  "geography": [
+    {
+      "day": 1,
+      "retention": 0.73,
+      "needs_review": false,
+      "optimal_review_day": 7
+    },
+    {
+      "day": 3,
+      "retention": 0.71,
+      "needs_review": false,
+      "optimal_review_day": 7
+    },
+    {
+      "day": 7,
+      "retention": 0.66,
+      "needs_review": false,
+      "optimal_review_day": 3
+    },
+    {
+      "day": 14,
+      "retention": 0.59,
+      "needs_review": false,
+      "optimal_review_day": 3
+    },
+    {
+      "day": 30,
+      "retention": 0.45,
+      "needs_review": true,
+      "optimal_review_day": 1
+    },
+    {
+      "day": 60,
+      "retention": 0.19,
+      "needs_review": true,
+      "optimal_review_day": 0
+    },
+    {
+      "day": 90,
+      "retention": 0.11,
       "needs_review": true,
       "optimal_review_day": 0
     }

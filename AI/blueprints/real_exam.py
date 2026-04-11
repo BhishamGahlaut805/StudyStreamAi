@@ -100,14 +100,30 @@ def submit_exam_results():
             'MIN_EXAM_SAMPLES',
             getattr(current_app.prediction_service.config, 'MIN_EXAM_SAMPLES', 5)
         )
+        retrain_interval = current_app.config.get(
+            'MODEL_RETRAIN_INTERVAL_ROWS',
+            current_app.config.get('PRACTICE_RETRAIN_INTERVAL', 100)
+        )
 
         if not exam_df.empty:
             data_manager.save_exam_features(exam_df)
 
             # Trigger training if enough exams
             if len(exam_df) >= min_exam_samples:
-                current_app.training_service.train_exam_model_async(student_id)
-                training_triggered = True
+                metadata_history = data_manager.load_model_metadata('exam_difficulty')
+                last_trained_rows = None
+                if metadata_history:
+                    for item in reversed(metadata_history):
+                        if isinstance(item, dict) and item.get('feature_rows_at_training') is not None:
+                            try:
+                                last_trained_rows = int(item.get('feature_rows_at_training'))
+                                break
+                            except Exception:
+                                continue
+
+                if last_trained_rows is None or (len(exam_df) - last_trained_rows) >= retrain_interval:
+                    current_app.training_service.train_exam_model_async(student_id)
+                    training_triggered = True
 
         # Generate analysis
         analysis = {
@@ -123,7 +139,8 @@ def submit_exam_results():
             'analysis': analysis,
             'exam_feature_rows': int(len(exam_df)) if not exam_df.empty else 0,
             'training_triggered': training_triggered,
-            'min_samples_required': int(min_exam_samples)
+            'min_samples_required': int(min_exam_samples),
+            'retrain_interval': int(retrain_interval)
         })
 
     except Exception as e:

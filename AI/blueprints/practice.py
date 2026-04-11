@@ -7,6 +7,96 @@ practice_bp = Blueprint('practice', __name__)
 logger = logging.getLogger(__name__)
 
 
+def _difficulty_level_from_value(value: float) -> str:
+    score = float(max(0.0, min(1.0, value)))
+    if score < 0.3:
+        return 'easy'
+    if score < 0.5:
+        return 'medium-easy'
+    if score < 0.7:
+        return 'medium-hard'
+    return 'hard'
+
+
+def _compute_retrain_progress(total_feature_rows: int, last_trained_rows, min_samples: int, retrain_interval: int):
+    if last_trained_rows is None:
+        return max(0, int(min_samples) - int(total_feature_rows))
+    return max(0, int(retrain_interval) - (int(total_feature_rows) - int(last_trained_rows)))
+
+
+def _extract_last_training_info(metadata_history):
+    last_trained_rows = None
+    last_trained_at = None
+    if metadata_history:
+        for item in reversed(metadata_history):
+            if not isinstance(item, dict):
+                continue
+
+            if last_trained_rows is None and item.get('feature_rows_at_training') is not None:
+                try:
+                    last_trained_rows = int(item.get('feature_rows_at_training'))
+                except Exception:
+                    last_trained_rows = None
+
+            if last_trained_at is None and item.get('timestamp'):
+                last_trained_at = item.get('timestamp')
+
+            if last_trained_rows is not None and last_trained_at is not None:
+                break
+
+    return last_trained_rows, last_trained_at
+
+
+def _build_and_persist_practice_retrain_status(
+    data_manager,
+    total_feature_rows: int,
+    min_samples: int,
+    retrain_interval: int,
+    metadata_history=None,
+    training_triggered: bool = False,
+    finalize_session: bool = False,
+):
+    history = metadata_history if metadata_history is not None else data_manager.load_model_metadata('practice_difficulty')
+    last_trained_rows, last_trained_at = _extract_last_training_info(history)
+
+    saved_status = data_manager.load_retrain_status('practice_difficulty')
+    if last_trained_rows is None and saved_status.get('last_trained_feature_rows') is not None:
+        try:
+            last_trained_rows = int(saved_status.get('last_trained_feature_rows'))
+        except Exception:
+            last_trained_rows = None
+
+    if last_trained_at is None:
+        last_trained_at = saved_status.get('last_trained_at')
+
+    rows_to_next_training = _compute_retrain_progress(
+        total_feature_rows=int(total_feature_rows),
+        last_trained_rows=last_trained_rows,
+        min_samples=int(min_samples),
+        retrain_interval=int(retrain_interval),
+    )
+
+    status_payload = {
+        'last_trained_at': last_trained_at,
+        'last_trained_feature_rows': last_trained_rows,
+        'total_feature_rows': int(total_feature_rows),
+        'min_samples_required': int(min_samples),
+        'retrain_interval': int(retrain_interval),
+        'rows_to_next_training': int(rows_to_next_training),
+        'entries_left_for_retraining': int(rows_to_next_training),
+        'next_training_at_feature_rows': (
+            int(last_trained_rows) + int(retrain_interval)
+            if last_trained_rows is not None
+            else int(min_samples)
+        ),
+        'training_ready': bool(int(total_feature_rows) >= int(min_samples) and int(rows_to_next_training) == 0),
+        'training_triggered': bool(training_triggered),
+        'finalize_session': bool(finalize_session),
+    }
+    data_manager.save_retrain_status('practice_difficulty', status_payload)
+    return status_payload
+
+
 @practice_bp.route('/profile/<student_id>', methods=['GET'])
 def get_practice_profile(student_id):
     """Return lightweight practice profile from stored feature CSV/model metadata."""
@@ -24,25 +114,31 @@ def get_practice_profile(student_id):
                 current_difficulty = 0.5
 
         metadata_history = data_manager.load_model_metadata('practice_difficulty')
-        last_trained_rows = None
-        last_trained_at = None
-        if metadata_history:
-            last_item = metadata_history[-1]
-            if isinstance(last_item, dict):
-                try:
-                    last_trained_rows = int(last_item.get('feature_rows_at_training')) if last_item.get('feature_rows_at_training') is not None else None
-                except Exception:
-                    last_trained_rows = None
-                last_trained_at = last_item.get('timestamp')
+        min_samples = int(current_app.config.get('MIN_PRACTICE_SAMPLES', 100))
+        retrain_interval = int(current_app.config.get('PRACTICE_RETRAIN_INTERVAL', 100))
+        status_payload = _build_and_persist_practice_retrain_status(
+            data_manager=data_manager,
+            total_feature_rows=int(len(practice_df)),
+            min_samples=min_samples,
+            retrain_interval=retrain_interval,
+            metadata_history=metadata_history,
+        )
 
         return jsonify({
             'success': True,
             'student_id': student_id,
             'current_difficulty': round(max(0.0, min(1.0, current_difficulty)), 2),
+            'current_difficulty_level': _difficulty_level_from_value(current_difficulty),
             'feature_rows': int(len(practice_df)),
             'model_trained': len(metadata_history) > 0,
-            'last_trained_feature_rows': last_trained_rows,
-            'last_trained_at': last_trained_at,
+            'last_trained_feature_rows': status_payload.get('last_trained_feature_rows'),
+            'last_trained_at': status_payload.get('last_trained_at'),
+            'min_samples_required': min_samples,
+            'retrain_interval': retrain_interval,
+            'rows_to_next_training': status_payload.get('rows_to_next_training', 0),
+            'entries_left_for_retraining': status_payload.get('entries_left_for_retraining', 0),
+            'next_training_at_feature_rows': status_payload.get('next_training_at_feature_rows'),
+            'training_ready': status_payload.get('training_ready', False),
             'timestamp': datetime.now().isoformat(),
             'request_id': request_id,
         })
@@ -138,12 +234,40 @@ def predict_next_difficulty():
             student_id, features
         )
 
+        data_manager = current_app.prediction_service._get_data_manager(student_id)
+        practice_df = data_manager.load_practice_features()
+        metadata_history = data_manager.load_model_metadata('practice_difficulty')
+
+        min_samples = int(current_app.config.get('MIN_PRACTICE_SAMPLES', 100))
+        retrain_interval = int(current_app.config.get('PRACTICE_RETRAIN_INTERVAL', 100))
+        feature_rows = int(len(practice_df))
+        status_payload = _build_and_persist_practice_retrain_status(
+            data_manager=data_manager,
+            total_feature_rows=feature_rows,
+            min_samples=min_samples,
+            retrain_interval=retrain_interval,
+            metadata_history=metadata_history,
+        )
+
+        predicted_difficulty = float(prediction['predicted_difficulty'])
+
         response = {
             'success': True,
-            'next_difficulty': prediction['predicted_difficulty'],
+            'next_difficulty': predicted_difficulty,
+            'difficulty_level': _difficulty_level_from_value(predicted_difficulty),
             'smoothed_difficulty': prediction['smoothed_difficulty'],
             'confidence': prediction['confidence'],
             'method': prediction['method'],
+            'model_trained': bool(len(metadata_history) > 0),
+            'feature_rows': feature_rows,
+            'last_trained_feature_rows': status_payload.get('last_trained_feature_rows'),
+            'last_trained_at': status_payload.get('last_trained_at'),
+            'min_samples_required': min_samples,
+            'retrain_interval': retrain_interval,
+            'rows_to_next_training': status_payload.get('rows_to_next_training', 0),
+            'entries_left_for_retraining': status_payload.get('entries_left_for_retraining', 0),
+            'next_training_at_feature_rows': status_payload.get('next_training_at_feature_rows'),
+            'training_ready': status_payload.get('training_ready', False),
             'timestamp': datetime.now().isoformat()
         }
 
@@ -207,18 +331,10 @@ def end_practice_session():
         # Trigger training only on explicit session finalization.
         # During active session, rows are stored but training is deferred.
         min_samples = current_app.config.get('MIN_PRACTICE_SAMPLES', 10)
-        retrain_interval = current_app.config.get('PRACTICE_RETRAIN_INTERVAL', 5)
+        retrain_interval = current_app.config.get('PRACTICE_RETRAIN_INTERVAL', 100)
 
         metadata_history = data_manager.load_model_metadata('practice_difficulty')
-        last_trained_rows = None
-        if metadata_history:
-            for item in reversed(metadata_history):
-                if isinstance(item, dict) and 'feature_rows_at_training' in item:
-                    try:
-                        last_trained_rows = int(item.get('feature_rows_at_training'))
-                        break
-                    except Exception:
-                        continue
+        last_trained_rows, _ = _extract_last_training_info(metadata_history)
 
         should_trigger_training = False
         if finalize_session and total_feature_rows >= min_samples:
@@ -243,6 +359,16 @@ def end_practice_session():
                 f"[{request_id}] Session still active; deferred model training (rows={total_feature_rows}, min={min_samples})"
             )
 
+        status_payload = _build_and_persist_practice_retrain_status(
+            data_manager=data_manager,
+            total_feature_rows=int(total_feature_rows),
+            min_samples=int(min_samples),
+            retrain_interval=int(retrain_interval),
+            metadata_history=metadata_history,
+            training_triggered=training_triggered,
+            finalize_session=finalize_session,
+        )
+
         # Trigger global feature pipeline at configured threshold crossing
         min_global_samples = current_app.config.get('MIN_PRACTICE_SAMPLES_FOR_GLOBAL', 40)
         if practice_rows_before < min_global_samples <= total_feature_rows:
@@ -255,8 +381,13 @@ def end_practice_session():
             'total_attempts': len(attempts),
             'feature_rows': feature_count,
             'total_feature_rows': total_feature_rows,
-            'last_trained_feature_rows': last_trained_rows,
+            'last_trained_feature_rows': status_payload.get('last_trained_feature_rows', last_trained_rows),
+            'last_trained_at': status_payload.get('last_trained_at'),
             'retrain_interval': retrain_interval,
+            'rows_to_next_training': status_payload.get('rows_to_next_training', 0),
+            'entries_left_for_retraining': status_payload.get('entries_left_for_retraining', 0),
+            'next_training_at_feature_rows': status_payload.get('next_training_at_feature_rows'),
+            'training_ready': status_payload.get('training_ready', False),
             'finalize_session': finalize_session,
             'training_triggered': training_triggered,
             'global_features_triggered': global_triggered,

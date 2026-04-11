@@ -6,6 +6,7 @@ import analyticsService from "./analyticsService";
 
 class TestService {
   constructor() {
+    this.DEFAULT_DIFFICULTY_WINDOW_SIZE = 100;
     this.ACTIVE_SESSION_KEY = "activeTestSession";
     this.currentSession = null;
     this.currentQuestion = null;
@@ -23,7 +24,7 @@ class TestService {
     this.practiceMode = {
       infinite: true,
       currentDifficulty: 0.5,
-      difficultyWindowSize: 5,
+      difficultyWindowSize: this.DEFAULT_DIFFICULTY_WINDOW_SIZE,
       difficultyWindowRemaining: 0,
       questionHistory: [],
       conceptHistory: {},
@@ -453,7 +454,8 @@ class TestService {
     this.practiceMode.questionHistory = [];
     this.practiceMode.conceptHistory = {};
     this.practiceMode.sessionFeatures = [];
-    this.practiceMode.difficultyWindowSize = 5;
+    this.practiceMode.difficultyWindowSize =
+      this.DEFAULT_DIFFICULTY_WINDOW_SIZE;
     this.practiceMode.difficultyWindowRemaining = 0;
   }
 
@@ -1459,7 +1461,7 @@ class TestService {
     this.practiceMode = {
       infinite: true,
       currentDifficulty: 0.5,
-      difficultyWindowSize: 5,
+      difficultyWindowSize: this.DEFAULT_DIFFICULTY_WINDOW_SIZE,
       difficultyWindowRemaining: 0,
       questionHistory: [],
       conceptHistory: {},

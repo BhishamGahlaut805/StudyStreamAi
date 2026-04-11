@@ -1,5 +1,4 @@
-import tensorflow as tf
-from tensorflow.keras.layers import LSTM, Dense, Dropout
+from sklearn.ensemble import RandomForestRegressor
 from .base_model import BaseLSTM
 
 class BurnoutRiskModel(BaseLSTM):
@@ -18,36 +17,14 @@ class BurnoutRiskModel(BaseLSTM):
         self.target = 'burnout_risk_probability'
 
     def build_model(self):
-        """Build LSTM model for burnout risk prediction"""
-        model = tf.keras.Sequential([
-            # Bidirectional LSTM for better pattern capture
-            tf.keras.layers.Bidirectional(
-                LSTM(64, return_sequences=True,
-                     dropout=0.3, recurrent_dropout=0.3,
-                     kernel_initializer='he_normal'),
-                input_shape=(self.sequence_length, self.n_features)
-            ),
-
-            # Second LSTM
-            LSTM(32, return_sequences=False,
-                 dropout=0.3, recurrent_dropout=0.3,
-                 kernel_initializer='he_normal'),
-
-            # Dense layers
-            Dense(32, activation='relu', kernel_initializer='he_normal'),
-            Dropout(0.4),
-            Dense(16, activation='relu', kernel_initializer='he_normal'),
-            Dropout(0.3),
-            Dense(1, activation='sigmoid')  # Output: probability 0-1
-        ])
-
-        model.compile(
-            optimizer=tf.keras.optimizers.Adam(learning_rate=0.0005, clipnorm=1.0),
-            loss='binary_crossentropy',
-            metrics=['accuracy', 'mae']
+        """Build Random Forest regressor for burnout risk probability."""
+        self.model = RandomForestRegressor(
+            n_estimators=300,
+            max_depth=10,
+            min_samples_split=6,
+            min_samples_leaf=2,
+            random_state=42,
+            n_jobs=-1
         )
-
-        self.model = model
         self.built = True
-        return model
-    
+        return self.model

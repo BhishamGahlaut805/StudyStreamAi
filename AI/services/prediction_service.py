@@ -51,7 +51,9 @@ class PredictionService:
         try:
             data_manager = self._get_data_manager(student_id)
             model_path = data_manager.get_model_path(model_name)
-            model_file = os.path.join(model_path, f'{model_name}_model.h5')
+            model_file = os.path.join(model_path, f'{model_name}_model.pkl')
+            if not os.path.exists(model_file):
+                model_file = os.path.join(model_path, f'{model_name}_model.h5')
 
             # Check cache
             if cache_key in self.models_cache and os.path.exists(model_file):
@@ -120,7 +122,7 @@ class PredictionService:
 
             if model:
                 try:
-                    logger.debug("Using LSTM model for prediction")
+                    logger.debug("Using Random Forest model for prediction")
                     # Get recent sequence with enhanced preprocessing
                     feature_cols = self.config.PRACTICE_FEATURES
 
@@ -168,14 +170,14 @@ class PredictionService:
 
                     # Make prediction
                     prediction = model.predict_next(sequence)
-                    logger.info(f"LSTM prediction result: {prediction}")
+                    logger.info(f"Random Forest prediction result: {prediction}")
 
                     # Round to 2 decimals
                     raw_pred = float(prediction['predicted_difficulty'])
                     smoothed = self._bounded_smooth_difficulty(current_diff, raw_pred)
 
                     result = {
-                        'method': 'lstm',
+                        'method': 'random_forest',
                         'predicted_difficulty': round(raw_pred, 2),
                         'smoothed_difficulty': round(smoothed, 2),
                         'confidence': round(float(prediction.get('confidence', 0.8)), 2),
@@ -185,7 +187,7 @@ class PredictionService:
                     return result
 
                 except Exception as e:
-                    logger.error(f"LSTM prediction error: {e}\n{traceback.format_exc()}")
+                    logger.error(f"Random Forest prediction error: {e}\n{traceback.format_exc()}")
                     logger.info("Falling back to deterministic baseline prediction")
 
             # Model unavailable - return deterministic baseline until model is trained/saved
@@ -288,14 +290,14 @@ class PredictionService:
                         'recommended_difficulty': round(recommended, 2),
                         'difficulty_level': prediction.get('difficulty_level', self._difficulty_level_from_value(recommended)),
                         'confidence': round(float(prediction.get('confidence', 0.75)), 2),
-                        'method': 'lstm',
+                        'method': 'random_forest',
                         'model_trained': True
                     }
                     logger.info(f"Exam difficulty prediction result: {result}")
                     return result
 
                 except Exception as e:
-                    logger.error(f"LSTM exam prediction error: {e}\n{traceback.format_exc()}")
+                    logger.error(f"Random Forest exam prediction error: {e}\n{traceback.format_exc()}")
                     logger.info("Falling back to deterministic exam baseline prediction")
 
             # Deterministic fallback when model is not available or prediction fails.

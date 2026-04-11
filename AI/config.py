@@ -45,8 +45,9 @@ class Config:
     SEQUENCE_LENGTH_SESSION = 14
 
     # Training parameters - adjusted thresholds
-    MIN_PRACTICE_SAMPLES = 10  # Train after just 10 samples
-    PRACTICE_RETRAIN_INTERVAL = 5  # Retrain every +5 new rows after initial threshold
+    MIN_PRACTICE_SAMPLES = 100  # First training starts at 100 feature rows
+    MODEL_RETRAIN_INTERVAL_ROWS = 100  # Retrain any model only after +100 new rows
+    PRACTICE_RETRAIN_INTERVAL = 100  # Retrain every +100 new rows after initial threshold
     MIN_PRACTICE_SAMPLES_FOR_GLOBAL = 40  # Global model after 40 entries
     MIN_EXAM_SAMPLES = 5
     EPOCHS = 100

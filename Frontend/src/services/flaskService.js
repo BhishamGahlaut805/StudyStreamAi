@@ -7,6 +7,14 @@ class FlaskService {
     this.pendingRequests = new Map();
   }
 
+  resolveDifficultyLabel(value) {
+    const score = Math.max(0, Math.min(1, Number(value) || 0.5));
+    if (score < 0.3) return "easy";
+    if (score < 0.5) return "medium-easy";
+    if (score < 0.7) return "medium-hard";
+    return "hard";
+  }
+
   /**
    * Health check
    */
@@ -42,9 +50,23 @@ class FlaskService {
       return {
         success: true,
         nextDifficulty: response.next_difficulty,
+        difficultyLevel:
+          response.difficulty_level ||
+          this.resolveDifficultyLabel(response.next_difficulty),
         smoothedDifficulty: response.smoothed_difficulty,
         confidence: response.confidence,
         method: response.method,
+        modelTrained: !!response.model_trained,
+        featureRows: response.feature_rows ?? 0,
+        lastTrainedAt: response.last_trained_at || null,
+        lastTrainedFeatureRows: response.last_trained_feature_rows ?? null,
+        minSamplesRequired: response.min_samples_required ?? 100,
+        retrainInterval: response.retrain_interval ?? 100,
+        rowsToNextTraining: response.rows_to_next_training ?? 0,
+        entriesLeftForRetraining:
+          response.entries_left_for_retraining ??
+          response.rows_to_next_training ??
+          0,
         timestamp: response.timestamp,
         learningInsight: response.learning_insight,
       };
@@ -56,22 +78,38 @@ class FlaskService {
 
   async getPracticeProfile(studentId) {
     try {
-      const response = await apiClient.flaskGet(`/practice/profile/${studentId}`);
+      const response = await apiClient.flaskGet(
+        `/practice/profile/${studentId}`,
+      );
       return {
         success: true,
         currentDifficulty: response.current_difficulty ?? 0.5,
+        currentDifficultyLevel:
+          response.current_difficulty_level ||
+          this.resolveDifficultyLabel(response.current_difficulty ?? 0.5),
         featureRows: response.feature_rows ?? 0,
         modelTrained: !!response.model_trained,
         lastTrainedAt: response.last_trained_at || null,
         lastTrainedFeatureRows: response.last_trained_feature_rows ?? null,
+        minSamplesRequired: response.min_samples_required ?? 100,
+        retrainInterval: response.retrain_interval ?? 100,
+        rowsToNextTraining: response.rows_to_next_training ?? 0,
+        entriesLeftForRetraining:
+          response.entries_left_for_retraining ??
+          response.rows_to_next_training ??
+          0,
       };
     } catch (error) {
       console.error("Practice profile error:", error);
       return {
         success: false,
         currentDifficulty: 0.5,
+        currentDifficultyLevel: "medium-hard",
         featureRows: 0,
         modelTrained: false,
+        minSamplesRequired: 100,
+        retrainInterval: 100,
+        rowsToNextTraining: 100,
       };
     }
   }
@@ -115,9 +153,16 @@ class FlaskService {
       return {
         success: true,
         nextDifficulty: nextDiff,
+        difficultyLevel: this.resolveDifficultyLabel(nextDiff),
         smoothedDifficulty: nextDiff,
         confidence: 0.6,
         method: "fallback",
+        modelTrained: false,
+        featureRows: 0,
+        lastTrainedFeatureRows: null,
+        minSamplesRequired: 100,
+        retrainInterval: 100,
+        rowsToNextTraining: 100,
         timestamp: new Date().toISOString(),
       };
     }
@@ -125,9 +170,16 @@ class FlaskService {
     return {
       success: true,
       nextDifficulty: 0.5,
+      difficultyLevel: this.resolveDifficultyLabel(0.5),
       smoothedDifficulty: 0.5,
       confidence: 0.5,
       method: "default",
+      modelTrained: false,
+      featureRows: 0,
+      lastTrainedFeatureRows: null,
+      minSamplesRequired: 100,
+      retrainInterval: 100,
+      rowsToNextTraining: 100,
       timestamp: new Date().toISOString(),
     };
   }

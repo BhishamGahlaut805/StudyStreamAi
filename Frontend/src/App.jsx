@@ -22,7 +22,8 @@ import RealResult from "./Pages/Tests/realResult";
 import StartRetentionPage from "./Pages/Retention/StartRetentionPage";
 import RetentionPageInterface from "./Pages/Retention/RetentionPageInterface";
 import RetentionPageAnalyticsPage from "./Pages/Retention/RetentionPageAnalyticsPage";
-
+import DesignAdaptiveLearning from "./Pages/Design/DesignAdaptiveLearning";
+import DesignRetention from "./Pages/Design/DesignRetention";
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
@@ -87,7 +88,20 @@ function AppContent() {
               </ProtectedRoute>
             }
           />
+          <Route
+          path="/design/adaptive"
+          element={
+            <DesignAdaptiveLearning/>
+          }
+          />
+          <Route
+          path="/design/retention"
+          element={
+            <DesignRetention/>
+          }
+          />
         </Routes>
+
       </main>
       <Footer />
       <Toaster

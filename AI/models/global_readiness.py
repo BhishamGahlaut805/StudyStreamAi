@@ -1,9 +1,5 @@
 import numpy as np
-import tensorflow as tf
-from tensorflow.keras.layers import LSTM, Dense, Dropout, Bidirectional, BatchNormalization, Attention
-from tensorflow.keras.regularizers import l2
-from tensorflow.keras.optimizers import Adam
-from tensorflow.keras.callbacks import EarlyStopping, ReduceLROnPlateau
+from sklearn.ensemble import RandomForestRegressor
 from .base_model import BaseLSTM
 import logging
 import pandas as pd
@@ -37,100 +33,25 @@ class GlobalReadinessModel(BaseLSTM):
 
     def build_model(self):
         """
-        Build enhanced LSTM model for global readiness prediction
-        Architecture: Bidirectional LSTM with attention mechanism
+        Build Random Forest model for global readiness prediction.
         """
         logger.info("Building GlobalReadinessModel architecture")
 
         try:
-            # Input layer
-            inputs = tf.keras.Input(shape=(self.sequence_length, self.n_features))
-
-            # Batch normalization for input stability
-            x = BatchNormalization()(inputs)
-
-            # First Bidirectional LSTM layer
-            x = Bidirectional(
-                LSTM(128,
-                     return_sequences=True,
-                     dropout=0.3,
-                     recurrent_dropout=0.2,
-                     kernel_regularizer=l2(0.001),
-                     kernel_initializer='he_normal')
-            )(x)
-            x = BatchNormalization()(x)
-
-            # Second Bidirectional LSTM layer
-            x = Bidirectional(
-                LSTM(64,
-                     return_sequences=True,
-                     dropout=0.3,
-                     recurrent_dropout=0.2,
-                     kernel_regularizer=l2(0.001),
-                     kernel_initializer='he_normal')
-            )(x)
-            x = BatchNormalization()(x)
-
-            # Third LSTM layer (unidirectional for final processing)
-            x = LSTM(32,
-                     return_sequences=False,
-                     dropout=0.3,
-                     recurrent_dropout=0.2,
-                     kernel_regularizer=l2(0.001),
-                     kernel_initializer='he_normal'
-            )(x)
-            x = BatchNormalization()(x)
-
-            # Dense layers with regularization
-            x = Dense(64,
-                     activation='relu',
-                     kernel_regularizer=l2(0.001),
-                     kernel_initializer='he_normal')(x)
-            x = BatchNormalization()(x)
-            x = Dropout(0.4)(x)
-
-            x = Dense(32,
-                     activation='relu',
-                     kernel_regularizer=l2(0.001),
-                     kernel_initializer='he_normal')(x)
-            x = BatchNormalization()(x)
-            x = Dropout(0.3)(x)
-
-            x = Dense(16,
-                     activation='relu',
-                     kernel_regularizer=l2(0.001),
-                     kernel_initializer='he_normal')(x)
-            x = Dropout(0.2)(x)
-
-            # Output layer with sigmoid activation for 0-1 range
-            outputs = Dense(1, activation='sigmoid', name='readiness_score')(x)
-
-            # Create model
-            model = tf.keras.Model(inputs=inputs, outputs=outputs)
-
-            # Learning rate schedule
-            initial_learning_rate = 0.001
-            lr_schedule = tf.keras.optimizers.schedules.ExponentialDecay(
-                initial_learning_rate,
-                decay_steps=100,
-                decay_rate=0.9,
-                staircase=True
+            self.model = RandomForestRegressor(
+                n_estimators=400,
+                max_depth=14,
+                min_samples_split=6,
+                min_samples_leaf=2,
+                random_state=42,
+                n_jobs=-1
             )
 
-            # Compile model
-            model.compile(
-                optimizer=Adam(learning_rate=lr_schedule, clipnorm=1.0),
-                loss='mse',
-                metrics=['mae', tf.keras.metrics.RootMeanSquaredError(name='rmse')]
-            )
-
-            self.model = model
             self.built = True
 
             logger.info("GlobalReadinessModel built successfully")
-            logger.info(f"Model summary: {self.model.summary()}")
 
-            return model
+            return self.model
 
         except Exception as e:
             logger.error(f"Error building GlobalReadinessModel: {e}")
@@ -142,41 +63,7 @@ class GlobalReadinessModel(BaseLSTM):
         Used when data is limited
         """
         logger.info("Building simplified GlobalReadinessModel")
-
-        model = tf.keras.Sequential([
-            # Input layer
-            LSTM(64,
-                 return_sequences=True,
-                 input_shape=(self.sequence_length, self.n_features),
-                 dropout=0.2,
-                 recurrent_dropout=0.2,
-                 kernel_initializer='he_normal'),
-
-            LSTM(32,
-                 return_sequences=False,
-                 dropout=0.2,
-                 recurrent_dropout=0.2,
-                 kernel_initializer='he_normal'),
-
-            # Dense layers
-            Dense(32, activation='relu', kernel_initializer='he_normal'),
-            Dropout(0.3),
-            Dense(16, activation='relu', kernel_initializer='he_normal'),
-            Dropout(0.2),
-            Dense(1, activation='sigmoid')
-        ])
-
-        model.compile(
-            optimizer=Adam(learning_rate=0.001),
-            loss='mse',
-            metrics=['mae']
-        )
-
-        self.model = model
-        self.built = True
-        logger.info("Simplified GlobalReadinessModel built successfully")
-
-        return model
+        return self.build_model()
 
     def prepare_sequences(self, df: pd.DataFrame) -> dict:
         """

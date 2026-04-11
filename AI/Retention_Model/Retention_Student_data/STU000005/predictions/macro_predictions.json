@@ -1,7 +1,7 @@
 {
-  "generated_at": "2026-03-08T14:08:59.760309",
+  "generated_at": "2026-03-25T16:50:23.507036",
   "projected_retention": 0.47,
-  "burnout_risk": 0.09,
+  "burnout_risk": 0.08,
   "fatigue_burnout_check": {
     "status": "low",
     "recommended_break_minutes": 5
