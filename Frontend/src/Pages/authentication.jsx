@@ -52,10 +52,14 @@ const Authentication = () => {
     isAuthenticated,
   } = useAuth();
 
+  const getDashboardPath = (role) => {
+    return role === "teacher" ? "/teacher-dashboard" : "/dashboard";
+  };
+
   // Redirect if already authenticated
   useEffect(() => {
     if (isAuthenticated || user) {
-      navigate("/dashboard");
+      navigate(getDashboardPath(user?.role), { replace: true });
     }
   }, [isAuthenticated, user, navigate]);
 
@@ -77,12 +81,15 @@ const Authentication = () => {
     setError("");
 
     try {
-      await contextLogin({
+      const response = await contextLogin({
         email: formData.email,
         password: formData.password,
       });
+      const targetPath = getDashboardPath(
+        response?.user?.role || formData.role,
+      );
       setSuccess("Login successful! Redirecting...");
-      setTimeout(() => navigate("/dashboard"), 800);
+      setTimeout(() => navigate(targetPath, { replace: true }), 800);
     } catch (err) {
       setError(err.message || "Login failed. Please check your credentials.");
     } finally {
@@ -117,14 +124,17 @@ const Authentication = () => {
         return;
       }
 
-      await contextRegister({
+      const response = await contextRegister({
         name: formData.name,
         email: formData.email,
         password: formData.password,
         role: formData.role,
       });
+      const targetPath = getDashboardPath(
+        response?.user?.role || formData.role,
+      );
       setSuccess("Registration successful! Redirecting...");
-      setTimeout(() => navigate("/dashboard"), 800);
+      setTimeout(() => navigate(targetPath, { replace: true }), 800);
     } catch (err) {
       setError(err.message || "Registration failed. Please try again.");
     } finally {
@@ -138,12 +148,13 @@ const Authentication = () => {
     setError("");
 
     try {
-      await contextGoogleLogin({
+      const response = await contextGoogleLogin({
         tokenId: credential,
         role: "student",
       });
+      const targetPath = getDashboardPath(response?.user?.role || "student");
       setSuccess("Google login successful! Redirecting...");
-      setTimeout(() => navigate("/dashboard"), 800);
+      setTimeout(() => navigate(targetPath, { replace: true }), 800);
     } catch (err) {
       setError(err.message || "Google login failed. Please try again.");
     } finally {
@@ -189,7 +200,7 @@ const Authentication = () => {
     {
       icon: FiBookOpen,
       title: "Comprehensive Content",
-      description: "Mathematics, English, Reasoning, and GK",
+      description: "",
       color: "from-purple-500 to-pink-500",
     },
   ];
@@ -241,7 +252,7 @@ const Authentication = () => {
                 variants={fadeInUp}
                 initial="initial"
                 animate="animate"
-                className="text-5xl font-bold leading-tight mb-6"
+                className="text-5xl font-bold leading-tight m-6"
               >
                 Master Your Exams with
                 <span className="block text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-pink-300">

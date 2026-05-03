@@ -311,10 +311,13 @@ exports.updateFromFlask = async (req, res) => {
 };
 
 // Manually schedule a question
+// file: controllers/questionRepetitionController.js
+// Update the scheduleQuestion function to handle courseId
+
 exports.scheduleQuestion = async (req, res) => {
   try {
     const { studentId } = req.params;
-    const { questionId, batchType, scheduledDate } = req.body;
+    const { questionId, batchType, scheduledDate, courseId } = req.body;
 
     // Get question details
     const question = await getQuestionById(questionId);
@@ -326,9 +329,14 @@ exports.scheduleQuestion = async (req, res) => {
       });
     }
 
+    // Use provided courseId or infer from question
+    const effectiveCourseId = courseId || question.courseId || "unknown";
+    const effectiveCourseName = "";
+
     let repetition = await QuestionRepetition.findOne({
       studentId,
       questionId,
+      courseId: effectiveCourseId,
     });
 
     if (!repetition) {
@@ -336,10 +344,12 @@ exports.scheduleQuestion = async (req, res) => {
         studentId,
         userId: req.user.id,
         questionId,
-        topicId: question.topicId || question.topic,
-        subject: normalizeRetentionSubject(question.subject),
-        topicCategory: question.topicCategory || question.topic,
-        difficulty: question.difficulty,
+        courseId: effectiveCourseId,
+        courseName: effectiveCourseName,
+        topicId: question.topicId || question.topic || "General",
+        subject: "general",
+        topicCategory: question.topicCategory || question.topic || "General",
+        difficulty: question.difficulty || 0.5,
         currentBatchType: batchType || "immediate",
         metadata: {
           sourceQuestionId: questionId,
@@ -516,16 +526,35 @@ const normalizeRetentionSubject = (subject) => {
   return "english";
 };
 
-const getQuestionById = async (questionId) => {
-  const Question = require("mongoose").model("Question");
-  let question = await Question.findOne({ questionId });
+// file: controllers/questionRepetitionController.js
+// Replace the getQuestionById function at the bottom of the file
 
-  if (!question) {
-    const questionBankService = require("../Services/questionBankService");
-    question = questionBankService.getQuestionById(questionId);
+const getQuestionById = async (questionId) => {
+  const CourseQuestionBank = require("../models/Question/questionAdaptationSchema");
+
+  // Search across all question banks
+  const allBanks = await CourseQuestionBank.find({}).lean();
+
+  for (const bank of allBanks) {
+    if (bank.questions) {
+      const found = bank.questions.find(
+        (q) => String(q.questionId) === String(questionId) ||
+               String(q._id) === String(questionId)
+      );
+      if (found) {
+        return {
+          ...found,
+          _id: found._id || found.questionId,
+          questionId: found.questionId || found._id,
+          topicCategory: found.topic || found.concept_area || "General",
+          correctAnswer: found.correct_answer || found.correctAnswer,
+          expectedTime: found.expected_time || found.expectedTime || 90,
+        };
+      }
+    }
   }
 
-  return question;
+  return null;
 };
 
 const getQuestionsWithDetails = async (questionIds) => {

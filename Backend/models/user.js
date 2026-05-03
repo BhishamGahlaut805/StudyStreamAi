@@ -54,10 +54,6 @@ const UserSchema = new mongoose.Schema(
       pincode: String,
     },
     examPreferences: {
-      targetExam: {
-        type: String,
-        enum: ["SSC CGL", "SSC CHSL", "SSC MTS", "SSC GD", "Other"],
-      },
       preferredSubjects: [String],
       dailyGoal: {
         type: Number,
@@ -69,12 +65,17 @@ const UserSchema = new mongoose.Schema(
         default: "beginner",
       },
     },
+    enrolledCourses: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Course",
+      },
+    ],
     googleId: {
       type: String,
       sparse: true,
       unique: true,
     },
-
     lastLogin: {
       type: Date,
       default: Date.now,

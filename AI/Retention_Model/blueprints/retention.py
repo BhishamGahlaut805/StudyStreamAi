@@ -644,15 +644,36 @@ def _build_model_outputs(user_id: str, subject: str, answers, predictions, seque
     }
 
 
+# file: retention.py
+# Replace these functions
+
 def _normalize_subject(subject: str) -> str:
     if not subject:
         return ''
-    return str(subject).strip().lower()
+    subject_str = str(subject).strip().lower()
+    # If it's a valid ObjectId format (24 hex chars), treat as course ID
+    import re
+    if re.match(r'^[0-9a-f]{24}$', subject_str):
+        return 'course_' + subject_str
+    return subject_str
 
 
 def _is_valid_subject(subject: str) -> bool:
-    return _normalize_subject(subject) in {'english', 'gk'}
+    normalized = _normalize_subject(subject)
+    # Accept english, gk, or any course ID (starts with 'course_')
+    if normalized in {'english', 'gk'}:
+        return True
+    if normalized.startswith('course_'):
+        return True
+    return False
 
+
+def _get_display_subject(subject: str) -> str:
+    """Get display subject for internal use - defaults to english for courses"""
+    normalized = _normalize_subject(subject)
+    if normalized.startswith('course_'):
+        return 'english'  # Default to english for course-based sessions
+    return normalized if normalized in {'english', 'gk'} else 'english'
 
 def _default_topics_for_subject(subject: str):
     subject = _normalize_subject(subject)
@@ -660,7 +681,7 @@ def _default_topics_for_subject(subject: str):
         return ['vocabulary', 'idioms', 'phrases', 'synonyms', 'antonyms', 'one_word_substitution']
     if subject == 'gk':
         return ['history', 'geography', 'science', 'current_affairs']
-    return []
+    return ['general']
 
 
 def _persist_interactions(user_id: str, session_id: str, subject: str, responses):
@@ -788,6 +809,8 @@ def retention_health():
         }
     ), 200
 
+# file: retention.py
+# Update start_retention_session function
 
 @retention_bp.route('/session/start', methods=['POST'])
 def start_retention_session():
@@ -796,25 +819,28 @@ def start_retention_session():
         data = request.get_json() or {}
 
         user_id = data.get('student_id') or data.get('user_id')
-        subject = _normalize_subject(data.get('subject'))
-        topics = data.get('topics') or _default_topics_for_subject(subject)
+        original_subject = data.get('subject')
+        subject = _normalize_subject(original_subject)
+        display_subject = _get_display_subject(subject)
+        topics = data.get('topics') or _default_topics_for_subject(display_subject)
         session_type = data.get('session_type', 'practice')
         session_id = data.get('session_id') or str(uuid.uuid4())
 
         if not user_id:
             return jsonify({'success': False, 'error': 'student_id is required'}), 400
         if not _is_valid_subject(subject):
-            return jsonify({'success': False, 'error': 'subject must be english or gk'}), 400
+            return jsonify({'success': False, 'error': 'subject must be english, gk, or a valid course ID'}), 400
 
         _student_paths(user_id)
         training_needed = _safe_train_if_needed(user_id)
-        predictions = _prediction_service().get_all_predictions(user_id, subject)
-        question_batch = _build_question_batch(user_id, subject, 0.3, 0.3)
+        predictions = _prediction_service().get_all_predictions(user_id, display_subject)
+        question_batch = _build_question_batch(user_id, display_subject, 0.3, 0.3)
 
         _RETENTION_SESSIONS[session_id] = {
             'session_id': session_id,
             'user_id': str(user_id),
-            'subject': subject,
+            'subject': original_subject,  # Store original subject (course ID)
+            'display_subject': display_subject,
             'topics': topics,
             'session_type': session_type,
             'started_at': datetime.now().isoformat(),
@@ -826,7 +852,7 @@ def start_retention_session():
                 'success': True,
                 'session_id': session_id,
                 'user_id': str(user_id),
-                'subject': subject,
+                'subject': original_subject,  # Return original subject
                 'topics': topics,
                 'session_type': session_type,
                 'predictions': {
@@ -834,7 +860,7 @@ def start_retention_session():
                     'meso': predictions.get('meso', []),
                     'macro': predictions.get('macro', {}),
                     'forgetting_curves': predictions.get('forgetting_curves', {}),
-                    'stressFatigue': _prediction_service().get_stress_fatigue_predictions(user_id, subject),
+                    'stressFatigue': _prediction_service().get_stress_fatigue_predictions(user_id, display_subject),
                 },
                 'questions': question_batch.get('questions', []),
                 'metadata': {
@@ -850,7 +876,8 @@ def start_retention_session():
     except Exception as e:
         logger.error(f"Error starting retention session: {str(e)}")
         return jsonify({'error': str(e)}), 500
-
+   # file: retention.py
+# Update get_next_session_questions function
 
 @retention_bp.route('/session/<session_id>/next', methods=['POST'])
 def get_next_session_questions(session_id):
@@ -870,27 +897,25 @@ def get_next_session_questions(session_id):
             or data.get('user_id')
             or (session or {}).get('user_id')
         )
-        subject = _normalize_subject(
-            data.get('subject')
-            or inferred_subject
-            or (session or {}).get('subject')
-        )
+        original_subject = data.get('subject') or inferred_subject or (session or {}).get('subject')
+        subject = _normalize_subject(original_subject)
+        display_subject = _get_display_subject(subject)
         current_stress = float(data.get('current_stress', 0.3) or 0.3)
         current_fatigue = float(data.get('current_fatigue', 0.3) or 0.3)
 
         if not user_id:
             return jsonify({'success': False, 'error': 'user_id/student_id is required'}), 400
         if not _is_valid_subject(subject):
-            return jsonify({'success': False, 'error': 'subject must be english or gk'}), 400
+            return jsonify({'success': False, 'error': 'subject must be english, gk, or a valid course ID'}), 400
 
-        _persist_interactions(str(user_id), session_id, subject, responses)
+        _persist_interactions(str(user_id), session_id, display_subject, responses)
         _safe_train_if_needed(str(user_id))
 
         if session:
             session['events_count'] = int(session.get('events_count', 0)) + len(responses)
 
-        question_batch = _build_question_batch(str(user_id), subject, current_stress, current_fatigue)
-        predictions = _prediction_service().get_all_predictions(str(user_id), subject)
+        question_batch = _build_question_batch(str(user_id), display_subject, current_stress, current_fatigue)
+        predictions = _prediction_service().get_all_predictions(str(user_id), display_subject)
 
         return jsonify(
             {
@@ -901,7 +926,7 @@ def get_next_session_questions(session_id):
                     'micro': predictions.get('micro', []),
                     'meso': predictions.get('meso', []),
                     'macro': predictions.get('macro', {}),
-                    'stress_fatigue': _prediction_service().get_stress_fatigue_predictions(str(user_id), subject),
+                    'stress_fatigue': _prediction_service().get_stress_fatigue_predictions(str(user_id), display_subject),
                 },
                 'metadata': {
                     'recommended_break': question_batch.get('recommended_break', False),
@@ -914,6 +939,8 @@ def get_next_session_questions(session_id):
         logger.error(f"Error getting next session questions: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
+# file: retention.py
+# Update complete_retention_session function
 
 @retention_bp.route('/session/<session_id>/complete', methods=['POST'])
 def complete_retention_session(session_id):
@@ -923,20 +950,23 @@ def complete_retention_session(session_id):
         session = _RETENTION_SESSIONS.get(session_id, {})
 
         user_id = data.get('student_id') or data.get('user_id') or session.get('user_id')
-        subject = _normalize_subject(data.get('subject') or session.get('subject'))
+        original_subject = data.get('subject') or session.get('subject')
+        subject = _normalize_subject(original_subject)
+        display_subject = _get_display_subject(subject)
         answers = data.get('answers', [])
 
         if not user_id:
             return jsonify({'success': False, 'error': 'user_id/student_id is required'}), 400
         if subject and not _is_valid_subject(subject):
-            return jsonify({'success': False, 'error': 'subject must be english or gk'}), 400
+            # Don't fail on invalid subject, just use default for completion
+            display_subject = 'english'
 
         if answers:
-            _persist_interactions(str(user_id), session_id, subject or 'english', answers)
+            _persist_interactions(str(user_id), session_id, display_subject, answers)
 
         training_needed = _safe_train_if_needed(str(user_id))
-        predictions = _prediction_service().get_all_predictions(str(user_id), subject)
-        schedule = _schedule_service().generate_daily_schedule(str(user_id), subject, predictions)
+        predictions = _prediction_service().get_all_predictions(str(user_id), display_subject)
+        schedule = _schedule_service().generate_daily_schedule(str(user_id), display_subject, predictions)
 
         _RETENTION_SESSIONS.pop(session_id, None)
 
@@ -946,14 +976,14 @@ def complete_retention_session(session_id):
                 'session_id': session_id,
                 'analysis': {
                     'training_needed': training_needed,
-                    'retention_summary': _prediction_service().get_retention_summary(str(user_id), subject),
+                    'retention_summary': _prediction_service().get_retention_summary(str(user_id), display_subject),
                 },
                 'updated_predictions': {
                     'micro': predictions.get('micro', []),
                     'meso': predictions.get('meso', []),
                     'macro': predictions.get('macro', {}),
                     'forgetting_curves': predictions.get('forgetting_curves', {}),
-                    'stress_fatigue': _prediction_service().get_stress_fatigue_predictions(str(user_id), subject),
+                    'stress_fatigue': _prediction_service().get_stress_fatigue_predictions(str(user_id), display_subject),
                 },
                 'schedule': schedule,
                 'timestamp': datetime.now().isoformat(),
@@ -963,21 +993,25 @@ def complete_retention_session(session_id):
         logger.error(f"Error completing retention session: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
+# file: retention.py
+# Update update_predictions_after_answers function
 
 @retention_bp.route('/predictions/update/<user_id>', methods=['POST'])
 def update_predictions_after_answers(user_id):
     """Node compatibility endpoint to refresh predictions after recent answers."""
     try:
         data = request.get_json() or {}
-        subject = _normalize_subject(data.get('subject')) or None
+        original_subject = data.get('subject')
+        subject = _normalize_subject(original_subject)
+        display_subject = _get_display_subject(subject)
         answers = data.get('answers', [])
 
         if answers:
             session_id = data.get('session_id', f"update_{int(datetime.now().timestamp())}")
-            _persist_interactions(str(user_id), session_id, subject or 'english', answers)
+            _persist_interactions(str(user_id), session_id, display_subject, answers)
 
         training_needed = _safe_train_if_needed(str(user_id))
-        predictions = _prediction_service().get_all_predictions(str(user_id), subject)
+        predictions = _prediction_service().get_all_predictions(str(user_id), display_subject)
 
         sequence_status = _sequence_status(str(user_id))
         models_cfg = training_needed.get('models', {})
@@ -987,7 +1021,7 @@ def update_predictions_after_answers(user_id):
 
         model_outputs = _build_model_outputs(
             str(user_id),
-            subject,
+            display_subject,
             answers,
             predictions,
             sequence_status,
@@ -1035,8 +1069,7 @@ def update_predictions_after_answers(user_id):
     except Exception as e:
         logger.error(f"Error updating predictions after answers: {str(e)}")
         return jsonify({'error': str(e)}), 500
-
-
+    
 @retention_bp.route('/predictions/<user_id>', methods=['GET'])
 def get_predictions(user_id):
     """Get all retention predictions for a user"""

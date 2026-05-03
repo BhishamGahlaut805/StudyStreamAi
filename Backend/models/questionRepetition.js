@@ -1,57 +1,7 @@
+// file: models/QuestionRepetition.js
+// Update the schema to make subject optional and add courseId
+
 const mongoose = require("mongoose");
-
-const RepetitionHistorySchema = new mongoose.Schema({
-  questionId: {
-    type: String,
-    required: true,
-  },
-  sessionId: {
-    type: String,
-    required: true,
-  },
-  answeredAt: {
-    type: Date,
-    required: true,
-  },
-  wasCorrect: {
-    type: Boolean,
-    required: true,
-  },
-  responseTimeMs: Number,
-  batchType: {
-    type: String,
-    enum: ["immediate", "short_term", "medium_term", "long_term", "mastered"],
-  },
-  retentionBefore: Number,
-  retentionAfter: Number,
-});
-
-const SchedulingHistorySchema = new mongoose.Schema({
-  scheduledAt: {
-    type: Date,
-    default: Date.now,
-  },
-  source: {
-    type: String,
-    enum: ["flask", "fallback", "manual"],
-    default: "fallback",
-  },
-  timerFrameSeconds: {
-    type: Number,
-    min: 0,
-  },
-  timerFrameLabel: String,
-  batchType: {
-    type: String,
-    enum: ["immediate", "short_term", "medium_term", "long_term", "mastered"],
-  },
-  retentionProbability: {
-    type: Number,
-    min: 0,
-    max: 1,
-  },
-  dueAt: Date,
-});
 
 const QuestionRepetitionSchema = new mongoose.Schema(
   {
@@ -69,14 +19,23 @@ const QuestionRepetitionSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    courseId: {
+      type: String,
+      required: true,
+      index: true,
+    },
+    courseName: {
+      type: String,
+      default: "",
+    },
     topicId: {
       type: String,
       required: true,
+      index: true,
     },
     subject: {
       type: String,
-      enum: ["english", "gk"],
-      required: true,
+      default: "general", // Make optional with default
     },
     topicCategory: {
       type: String,
@@ -86,7 +45,7 @@ const QuestionRepetitionSchema = new mongoose.Schema(
       type: Number,
       min: 0,
       max: 1,
-      required: true,
+      default: 0.5,
     },
     currentRepetition: {
       type: Number,
@@ -94,37 +53,17 @@ const QuestionRepetitionSchema = new mongoose.Schema(
     },
     maxRepetitions: {
       type: Number,
-      default: 5,
+      default: 7,
     },
-    // Spaced repetition intervals (in days)
-    repetitionIntervals: {
-      type: [Number],
-      default: [0, 1, 3, 7, 14, 30],
+    nextScheduledDate: {
+      type: Date,
+      required: true,
     },
-    nextRepetitionDates: [
-      {
-        repetitionNumber: Number,
-        scheduledDate: Date,
-        batchType: String,
-        completed: {
-          type: Boolean,
-          default: false,
-        },
-        completedAt: Date,
-        performance: {
-          correct: Boolean,
-          responseTimeMs: Number,
-        },
-      },
-    ],
-    lastRepetitionDate: Date,
-    nextScheduledDate: Date,
     currentBatchType: {
       type: String,
       enum: ["immediate", "short_term", "medium_term", "long_term", "mastered"],
       default: "immediate",
     },
-    retentionHistory: [RepetitionHistorySchema],
     currentRetention: {
       type: Number,
       min: 0,
@@ -141,7 +80,7 @@ const QuestionRepetitionSchema = new mongoose.Schema(
       type: Number,
       min: 1.3,
       max: 2.5,
-      default: 2.0,
+      default: 2.5,
     },
     timesCorrect: {
       type: Number,
@@ -153,33 +92,59 @@ const QuestionRepetitionSchema = new mongoose.Schema(
     },
     lastAccuracy: {
       type: Number,
-      default: 0,
+      min: 0,
+      max: 1,
+      default: 0.5,
     },
     isMastered: {
       type: Boolean,
       default: false,
     },
     masteredAt: Date,
+    nextRepetitionDates: [
+      {
+        repetitionNumber: Number,
+        scheduledDate: Date,
+        batchType: String,
+        completed: Boolean,
+        completedAt: Date,
+      },
+    ],
+    retentionHistory: [
+      {
+        repetitionNumber: Number,
+        answeredAt: Date,
+        wasCorrect: Boolean,
+        retentionAfter: Number,
+        sessionId: String,
+      },
+    ],
+    schedulingHistory: [
+      {
+        source: String,
+        timerFrameSeconds: Number,
+        timerFrameLabel: String,
+        batchType: String,
+        retentionProbability: Number,
+        dueAt: Date,
+        scheduledAt: Date,
+      },
+    ],
+    latestFlaskMetrics: {
+      type: mongoose.Schema.Types.Mixed,
+      default: {},
+    },
+    latestQuestionSnapshot: {
+      type: mongoose.Schema.Types.Mixed,
+      default: {},
+    },
     metadata: {
       sourceQuestionId: String,
       generatedBy: {
         type: String,
-        enum: ["flask", "manual"],
-        default: "flask",
+        enum: ["flask", "manual", "system"],
+        default: "system",
       },
-    },
-    // Keep these as Mixed for backward/forward compatibility with evolving Flask payload shape.
-    latestQuestionSnapshot: {
-      type: mongoose.Schema.Types.Mixed,
-      default: null,
-    },
-    latestFlaskMetrics: {
-      type: mongoose.Schema.Types.Mixed,
-      default: null,
-    },
-    schedulingHistory: {
-      type: [SchedulingHistorySchema],
-      default: [],
     },
   },
   {
@@ -187,204 +152,147 @@ const QuestionRepetitionSchema = new mongoose.Schema(
   },
 );
 
-// Indexes
+// Compound index for efficient queries
+QuestionRepetitionSchema.index(
+  { studentId: 1, questionId: 1 },
+  { unique: true },
+);
 QuestionRepetitionSchema.index({ studentId: 1, nextScheduledDate: 1 });
-QuestionRepetitionSchema.index({ studentId: 1, topicId: 1 });
-QuestionRepetitionSchema.index({ studentId: 1, currentBatchType: 1 });
+QuestionRepetitionSchema.index({ studentId: 1, courseId: 1, isMastered: 1 });
 
-// Initialize repetition schedule
+// Initialize schedule for a new question
 QuestionRepetitionSchema.methods.initializeSchedule = function () {
-  this.nextRepetitionDates = [];
-
-  for (let i = 1; i <= this.maxRepetitions; i++) {
-    const interval = this.repetitionIntervals[i] || 30;
-    const scheduledDate = new Date();
-    scheduledDate.setDate(scheduledDate.getDate() + interval);
-
-    let batchType = "medium_term";
-    if (i === 1) batchType = "immediate";
-    else if (i === 2) batchType = "short_term";
-    else if (i <= 3) batchType = "medium_term";
-    else if (i <= 4) batchType = "long_term";
-    else batchType = "mastered";
-
-    this.nextRepetitionDates.push({
-      repetitionNumber: i,
-      scheduledDate,
-      batchType,
-      completed: false,
-    });
-  }
-
-  this.nextScheduledDate = this.nextRepetitionDates[0]?.scheduledDate;
-  this.currentBatchType = this.nextRepetitionDates[0]?.batchType || "immediate";
+  const now = new Date();
+  this.currentRepetition = 0;
+  this.nextScheduledDate = now;
+  this.currentBatchType = "immediate";
+  this.currentRetention = 0.5;
+  this.stabilityIndex = 0.5;
+  this.easeFactor = 2.5;
+  this.timesCorrect = 0;
+  this.timesIncorrect = 0;
+  this.lastAccuracy = 0.5;
+  this.isMastered = false;
+  this.retentionHistory = [];
 };
 
-// Update after repetition
-QuestionRepetitionSchema.methods.updateAfterRepetition = function (
+// Update after a repetition attempt
+QuestionRepetitionSchema.methods.updateAfterRepetition = async function (
   wasCorrect,
   responseTimeMs,
   sessionId,
 ) {
-  // Update repetition count
-  this.currentRepetition++;
-
-  // Update history
-  const retentionBefore = this.currentRetention;
-  this.retentionHistory.push({
-    questionId: this.questionId,
-    sessionId,
-    answeredAt: new Date(),
-    wasCorrect,
-    responseTimeMs,
-    batchType: this.currentBatchType,
-    retentionBefore,
-    retentionAfter: this.currentRetention,
-  });
-
-  // Update stats
+  // Update counts
   if (wasCorrect) {
     this.timesCorrect++;
   } else {
     this.timesIncorrect++;
   }
 
-  this.lastAccuracy =
-    this.timesCorrect / (this.timesCorrect + this.timesIncorrect);
+  // Update last accuracy
+  const totalAttempts = this.timesCorrect + this.timesIncorrect;
+  this.lastAccuracy = this.timesCorrect / totalAttempts;
 
-  // Mark current repetition as completed
-  const currentRep = this.nextRepetitionDates.find(
-    (r) => r.repetitionNumber === this.currentRepetition,
-  );
-  if (currentRep) {
-    currentRep.completed = true;
-    currentRep.completedAt = new Date();
-    currentRep.performance = {
-      correct: wasCorrect,
-      responseTimeMs,
-    };
-  }
-
-  // Update retention using SM-2 algorithm
-  this.updateRetention(wasCorrect, responseTimeMs);
-
-  // Set next repetition
-  this.lastRepetitionDate = new Date();
-
-  if (this.currentRepetition >= this.maxRepetitions || this.isMastered) {
-    this.nextScheduledDate = null;
-    this.currentBatchType = "mastered";
-    this.isMastered = true;
-    this.masteredAt = new Date();
-  } else {
-    const nextRep = this.nextRepetitionDates[this.currentRepetition];
-    this.nextScheduledDate = nextRep?.scheduledDate || null;
-    this.currentBatchType = nextRep?.batchType || "mastered";
-  }
-
-  // Save to database
-  return this.save();
-};
-
-QuestionRepetitionSchema.methods.pushSchedulingHistory = function (event) {
-  if (!event || typeof event !== "object") return;
-  this.schedulingHistory.push({
-    scheduledAt: event.scheduledAt || new Date(),
-    source: event.source || "fallback",
-    timerFrameSeconds: Number(event.timerFrameSeconds || 0),
-    timerFrameLabel: event.timerFrameLabel || "",
-    batchType: event.batchType || this.currentBatchType,
-    retentionProbability: Number(
-      event.retentionProbability || this.currentRetention || 0,
-    ),
-    dueAt: event.dueAt || this.nextScheduledDate,
-  });
-  if (this.schedulingHistory.length > 100) {
-    this.schedulingHistory = this.schedulingHistory.slice(-100);
-  }
-};
-
-// Update retention using SM-2 algorithm
-QuestionRepetitionSchema.methods.updateRetention = function (
-  wasCorrect,
-  responseTimeMs,
-) {
-  // Quality of response (0-5)
-  let quality = 3; // Medium by default
-
-  if (wasCorrect) {
-    if (responseTimeMs < 5000)
-      quality = 5; // Fast correct
-    else if (responseTimeMs < 10000)
-      quality = 4; // Normal correct
-    else quality = 3; // Slow correct
-  } else {
-    quality = 1; // Incorrect
-  }
-
-  // SM-2 algorithm
-  if (quality >= 3) {
-    // Correct response
-    if (this.currentRepetition === 1) {
-      this.repetitionIntervals[this.currentRepetition] = 1;
-    } else if (this.currentRepetition === 2) {
-      this.repetitionIntervals[this.currentRepetition] = 6;
-    } else {
-      this.repetitionIntervals[this.currentRepetition] = Math.round(
-        this.repetitionIntervals[this.currentRepetition - 1] * this.easeFactor,
-      );
-    }
-    this.easeFactor =
-      this.easeFactor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02));
-  } else {
-    // Incorrect response - reset
-    this.currentRepetition = 0;
-    this.repetitionIntervals[this.currentRepetition] = 1;
-    this.easeFactor = Math.max(1.3, this.easeFactor - 0.2);
-  }
-
-  // Ensure bounds
-  this.easeFactor = Math.max(1.3, Math.min(2.5, this.easeFactor));
-
-  // Calculate current retention (exponential decay)
-  const daysSinceLast = this.lastRepetitionDate
-    ? (new Date() - this.lastRepetitionDate) / (1000 * 60 * 60 * 24)
+  // Calculate new retention based on SM-2 like algorithm
+  const quality = wasCorrect
+    ? Math.min(5, Math.floor(responseTimeMs / 1000 / 30) + 3)
     : 0;
 
-  const baseRetention = this.lastAccuracy;
-  const decayConstant = 0.1 / (this.easeFactor - 1);
-  this.currentRetention = Math.max(
-    0.1,
-    Math.min(1, baseRetention * Math.exp(-decayConstant * daysSinceLast)),
-  );
+  // Update ease factor (SM-2 algorithm)
+  if (quality >= 3) {
+    let newEase =
+      this.easeFactor + (0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02));
+    this.easeFactor = Math.min(2.5, Math.max(1.3, newEase));
+  }
 
-  // Mastery threshold
-  if (this.timesCorrect >= 10 && this.lastAccuracy > 0.9) {
+  // Calculate new interval
+  let interval = 1;
+  if (this.currentRepetition === 0) {
+    interval = 1;
+  } else if (this.currentRepetition === 1) {
+    interval = 6;
+  } else {
+    interval = Math.round(this.currentRepetition * this.easeFactor);
+  }
+
+  // Cap interval and convert to days
+  interval = Math.min(365, interval);
+  const nextDate = new Date();
+  nextDate.setDate(nextDate.getDate() + interval);
+
+  // Update retention probability
+  const newRetention = Math.min(
+    0.95,
+    Math.max(
+      0.1,
+      this.lastAccuracy * 0.6 + (wasCorrect ? 0.25 : 0) + quality / 10,
+    ),
+  );
+  this.currentRetention = newRetention;
+
+  // Determine batch type based on interval
+  if (interval <= 0) this.currentBatchType = "immediate";
+  else if (interval <= 1) this.currentBatchType = "short_term";
+  else if (interval <= 3) this.currentBatchType = "medium_term";
+  else if (interval <= 14) this.currentBatchType = "long_term";
+  else this.currentBatchType = "mastered";
+
+  this.currentRepetition++;
+  this.nextScheduledDate = nextDate;
+
+  // Check if mastered (3+ correct in a row with good retention)
+  if (
+    this.currentRepetition >= 5 &&
+    this.lastAccuracy >= 0.8 &&
+    this.currentRetention >= 0.8
+  ) {
     this.isMastered = true;
+    this.masteredAt = new Date();
+  }
+
+  // Add to history
+  this.retentionHistory.push({
+    repetitionNumber: this.currentRepetition,
+    answeredAt: new Date(),
+    wasCorrect,
+    retentionAfter: this.currentRetention,
+    sessionId,
+  });
+
+  // Keep history limited
+  if (this.retentionHistory.length > 20) {
+    this.retentionHistory = this.retentionHistory.slice(-20);
   }
 };
 
-// Get batch type based on retention
-QuestionRepetitionSchema.statics.getBatchTypeFromRetention = function (
-  retention,
-) {
-  if (retention < 0.3) return "immediate";
-  if (retention < 0.5) return "short_term";
-  if (retention < 0.7) return "medium_term";
-  if (retention < 0.85) return "long_term";
-  return "mastered";
+// Add scheduling history entry
+QuestionRepetitionSchema.methods.pushSchedulingHistory = function (entry) {
+  if (!Array.isArray(this.schedulingHistory)) {
+    this.schedulingHistory = [];
+  }
+  this.schedulingHistory.push({
+    ...entry,
+    scheduledAt: new Date(),
+  });
+  if (this.schedulingHistory.length > 50) {
+    this.schedulingHistory = this.schedulingHistory.slice(-50);
+  }
 };
 
-// Find questions due for review
-QuestionRepetitionSchema.statics.findDueQuestions = function (
+// Static method to find due questions
+QuestionRepetitionSchema.statics.findDueQuestions = async function (
   studentId,
-  date = new Date(),
+  courseId = null,
 ) {
-  return this.find({
+  const query = {
     studentId,
-    nextScheduledDate: { $lte: date },
     isMastered: false,
-  }).sort({ nextScheduledDate: 1 });
+    nextScheduledDate: { $lte: new Date() },
+  };
+  if (courseId) {
+    query.courseId = courseId;
+  }
+  return this.find(query).sort({ nextScheduledDate: 1, currentRetention: 1 });
 };
 
-module.exports = mongoose.models.QuestionRepetition || mongoose.model("QuestionRepetition", QuestionRepetitionSchema);
+module.exports = mongoose.model("QuestionRepetition", QuestionRepetitionSchema);

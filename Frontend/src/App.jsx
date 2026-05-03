@@ -14,6 +14,7 @@ import Footer from "./components/Footer";
 import Home from "./Pages/Home";
 import Authentication from "./Pages/authentication";
 import StudentDashboard from "./Pages/Dashboard/studentDashboard";
+import TeacherDashboard from "./Pages/Dashboard/teacherDashboard";
 import TestPage from "./Pages/Tests/testPage";
 import PracticePage from "./Pages/Tests/practicePage";
 import RealTest from "./Pages/Tests/realTest";
@@ -24,6 +25,9 @@ import RetentionPageInterface from "./Pages/Retention/RetentionPageInterface";
 import RetentionPageAnalyticsPage from "./Pages/Retention/RetentionPageAnalyticsPage";
 import DesignAdaptiveLearning from "./Pages/Design/DesignAdaptiveLearning";
 import DesignRetention from "./Pages/Design/DesignRetention";
+
+import LearningView from "./Pages/Dashboard/LearningView";
+
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
@@ -37,6 +41,28 @@ const ProtectedRoute = ({ children }) => {
   }
 
   return isAuthenticated ? children : <Navigate to="/auth" />;
+};
+
+const DashboardRoute = () => {
+  const { user, isAuthenticated, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-12 h-12 border-4 border-primary-500 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    );
+  }
+
+  if (!isAuthenticated) {
+    return <Navigate to="/auth" />;
+  }
+
+  if (user?.role === "teacher") {
+    return <Navigate to="/teacher-dashboard" replace />;
+  }
+
+  return <StudentDashboard />;
 };
 
 function AppContent() {
@@ -53,7 +79,23 @@ function AppContent() {
             path="/dashboard"
             element={
               <ProtectedRoute>
-                <StudentDashboard />
+                <DashboardRoute />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/teacher-dashboard"
+            element={
+              <ProtectedRoute>
+                <TeacherDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/teacher/dashboard"
+            element={
+              <ProtectedRoute>
+                <TeacherDashboard />
               </ProtectedRoute>
             }
           />
@@ -63,7 +105,7 @@ function AppContent() {
           <Route path="/test/real/interface" element={<RealTest />} />
           <Route path="/practice/results" element={<PracticeResult />} />
           <Route path="/test/results" element={<RealResult />} />
-
+          <Route path="/course/:courseId/learn" element={<LearningView />} />
           <Route
             path="/retention/start"
             element={
@@ -88,20 +130,9 @@ function AppContent() {
               </ProtectedRoute>
             }
           />
-          <Route
-          path="/design/adaptive"
-          element={
-            <DesignAdaptiveLearning/>
-          }
-          />
-          <Route
-          path="/design/retention"
-          element={
-            <DesignRetention/>
-          }
-          />
+          <Route path="/design/adaptive" element={<DesignAdaptiveLearning />} />
+          <Route path="/design/retention" element={<DesignRetention />} />
         </Routes>
-
       </main>
       <Footer />
       <Toaster

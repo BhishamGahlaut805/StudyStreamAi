@@ -15,12 +15,19 @@ const authRoutes = require("./routes/authRoutes");
 const testRoutes = require("./routes/testRoutes");
 const studentRoutes = require("./routes/studentRoutes");
 const questionRoutes = require("./Services/questionRoutes");
+const courseRoutes = require("./routes/Course/courseRoutes");
+const profileRoutes = require("./routes/profileRoutes");
+const teacherRoutes = require("./routes/teacherRoutes");
 const retentionSessionRoutes = require("./routes/retentionSessionRoutes");
 const retentionScheduleRoutes = require("./routes/retentionScheduleRoutes");
 const retentionMetricsRoutes = require("./routes/retentionMetricsRoutes");
 const retentionAnalyticsRoutes = require("./routes/retentionAnalyticsRoutes");
 const questionRepetitionRoutes = require("./routes/questionRepetitionRoutes");
 const retentionFlaskBridgeRoutes = require("./routes/retentionFlaskBridgeRoutes");
+
+const questionBankRoutes = require("./routes/Course/questionBankRoutes");
+const practiceRoutes = require("./routes/Student/GetPracticeRoutes");
+
 const {
   initializeRetentionSocket,
 } = require("./Services/retentionSocketHandler");
@@ -28,6 +35,7 @@ const {
 // Import socket handler
 const { initializeTestSocket } = require("./sockets/testSocket");
 
+const StudentRoutes1 = require("./routes/Student/studentRoutes");
 // Import services
 const timerService = require("./Services/timerService");
 const analyticsService = require("./Services/analyticsService");
@@ -167,6 +175,9 @@ app.use("/api/auth", authRoutes);
 app.use("/api/tests", testRoutes);
 app.use("/api/students", studentRoutes);
 app.use("/api/questions", questionRoutes);
+app.use("/api/courses", courseRoutes);
+app.use("/api/profile", profileRoutes);
+app.use("/api/teachers", teacherRoutes);
 
 app.use("/api/retention/sessions", retentionSessionRoutes);
 app.use("/api/retention/schedules", retentionScheduleRoutes);
@@ -174,6 +185,9 @@ app.use("/api/retention/metrics", retentionMetricsRoutes);
 app.use("/api/retention/analytics", retentionAnalyticsRoutes);
 app.use("/api/retention/repetitions", questionRepetitionRoutes);
 app.use("/api/ml", retentionFlaskBridgeRoutes);
+app.use("/api/studentLearn", StudentRoutes1);
+app.use("/api/courses/:courseId/question-bank", questionBankRoutes);
+app.use("/api/practice", practiceRoutes);
 
 // Health check endpoints
 app.get("/health", (req, res) => {
@@ -211,11 +225,47 @@ app.use((req, res) => {
 });
 
 app.use((err, req, res, next) => {
-  console.error("Server Error:", err.stack);
-  res.status(500).json({
+  if (!err) {
+    return res.status(500).json({
+      success: false,
+      message: "Unknown server error",
+      error:
+        process.env.NODE_ENV === "development"
+          ? "No error details available"
+          : undefined,
+    });
+  }
+
+  let statusCode = err.statusCode || 500;
+  let message = err.message || "Something went wrong!";
+
+  if (err.code === 11000) {
+    statusCode = 400;
+    const duplicateFields = Object.keys(err.keyValue || {}).join(", ");
+    message = duplicateFields
+      ? `Duplicate value for ${duplicateFields}`
+      : "Duplicate value already exists";
+  }
+
+  if (err.name === "ValidationError") {
+    statusCode = 400;
+    message = Object.values(err.errors)
+      .map((e) => e.message)
+      .join(", ");
+  }
+
+  if (err.name === "CastError") {
+    statusCode = 400;
+    message = "Invalid ID format";
+  }
+
+  res.status(statusCode).json({
     success: false,
-    message: "Something went wrong!",
-    error: process.env.NODE_ENV === "development" ? err.message : undefined,
+    message,
+    error:
+      process.env.NODE_ENV === "development"
+        ? err.message || err.stack || "No details available"
+        : undefined,
   });
 });
 

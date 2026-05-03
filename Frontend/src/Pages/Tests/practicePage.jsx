@@ -90,6 +90,7 @@ const PracticePage = () => {
   const [answerSubmitted, setAnswerSubmitted] = useState(false);
   const [answerResult, setAnswerResult] = useState(null);
   const [showExplanation, setShowExplanation] = useState(false);
+  const [showHints, setShowHints] = useState(false);
   const [questionStartTime, setQuestionStartTime] = useState(null);
   const [questionTime, setQuestionTime] = useState(0);
   const [answerChanges, setAnswerChanges] = useState(0);
@@ -205,6 +206,7 @@ const PracticePage = () => {
       correctAnswer:
         question?.correctAnswer ?? question?.correct_answer ?? null,
       explanation: question?.explanation ?? question?.solution ?? "",
+      hints: Array.isArray(question?.hints) ? question.hints : [],
       solutionSteps: Array.isArray(question?.solutionSteps)
         ? question.solutionSteps
         : Array.isArray(question?.solution_steps)
@@ -380,6 +382,7 @@ const PracticePage = () => {
       setAnswerSubmitted(false);
       setAnswerResult(null);
       setShowExplanation(false);
+      setShowHints(false);
 
       if (typeof data?.currentQuestionIndex === "number") {
         setCurrentIndex(data.currentQuestionIndex);
@@ -417,6 +420,7 @@ const PracticePage = () => {
     setAnswerSubmitted(false);
     setAnswerResult(null);
     setShowExplanation(false);
+    setShowHints(false);
     setAnswerChanges(0);
 
     // Update current index
@@ -607,6 +611,10 @@ const PracticePage = () => {
       setLoading(true);
       setError(null);
 
+      console.log("[PracticePage] Initializing practice session...");
+      console.log("[PracticePage] Session data:", sessionData);
+      console.log("[PracticePage] Session config:", sessionConfig);
+
       const configuredInitialDifficulty = Number.isFinite(
         Number(sessionConfig?.initialDifficulty),
       )
@@ -614,6 +622,11 @@ const PracticePage = () => {
         : Number.isFinite(Number(sessionData?.config?.difficulty))
           ? Number(sessionData.config.difficulty)
           : 0.5;
+
+      console.log(
+        "[PracticePage] Configured initial difficulty:",
+        configuredInitialDifficulty,
+      );
 
       const shouldApplyStarterLock =
         Number((sessionData?.answers || []).length || 0) === 0;
@@ -684,10 +697,38 @@ const PracticePage = () => {
 
       // If session exists from navigation, use it
       if (session) {
+        console.log("[PracticePage] Using session from navigation");
+        console.log(
+          "[PracticePage] Total questions:",
+          session.questions?.length,
+        );
+        console.log(
+          "[PracticePage] Course IDs:",
+          session.testConfig?.selectedCourseIds,
+        );
+        console.log(
+          "[PracticePage] Selected topics:",
+          session.testConfig?.selectedTopics,
+        );
+
         const initialQuestion =
           session.questions?.[session.currentQuestionIndex || 0] ||
           session.questions?.[0] ||
           null;
+
+        if (!initialQuestion) {
+          console.error("[PracticePage] ERROR: No initial question found!");
+          setError("Failed to load initial question. Please try again.");
+          setLoading(false);
+          return;
+        }
+
+        console.log("[PracticePage] Initial question loaded:", {
+          text: initialQuestion.text?.substring(0, 50),
+          topic: initialQuestion.topic,
+          difficulty: initialQuestion.difficulty,
+          fromCourseBank: initialQuestion.metadata?.fromCourseQuestionBank,
+        });
 
         // Set in test service
         testService.currentSession = {
@@ -708,6 +749,10 @@ const PracticePage = () => {
         // Join test session
         const studentId = authService.getStudentId();
         if (session.sessionId && studentId) {
+          console.log(
+            "[PracticePage] Joining test session:",
+            session.sessionId,
+          );
           setTimeout(() => {
             websocketService.send("join-test", {
               sessionId: session.sessionId,
@@ -808,7 +853,7 @@ const PracticePage = () => {
         initialDifficulty: initialDifficulty,
         adaptiveEnabled: true,
         showSolutions: true,
-        batchSize: 2,
+        batchSize: 60, // Fetch 60 questions at a time for smoother infinite practice
       };
 
       const response = await testService.createPracticeTest(config);
@@ -943,6 +988,7 @@ const PracticePage = () => {
           [],
       });
       setShowExplanation(false);
+      setShowHints(false);
 
       // Update metrics
       setMetrics((prev) => {
@@ -1446,6 +1492,11 @@ const PracticePage = () => {
         ? Number(flaskPredictions.nextDifficulty)
         : 0.5;
 
+      console.log(
+        "[PracticePage] Requesting next question with difficulty:",
+        lockedDifficulty,
+      );
+
       setSessionNotice("");
       setRequestingNext(true);
       requestingNextRef.current = true;
@@ -1468,7 +1519,14 @@ const PracticePage = () => {
           difficultyWindowRemaining: flaskPredictions.windowRemaining,
         });
 
+        console.log("[PracticePage] Next question response:", {
+          status: nextResponse?.status,
+          question: nextResponse?.data?.question?.text?.substring(0, 50),
+          topic: nextResponse?.data?.question?.topic,
+        });
+
         if (nextResponse?.status === "no-more") {
+          console.log("[PracticePage] No more questions available");
           handleNoMoreQuestions(nextResponse.data || {});
         } else if (nextResponse?.status === "ok") {
           handleNextQuestionReceived(nextResponse.data || {});
@@ -1477,6 +1535,7 @@ const PracticePage = () => {
         clearTimeout(watchdog);
       } catch (error) {
         requestingNextRef.current = false;
+        console.error("[PracticePage] Error requesting next question:", error);
         setError(
           error?.message ||
             "Could not load next question. Please check connection and try again.",
@@ -1623,6 +1682,16 @@ const PracticePage = () => {
     }
     if (Array.isArray(currentQuestion?.solutionSteps)) {
       return currentQuestion.solutionSteps;
+    }
+    return [];
+  };
+
+  const getDisplayedHints = () => {
+    if (Array.isArray(answerResult?.hints)) {
+      return answerResult.hints;
+    }
+    if (Array.isArray(currentQuestion?.hints)) {
+      return currentQuestion.hints;
     }
     return [];
   };
@@ -2340,6 +2409,34 @@ const PracticePage = () => {
                               </li>
                             ))}
                           </ol>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Hints Section */}
+                    {getDisplayedHints()?.length > 0 && (
+                      <div className="mt-4">
+                        <button
+                          onClick={() => setShowHints((prev) => !prev)}
+                          className="text-sm font-medium text-amber-600 hover:text-amber-500 flex items-center gap-1"
+                        >
+                          <FiHelpCircle className="w-4 h-4" />
+                          {showHints ? "Hide Hints" : "Show Hints"}
+                        </button>
+                        {showHints && (
+                          <div className="mt-2 rounded-lg bg-amber-50/70 dark:bg-amber-900/30 p-3 border border-amber-200 dark:border-amber-800">
+                            <ul className="space-y-2">
+                              {getDisplayedHints().map((hint, idx) => (
+                                <li
+                                  key={idx}
+                                  className="text-sm text-amber-900 dark:text-amber-100 flex gap-2"
+                                >
+                                  <span className="font-semibold">•</span>
+                                  <span>{hint}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
                         )}
                       </div>
                     )}

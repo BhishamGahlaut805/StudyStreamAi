@@ -242,13 +242,15 @@ class TestService {
           description: config.description || "",
           selectedTopics: config.selectedTopics || [],
           selectedPdfs: config.selectedPdfs || [],
+          selectedCourseIds: config.selectedCourseIds || [], // Add course IDs
           adaptiveEnabled: config.adaptiveEnabled !== false,
-          batchSize: config.batchSize || 2,
+          batchSize: config.batchSize || 20,
           difficulty: config.initialDifficulty || 0.5,
           showSolutions: config.showSolutions !== false,
         },
         selectedTopics: config.selectedTopics || [],
         selectedPdfs: config.selectedPdfs || [],
+        selectedCourseIds: config.selectedCourseIds || [], // Add course IDs
       };
 
       const response = await apiClient.nodePost("/tests", testData);
@@ -322,11 +324,13 @@ class TestService {
           description: config.description || "SSC Exam Simulation",
           totalDuration: 60, // 60 minutes
           selectedTopics: config.selectedTopics || [],
+          selectedCourseIds: config.selectedCourseIds || [], // Add course IDs
           adaptiveEnabled: false,
           difficulty: config.initialDifficulty || 0.5,
           showSolutions: false, // Don't show during exam
         },
         selectedTopics: config.selectedTopics || [],
+        selectedCourseIds: config.selectedCourseIds || [], // Add course IDs
       };
 
       const response = await apiClient.nodePost("/tests", testData);

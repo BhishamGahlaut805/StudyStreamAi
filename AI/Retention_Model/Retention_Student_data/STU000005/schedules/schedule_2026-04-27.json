@@ -1,0 +1,25 @@
+{
+  "user_id": "STU000005",
+  "subject": "english",
+  "date": "2026-04-27",
+  "generated_at": "2026-04-27T13:02:19.815898",
+  "immediate_batch": {
+    "questions": [],
+    "total_questions": 0,
+    "focus_topics": []
+  },
+  "session_batch": {
+    "batches": [],
+    "batch_count": 0,
+    "total_questions": 0
+  },
+  "chapter_reviews": [],
+  "long_term_plan": {
+    "review_topics": [],
+    "mastered_topics": []
+  },
+  "summary": {
+    "total_topics": 0,
+    "estimated_total_questions": 0
+  }
+}

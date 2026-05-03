@@ -296,19 +296,28 @@ class RetentionService {
    * Start a new retention practice session
    * Step 1 in API Flow: Frontend starts dedicated practice session
    */
+  // file: RetentionService.js
+  // Update the startSession method (around line 240-280)
+
+  /**
+   * Start a new retention practice session
+   * Step 1 in API Flow: Frontend starts dedicated practice session
+   */
   async startSession(subject, topics = [], sessionType = "practice") {
     try {
       if (!this.currentStudentId) {
         throw new Error("Student not initialized. Call initialize() first.");
       }
 
-      // Validate subject and topics
-      this.validateSubjectTopics(subject, topics);
+      // Validate that subject (courseId) is provided
+      if (!subject) {
+        throw new Error("Course ID is required to start retention session");
+      }
 
       // Create session on Node.js backend
       const response = await this.nodeApi.post("/retention/sessions", {
         studentId: this.currentStudentId,
-        subject,
+        subject, // This will be the courseId
         topics: topics.length > 0 ? topics : this.getDefaultTopics(subject),
         sessionType,
       });
@@ -338,7 +347,7 @@ class RetentionService {
       };
     }
   }
-
+  
   /**
    * Kept for backward compatibility, but Flask session start is delegated to Node.
    */

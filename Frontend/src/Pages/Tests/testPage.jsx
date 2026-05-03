@@ -6,6 +6,8 @@ import { useTheme } from "../../context/ThemeContext";
 import testService from "../../services/testService";
 import authService from "../../services/authService";
 import flaskService from "../../services/flaskService";
+import enrollmentService from "../../services/Course/enrollmentService";
+import courseService from "../../services/Course/CourseService";
 
 import {
   FiPlay,
@@ -51,80 +53,24 @@ const TestPage = () => {
   const { user } = useAuth();
   const { isDark, toggleTheme } = useTheme();
 
-  const SUBJECT_TOPICS = {
-    mathematics: [
-      "Number System",
-      "Algebra",
-      "Geometry",
-      "Trigonometry",
-      "Mensuration",
-      "Statistics",
-      "Probability",
-      "Average",
-      "Percentage",
-      "Profit & Loss",
-      "Simple Interest",
-      "Compound Interest",
-      "Time & Work",
-      "Time & Distance",
-      "Ratio & Proportion",
-      "Mixture & Alligation",
-    ],
-    english: [
-      "Grammar",
-      "Vocabulary",
-      "Reading Comprehension",
-      "Synonyms",
-      "Antonyms",
-      "Idioms & Phrases",
-      "One Word Substitution",
-      "Sentence Improvement",
-      "Spotting Errors",
-      "Fill in the Blanks",
-      "Cloze Test",
-      "Para Jumbles",
-    ],
-    reasoning: [
-      "Analogy",
-      "Classification",
-      "Series",
-      "Coding-Decoding",
-      "Blood Relations",
-      "Direction Sense",
-      "Logical Venn Diagrams",
-      "Syllogism",
-      "Statement & Conclusions",
-      "Statement & Assumptions",
-      "Inequality",
-      "Order & Ranking",
-      "Puzzle",
-      "Data Sufficiency",
-      "Non-Verbal Reasoning",
-    ],
-    general_knowledge: [
-      "Indian History",
-      "Indian Geography",
-      "Indian Polity",
-      "Indian Economy",
-      "General Science",
-      "Current Affairs",
-      "Sports",
-      "Awards & Honors",
-      "Books & Authors",
-      "Important Days",
-      "National Symbols",
-      "Constitution of India",
-      "Art & Culture",
-    ],
-  };
-
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [testMode, setTestMode] = useState(null); // 'practice' or 'real'
+  const [coursesLoading, setCoursesLoading] = useState(true);
+  const [coursesError, setCoursesError] = useState("");
+
+
+  const [selectedExamCourse, setSelectedExamCourse] = useState(null);
+
+  // Dynamic course data structure: { courseId: { courseName: "...", topics: [...] } }
+  const [courseTopicsMap, setCourseTopicsMap] = useState({});
+  const [enrolledCourses, setEnrolledCourses] = useState([]);
+
   const [config, setConfig] = useState({
     title: "",
-    selectedSubjects: [],
+    selectedSubjects: [], // Now these are courseIds
     selectedTopics: [],
+    selectedCourseId: null, // Track which course's topics are being displayed
     initialDifficulty: 0.5,
     adaptiveEnabled: true,
     showSolutions: true,
@@ -140,6 +86,134 @@ const TestPage = () => {
     modelReady: false,
   });
   const [clearingData, setClearingData] = useState(false);
+
+  /**
+   * Fetch enrolled courses and their question banks on component mount
+   */
+  useEffect(() => {
+    const fetchCoursesAndTopics = async () => {
+      try {
+        setCoursesLoading(true);
+        setCoursesError("");
+
+        // Fetch enrolled courses
+        const enrolledResponse = await enrollmentService.getEnrolledCourses();
+        console.log("[testPage] Enrolled response:", enrolledResponse);
+
+        // Handle multiple possible response structures
+        let courses = [];
+        if (Array.isArray(enrolledResponse)) {
+          courses = enrolledResponse;
+        } else if (enrolledResponse?.data?.enrollments) {
+          courses = enrolledResponse.data.enrollments;
+        } else if (enrolledResponse?.enrollments) {
+          courses = enrolledResponse.enrollments;
+        } else if (
+          enrolledResponse?.data &&
+          Array.isArray(enrolledResponse.data)
+        ) {
+          courses = enrolledResponse.data;
+        }
+
+        console.log("[testPage] Parsed courses:", courses);
+        setEnrolledCourses(courses);
+
+        if (!courses || courses.length === 0) {
+          setCoursesError(
+            "No courses enrolled. Please enroll in a course first.",
+          );
+          setCoursesLoading(false);
+          return;
+        }
+
+        // Fetch question banks and topics for each course
+        const coursesTopicsMap = {};
+
+        for (const enrollment of courses) {
+          // Handle different enrollment object structures
+          const courseId =
+            enrollment?.course?._id ||
+            enrollment?.course ||
+            enrollment?.courseId ||
+            enrollment?._id;
+          const courseName =
+            enrollment?.course?.title ||
+            enrollment?.course?.name ||
+            enrollment?.courseName ||
+            enrollment?.title ||
+            enrollment?.name ||
+            "Unknown Course";
+
+          if (!courseId) {
+            console.warn(
+              "[testPage] Could not extract courseId from enrollment:",
+              enrollment,
+            );
+            continue;
+          }
+
+          console.log(
+            `[testPage] Processing course ${courseId}: ${courseName}`,
+          );
+
+          try {
+            // Fetch question bank for this course
+            const questionBankResponse =
+              await courseService.getQuestionBank(courseId);
+            console.log(
+              `[testPage] Question bank response for ${courseId}:`,
+              questionBankResponse,
+            );
+
+            // Handle different response structures
+            let questionBank = questionBankResponse?.data;
+            if (!questionBank && questionBankResponse?.topics) {
+              questionBank = questionBankResponse;
+            }
+
+            // Extract topics from question bank
+            const topics =
+              questionBank?.topics?.map((t) =>
+                typeof t === "string" ? t : t.name,
+              ) || [];
+
+            coursesTopicsMap[courseId] = {
+              courseName,
+              topics: topics.length > 0 ? topics : ["General"],
+              courseData: enrollment.course || enrollment,
+            };
+          } catch (err) {
+            console.warn(
+              `[testPage] Could not fetch question bank for course ${courseId}:`,
+              err,
+            );
+            // Fallback to empty topics if question bank fetch fails
+            coursesTopicsMap[courseId] = {
+              courseName,
+              topics: ["General"],
+              courseData: enrollment.course || enrollment,
+            };
+          }
+        }
+
+        console.log("[testPage] Final coursesTopicsMap:", coursesTopicsMap);
+        setCourseTopicsMap(coursesTopicsMap);
+      } catch (err) {
+        console.error("[testPage] Error fetching courses:", err);
+        setCoursesError(
+          err?.message ||
+            "Failed to load your enrolled courses. Please try again.",
+        );
+      } finally {
+        setCoursesLoading(false);
+      }
+    };
+
+    if (user?.id) {
+      console.log("[testPage] Fetching courses for user:", user?.id);
+      fetchCoursesAndTopics();
+    }
+  }, [user?.id]);
 
   useEffect(() => {
     // Set default title based on mode
@@ -186,17 +260,20 @@ const TestPage = () => {
       document.removeEventListener("fullscreenchange", handleFullScreenChange);
   }, []);
 
-  // Load available topics from subject clusters
+  // Load available topics from selected courses
   useEffect(() => {
     const selected = config.selectedSubjects || [];
     if (selected.length === 0) {
-      setAvailableTopics(Object.values(SUBJECT_TOPICS).flat());
+      setAvailableTopics([]);
       return;
     }
 
-    const topics = selected.flatMap((subject) => SUBJECT_TOPICS[subject] || []);
+    // Get topics from all selected courses
+    const topics = selected.flatMap(
+      (courseId) => courseTopicsMap[courseId]?.topics || [],
+    );
     setAvailableTopics(Array.from(new Set(topics)));
-  }, [config.selectedSubjects]);
+  }, [config.selectedSubjects, courseTopicsMap]);
 
   const toggleDarkMode = () => toggleTheme();
 
@@ -219,22 +296,22 @@ const TestPage = () => {
     }));
   };
 
-  const handleSubjectToggle = (subjectKey) => {
+  const handleSubjectToggle = (courseId) => {
     setConfig((prev) => {
-      const alreadySelected = prev.selectedSubjects.includes(subjectKey);
+      const alreadySelected = prev.selectedSubjects.includes(courseId);
       const nextSubjects = alreadySelected
-        ? prev.selectedSubjects.filter((s) => s !== subjectKey)
-        : [...prev.selectedSubjects, subjectKey];
+        ? prev.selectedSubjects.filter((s) => s !== courseId)
+        : [...prev.selectedSubjects, courseId];
 
-      const topicsInSubject = SUBJECT_TOPICS[subjectKey] || [];
+      const topicsInCourse = courseTopicsMap[courseId]?.topics || [];
       let nextTopics = [...prev.selectedTopics];
 
       if (alreadySelected) {
         nextTopics = nextTopics.filter(
-          (topic) => !topicsInSubject.includes(topic),
+          (topic) => !topicsInCourse.includes(topic),
         );
       } else {
-        nextTopics = Array.from(new Set([...nextTopics, ...topicsInSubject]));
+        nextTopics = Array.from(new Set([...nextTopics, ...topicsInCourse]));
       }
 
       return {
@@ -289,6 +366,14 @@ const TestPage = () => {
       setLoading(true);
       setError("");
 
+      console.log("[testPage] handleStartTest - START");
+      console.log(
+        "[testPage] selectedSubjects (courseIds):",
+        config.selectedSubjects,
+      );
+      console.log("[testPage] selectedTopics:", config.selectedTopics);
+      console.log("[testPage] courseTopicsMap:", courseTopicsMap);
+
       const studentId = authService.getStudentId();
       if (!studentId) {
         navigate("/auth");
@@ -301,19 +386,38 @@ const TestPage = () => {
         setLoading(false);
         return;
       }
+      if (testMode === "real" && !selectedExamCourse) {
+        setError("Please select a course for the exam");
+        setLoading(false);
+        return;
+      }
+      if (config.selectedSubjects.length === 0) {
+        setError("Please select at least one course");
+        setLoading(false);
+        return;
+      }
+
+      console.log(
+        "[testPage] Validation passed - proceeding with test creation",
+      );
 
       let response;
       let examDifficulty = config.initialDifficulty;
       if (testMode === "practice") {
+        console.log(
+          "[testPage] Creating practice test with courseIds:",
+          config.selectedSubjects,
+        );
         response = await testService.createPracticeTest({
           studentId,
           title: config.title || "Practice Session",
           selectedTopics: config.selectedTopics,
+          selectedCourseIds: config.selectedSubjects, // Pass course IDs instead of subjects
           initialDifficulty: config.initialDifficulty,
           initialDifficultyLockSize: 5,
           adaptiveEnabled: config.adaptiveEnabled,
           showSolutions: config.showSolutions,
-          batchSize: 2,
+          batchSize: 60,
         });
       } else {
         const practiceProfile =
@@ -344,10 +448,26 @@ const TestPage = () => {
           studentId,
           title: config.title || "Real Exam",
           selectedTopics: config.selectedTopics,
+          selectedCourseIds: config.selectedSubjects, // Pass course IDs instead of subjects
           initialDifficulty: examDifficulty,
         });
       }
       if (response.success) {
+        console.log("[testPage] Test creation successful");
+        console.log(
+          "[testPage] Response questions:",
+          response.session?.questions?.length,
+        );
+        console.log(
+          "[testPage] Response config.selectedCourseIds:",
+          response.session?.config?.selectedCourseIds,
+        );
+        console.log(
+          "[testPage] Response config.selectedTopics:",
+          response.session?.config?.selectedTopics,
+        );
+        console.log("[testPage] Full response.session:", response.session);
+
         // Navigate to test interface with session data
         navigate(
           testMode === "practice" ? "/test/interface" : "/test/real/interface",
@@ -371,6 +491,7 @@ const TestPage = () => {
   const goBack = () => {
     if (testMode) {
       setTestMode(null);
+      setSelectedExamCourse(null);
       setConfig({
         title: "",
         selectedSubjects: [],
@@ -493,6 +614,42 @@ const TestPage = () => {
           )}
         </AnimatePresence>
 
+        {/* Courses Loading State */}
+        {coursesLoading && (
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-4" />
+              <p className="text-gray-600 dark:text-gray-400">
+                Loading your enrolled courses...
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* No Courses Error */}
+        {!coursesLoading && coursesError && (
+          <motion.div
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6"
+          >
+            <div className="bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-xl p-4 flex items-start space-x-3">
+              <FiAlertCircle className="w-5 h-5 text-amber-500 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm text-amber-700 dark:text-amber-300">
+                  {coursesError}
+                </p>
+                <button
+                  onClick={() => navigate("/dashboard")}
+                  className="mt-2 text-sm px-3 py-1 bg-amber-500 text-white rounded hover:bg-amber-600 transition-colors"
+                >
+                  Go to Dashboard
+                </button>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
         {/* Mode Selection */}
         {!testMode && (
           <motion.div
@@ -574,8 +731,9 @@ const TestPage = () => {
                   Real Exam Mode
                 </h3>
                 <p className="text-gray-500 dark:text-gray-400 mb-6">
-                  Simulate real exam conditions with 100 questions and a
-                  60-minute timer. Get comprehensive performance analysis.
+                  Simulate real exam conditions with 100 course-specific
+                  questions across 4 sections (A/B/C/D) and a 60-minute timer.
+                  Get comprehensive performance analysis.
                 </p>
 
                 <div className="space-y-3 mb-6">
@@ -653,70 +811,91 @@ const TestPage = () => {
               </motion.div>
             )}
 
-            {/* Topic Selection (for practice mode) */}
             {testMode === "practice" && (
               <motion.div
                 variants={fadeInUp}
                 className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6"
               >
                 <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-                  Subject Groups
+                  Courses
                 </h3>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                  {Object.entries(SUBJECT_TOPICS).map(([subject, topics]) => {
-                    const selected = config.selectedSubjects.includes(subject);
-                    const label = subject
-                      .replace("_", " ")
-                      .replace(/\b\w/g, (ch) => ch.toUpperCase());
+                {Object.entries(courseTopicsMap).length === 0 ? (
+                  <div className="text-center py-8">
+                    <p className="text-gray-500 dark:text-gray-400 mb-4">
+                      No courses available
+                    </p>
+                    <button
+                      onClick={() => navigate("/dashboard")}
+                      className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                    >
+                      Enroll in Courses
+                    </button>
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                    {Object.entries(courseTopicsMap).map(
+                      ([courseId, courseData]) => {
+                        const selected =
+                          config.selectedSubjects.includes(courseId);
+                        const courseName = courseData.courseName;
+                        const topicsCount = courseData.topics.length;
 
-                    return (
-                      <button
-                        key={subject}
-                        onClick={() => handleSubjectToggle(subject)}
-                        className={`text-left p-4 rounded-xl border-2 transition-all ${
-                          selected
-                            ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30"
-                            : "border-gray-200 dark:border-gray-700 hover:border-indigo-300"
-                        }`}
-                      >
-                        <div className="flex items-center justify-between mb-1">
-                          <span className="font-semibold text-gray-900 dark:text-white">
-                            {label}
-                          </span>
-                          {selected && (
-                            <FiCheckCircle className="w-4 h-4 text-indigo-600" />
-                          )}
-                        </div>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          {topics.length} topics
-                        </p>
-                      </button>
-                    );
-                  })}
-                </div>
+                        return (
+                          <button
+                            key={courseId}
+                            onClick={() => handleSubjectToggle(courseId)}
+                            className={`text-left p-4 rounded-xl border-2 transition-all ${
+                              selected
+                                ? "border-indigo-500 bg-indigo-50 dark:bg-indigo-900/30"
+                                : "border-gray-200 dark:border-gray-700 hover:border-indigo-300"
+                            }`}
+                          >
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="font-semibold text-gray-900 dark:text-white">
+                                {courseName}
+                              </span>
+                              {selected && (
+                                <FiCheckCircle className="w-4 h-4 text-indigo-600" />
+                              )}
+                            </div>
+                            <p className="text-xs text-gray-500 dark:text-gray-400">
+                              {topicsCount} topics
+                            </p>
+                          </button>
+                        );
+                      },
+                    )}
+                  </div>
+                )}
 
                 <h4 className="text-sm font-semibold text-gray-700 dark:text-gray-300 mb-3">
                   Topics
                 </h4>
                 <div className="flex flex-wrap gap-2 max-h-80 overflow-y-auto p-2 rounded-xl bg-indigo-50/50 dark:bg-gray-900/30">
-                  {availableTopics.map((topic) => (
-                    <button
-                      key={topic}
-                      onClick={() => handleTopicToggle(topic)}
-                      className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
-                        config.selectedTopics.includes(topic)
-                          ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow"
-                          : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-indigo-300"
-                      }`}
-                    >
-                      {topic}
-                    </button>
-                  ))}
+                  {availableTopics.length === 0 ? (
+                    <p className="text-sm text-gray-500 dark:text-gray-400">
+                      Select a course to see available topics
+                    </p>
+                  ) : (
+                    availableTopics.map((topic) => (
+                      <button
+                        key={topic}
+                        onClick={() => handleTopicToggle(topic)}
+                        className={`px-3 py-2 rounded-lg text-sm font-medium transition-all ${
+                          config.selectedTopics.includes(topic)
+                            ? "bg-gradient-to-r from-indigo-600 to-purple-600 text-white shadow"
+                            : "bg-white dark:bg-gray-800 text-gray-700 dark:text-gray-300 border border-gray-200 dark:border-gray-700 hover:border-indigo-300"
+                        }`}
+                      >
+                        {topic}
+                      </button>
+                    ))
+                  )}
                 </div>
 
                 <p className="text-xs text-gray-500 dark:text-gray-400 mt-4">
-                  Selected: {config.selectedSubjects.length} subjects •{" "}
+                  Selected: {config.selectedSubjects.length} courses •{" "}
                   {config.selectedTopics.length} topics
                 </p>
               </motion.div>
@@ -890,36 +1069,158 @@ const TestPage = () => {
                 </div>
               )}
 
-              {/* Summary for Real Exam */}
               {testMode === "real" && (
-                <div className="p-4 bg-purple-50 dark:bg-purple-900/30 rounded-xl">
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="text-center">
-                      <p className="text-2xl font-bold text-purple-600">100</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Total Questions
+                <>
+                  {/* Course Selection for Real Exam */}
+                  <motion.div
+                    variants={fadeInUp}
+                    className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6"
+                  >
+                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
+                      Select Course for Exam
+                    </h3>
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                      Choose a single course to generate 100 exam questions
+                    </p>
+
+                    {Object.entries(courseTopicsMap).length === 0 ? (
+                      <div className="text-center py-8">
+                        <FaBook className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
+                        <p className="text-gray-500 dark:text-gray-400 mb-4">
+                          No courses available for exam
+                        </p>
+                        <button
+                          onClick={() => navigate("/dashboard")}
+                          className="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
+                        >
+                          Enroll in Courses
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {Object.entries(courseTopicsMap).map(
+                          ([courseId, courseData]) => {
+                            const isSelected = selectedExamCourse === courseId;
+                            const courseName = courseData.courseName;
+                            const topicsCount = courseData.topics.length;
+
+                            return (
+                              <button
+                                key={courseId}
+                                onClick={() => {
+                                  setSelectedExamCourse(courseId);
+                                  setConfig((prev) => ({
+                                    ...prev,
+                                    selectedSubjects: [courseId],
+                                    selectedTopics: courseData.topics,
+                                  }));
+                                }}
+                                className={`text-left p-5 rounded-xl border-2 transition-all ${
+                                  isSelected
+                                    ? "border-purple-500 bg-purple-50 dark:bg-purple-900/30 shadow-md ring-2 ring-purple-200"
+                                    : "border-gray-200 dark:border-gray-700 hover:border-purple-300 hover:shadow-md"
+                                }`}
+                              >
+                                <div className="flex items-center justify-between mb-2">
+                                  <div className="flex items-center gap-3">
+                                    <div
+                                      className={`w-10 h-10 rounded-xl flex items-center justify-center ${
+                                        isSelected
+                                          ? "bg-purple-600 text-white"
+                                          : "bg-gray-100 dark:bg-gray-700 text-gray-500"
+                                      }`}
+                                    >
+                                      <FaGraduationCap className="w-5 h-5" />
+                                    </div>
+                                    <span className="font-semibold text-gray-900 dark:text-white">
+                                      {courseName}
+                                    </span>
+                                  </div>
+                                  {isSelected && (
+                                    <FiCheckCircle className="w-5 h-5 text-purple-600 flex-shrink-0" />
+                                  )}
+                                </div>
+                                <div className="ml-13 pl-1">
+                                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                                    {topicsCount} topics available
+                                  </p>
+                                  <div className="flex flex-wrap gap-1 mt-2">
+                                    {courseData.topics
+                                      .slice(0, 4)
+                                      .map((topic) => (
+                                        <span
+                                          key={topic}
+                                          className="px-2 py-0.5 bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300 rounded-full text-xs"
+                                        >
+                                          {topic}
+                                        </span>
+                                      ))}
+                                    {courseData.topics.length > 4 && (
+                                      <span className="text-xs text-gray-400">
+                                        +{courseData.topics.length - 4} more
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              </button>
+                            );
+                          },
+                        )}
+                      </div>
+                    )}
+                  </motion.div>
+
+                  {/* Exam Summary */}
+                  {selectedExamCourse && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="p-4 bg-purple-50 dark:bg-purple-900/30 rounded-xl border border-purple-200 dark:border-purple-700"
+                    >
+                      <h4 className="font-semibold text-purple-700 dark:text-purple-300 mb-3">
+                        Exam Summary
+                      </h4>
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="text-center">
+                          <p className="text-2xl font-bold text-purple-600">
+                            100
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Total Questions
+                          </p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-2xl font-bold text-purple-600">
+                            60
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Minutes
+                          </p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-2xl font-bold text-purple-600">
+                            4
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Sections (A-D)
+                          </p>
+                        </div>
+                        <div className="text-center">
+                          <p className="text-2xl font-bold text-purple-600">
+                            25
+                          </p>
+                          <p className="text-xs text-gray-500 dark:text-gray-400">
+                            Per Section
+                          </p>
+                        </div>
+                      </div>
+                      <p className="text-xs text-purple-600 dark:text-purple-400 mt-3 text-center">
+                        Course:{" "}
+                        {courseTopicsMap[selectedExamCourse]?.courseName}
                       </p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-2xl font-bold text-purple-600">60</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Minutes
-                      </p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-2xl font-bold text-purple-600">4</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Sections
-                      </p>
-                    </div>
-                    <div className="text-center">
-                      <p className="text-2xl font-bold text-purple-600">25</p>
-                      <p className="text-xs text-gray-500 dark:text-gray-400">
-                        Per Section
-                      </p>
-                    </div>
-                  </div>
-                </div>
+                    </motion.div>
+                  )}
+                </>
               )}
             </motion.div>
 
@@ -984,6 +1285,6 @@ const TestPage = () => {
       </motion.button>
     </div>
   );
-};
+};;
 
 export default TestPage;

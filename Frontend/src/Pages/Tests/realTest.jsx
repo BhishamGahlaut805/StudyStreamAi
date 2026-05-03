@@ -44,12 +44,12 @@ const formatTime = (seconds) => {
 
 const subjectLabel = (subject = "") => {
   const map = {
-    mathematics: "Mathematics",
-    english: "English",
-    reasoning: "Reasoning",
-    general_knowledge: "General Knowledge",
+    mathematics: "Section A",
+    english: "Section B",
+    reasoning: "Section C",
+    general_knowledge: "Section D",
   };
-  return map[subject] || "General";
+  return map[subject] || "Section";
 };
 
 const difficultyLabel = (difficulty = 0.5) => {
@@ -865,7 +865,13 @@ const RealTest = () => {
                 Real Exam Interface
               </h1>
               <p className="text-sm text-slate-600 dark:text-slate-300">
-                100 Questions • 25 per subject • Submit before time ends
+                100 Questions • 25 per section (A/B/C/D) • Submit before time
+                ends
+                {session?.config?.selectedCourseIds?.length > 0 && (
+                  <span className="ml-2 px-2 py-0.5 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-full text-xs">
+                    Course-Based Exam
+                  </span>
+                )}
               </p>
             </div>
 
@@ -948,8 +954,15 @@ const RealTest = () => {
                   Question {currentIndex + 1} of {questions.length}
                 </p>
                 <p className="text-sm text-slate-600 dark:text-slate-300">
-                  {subjectLabel(currentQuestion?.subject)} •{" "}
-                  {currentQuestion?.topic || "General"}
+                  {subjectLabel(
+                    currentQuestion?.subject ||
+                      inferSubjectKey(
+                        currentQuestion,
+                        currentIndex,
+                        questions.length,
+                      ),
+                  )}{" "}
+                  • {currentQuestion?.topic || "General"}
                 </p>
               </div>
               {submittedMap[currentQuestionId] && (

@@ -23,7 +23,40 @@ const RETENTION_TOPICS = {
   ],
   gk: ["history", "geography", "science", "current_affairs"],
 };
+// file: retentionSessionController.js
+// Add this helper function near the top of the file
+// file: retentionSessionController.js
+// Update the mapCourseToFlaskSubject function
+// file: retentionSessionController.js
+// Add this function near other helper functions (around line 200-250)
 
+const getQuestionsCountForBatch = (batchType) => {
+  const counts = {
+    immediate: 3,
+    short_term: 5,
+    medium_term: 8,
+    long_term: 10,
+    mastered: 5,
+  };
+  return counts[batchType] || 5;
+};
+const mapCourseToFlaskSubject = (courseId, courseName) => {
+  // If it's a valid ObjectId, it's a course ID - Flask expects "english" or "gk"
+  // Try to map based on course name
+  const name = (courseName || "").toLowerCase();
+  if (name.includes("english") || name.includes("grammar") || name.includes("vocabulary")) {
+    return "english";
+  }
+  if (name.includes("gk") || name.includes("general knowledge") || name.includes("current affairs")) {
+    return "gk";
+  }
+  // If it's already "english" or "gk", return as is
+  if (courseId === "english" || courseId === "gk") {
+    return courseId;
+  }
+  // Default to "english" for course-based sessions
+  return "english";
+};
 const toRetentionSubject = (subject) =>
   subject === "general_knowledge" ? "gk" : subject;
 
@@ -109,6 +142,7 @@ const toFlaskAnswerRow = (answer, sessionId, rawContext = {}) => ({
   user_id: rawContext.user_id,
   question_id: answer.questionId,
   session_id: sessionId,
+  course_id: answer.courseId || rawContext.courseId,
   subject: rawContext.subject || answer.subject,
   topic: rawContext.topic || answer.topicCategory,
   topic_id: answer.topicId,
@@ -490,6 +524,8 @@ const getAnsweredQuestionIdSet = (session) => {
       .filter(Boolean),
   );
 };
+// file: retentionSessionController.js
+// Update addQuestionsToSessionQueue function (around line 300-350)
 
 const addQuestionsToSessionQueue = (
   session,
@@ -530,9 +566,16 @@ const addQuestionsToSessionQueue = (
     if (pendingQueuedIds.has(key)) return;
 
     pendingQueuedIds.add(key);
+
+    // Get topicCategory from question object
+    let topicCategory = q.topicCategory || q.topic || q.concept_area || "General";
+    topicCategory = String(topicCategory);
+
     rows.push({
       questionId: key,
-      topicId: normalizeRetentionTopic(session.subject, q.topicId || q.topic),
+      topicId: topicCategory,
+      topicCategory: topicCategory,
+      courseId: session.courseId,  // <-- ADD THIS
       source: safeSource,
     });
   });
@@ -566,6 +609,8 @@ const markQuestionAsSent = (session, questionId, source = "fresh") => {
     session.sentQuestionIds.push(key);
   }
 };
+// file: retentionSessionController.js
+// Update injectDueQuestionIntoQueue function (around line 420-450)
 
 const injectDueQuestionIntoQueue = async (session) => {
   if (!session?.studentId) return null;
@@ -579,7 +624,7 @@ const injectDueQuestionIntoQueue = async (session) => {
 
   const dueCandidates = await QuestionRepetition.find({
     studentId: session.studentId,
-    subject: session.subject,
+    courseId: session.courseId,  // <-- ADD THIS to filter by course
     isMastered: false,
     nextScheduledDate: { $lte: now },
     questionId: { $nin: Array.from(pendingIds) },
@@ -600,6 +645,8 @@ const injectDueQuestionIntoQueue = async (session) => {
       {
         questionId: dueRepetition.questionId,
         topicId: dueRepetition.topicId,
+        topicCategory: dueRepetition.topicCategory,
+        courseId: session.courseId,  // <-- ADD THIS
       },
     ],
     "retention",
@@ -986,15 +1033,34 @@ const buildRecoveredUiStateFromRepetition = async (session) => {
 };
 
 // Create a new retention session
+// file: retentionSessionController.js
+// Update createSession function to handle course IDs properly
+// Replace the createSession function (around line 400-500)
+
+// Create a new retention session
+
+// Update createSession to use courseId properly
 exports.createSession = async (req, res) => {
   try {
     const { subject, topics, sessionType = "practice" } = req.body;
     const { studentId, id: userId } = req.user;
 
-    if (!subject || !["english", "gk"].includes(subject)) {
+    // subject is now courseId
+    if (!subject) {
       return res.status(400).json({
         success: false,
-        error: "Valid subject (english/gk) is required",
+        error: "Course ID is required to start retention session",
+      });
+    }
+
+    // Get course details
+    const Course = mongoose.model("Course");
+    const course = await Course.findById(subject);
+
+    if (!course) {
+      return res.status(404).json({
+        success: false,
+        error: "Course not found",
       });
     }
 
@@ -1002,14 +1068,16 @@ exports.createSession = async (req, res) => {
     const sessionId = randomUUID();
     const sessionStartAt = new Date();
 
-    // Start Flask session for AI predictions
+    // Start Flask session for AI predictions (optional)
     let flaskSessionId = null;
     let flaskPredictions = {};
 
+    // In createSession function, update the Flask service call
     try {
+      const flaskSubject = mapCourseToFlaskSubject(subject, course.title);
       const flaskResponse = await retentionFlaskService.startRetentionSession(
         studentId,
-        subject,
+        flaskSubject, // Use mapped subject instead of courseId
         topics,
         sessionType,
       );
@@ -1017,24 +1085,16 @@ exports.createSession = async (req, res) => {
       flaskPredictions = flaskResponse.predictions || {};
     } catch (error) {
       console.error("Error starting Flask session:", error.message);
-      // Continue without Flask - will use local scheduling
     }
 
-    // Get initial questions based on batch type
-    const initialQuestionBundle = await getInitialQuestions(
-      studentId,
-      subject,
+    // Get initial questions from the course
+    const batchType = flaskPredictions.micro?.batch_type || "immediate";
+    const initialCount = getQuestionsCountForBatch(batchType);
+
+    const initialQuestions = await getPracticeQuestionsByCourse(
+      subject, // courseId
       topics,
-      flaskPredictions,
-      {
-        sessionStartAt,
-      },
-    );
-    const initialQuestions = initialQuestionBundle.questions || [];
-    const initialRetentionIds = new Set(
-      (initialQuestionBundle.retentionQuestionIds || [])
-        .map((id) => String(id))
-        .filter(Boolean),
+      initialCount,
     );
 
     // Create session
@@ -1043,8 +1103,10 @@ exports.createSession = async (req, res) => {
       flaskSessionId,
       userId,
       studentId,
-      subject,
-      topics: topics || getDefaultTopics(subject),
+      courseId: subject,
+      courseName: course.title,
+      subject: "general",
+      topics: topics || [],
       sessionType,
       startTime: sessionStartAt,
       currentBatchQuestions: [],
@@ -1057,45 +1119,35 @@ exports.createSession = async (req, res) => {
       metadata: {
         ipAddress: req.ip,
         userAgent: req.get("User-Agent"),
+        courseId: subject,
       },
     });
 
-    const initialRetentionQuestions = initialQuestions.filter((q) =>
-      initialRetentionIds.has(String(resolveQuestionIdentifier(q) || "")),
-    );
-    const initialFreshQuestions = initialQuestions.filter(
-      (q) =>
-        !initialRetentionIds.has(String(resolveQuestionIdentifier(q) || "")),
-    );
-
-    addQuestionsToSessionQueue(session, initialRetentionQuestions, "retention");
-    addQuestionsToSessionQueue(session, initialFreshQuestions, "fresh");
-
+    // Add questions to session queue
+    addQuestionsToSessionQueue(session, initialQuestions, "fresh");
     await session.save();
 
-    // Prepare questions for response (without answers)
-    const questionsWithDetails = initialQuestions.map((q) => ({
-      id: resolveQuestionIdentifier(q),
-      questionId: resolveQuestionIdentifier(q),
+    // Prepare questions for response
+    const questionsWithDetails = initialQuestions.slice(0, 10).map((q) => ({
+      id: q.questionId || q._id,
+      questionId: q.questionId || q._id,
       text: q.text,
-      type: q.type,
-      difficulty: q.difficulty,
-      difficultyLevel: q.difficultyLevel,
+      type: q.type || "MCQ",
+      difficulty: q.difficulty || 0.5,
+      difficultyLevel: q.difficulty_level || "medium",
       options: q.type !== "NAT" ? q.options : undefined,
-      topic: normalizeRetentionTopic(subject, q.topic),
-      topicCategory: normalizeRetentionTopic(
-        subject,
-        q.topicCategory || q.topic,
-      ),
-      marks: q.marks,
-      expectedTime: q.expectedTime,
+      topic: q.topic || q.concept_area || "General",
+      topicCategory: q.topic || q.concept_area || "General",
+      marks: q.marks || 4,
+      expectedTime: q.expected_time || q.expectedTime || 90,
     }));
 
     res.status(201).json({
       success: true,
       sessionId: session.sessionId,
       flaskSessionId: session.flaskSessionId,
-      subject: session.subject,
+      subject: session.courseId,
+      courseName: course.title,
       topics: session.topics,
       questions: questionsWithDetails,
       totalQuestions: questionsWithDetails.length,
@@ -1114,6 +1166,7 @@ exports.createSession = async (req, res) => {
     });
   }
 };
+
 
 // Get session by ID
 exports.getSession = async (req, res) => {
@@ -1359,9 +1412,46 @@ exports.getNextQuestion = async (req, res) => {
     await injectDueQuestionIntoQueue(session);
 
     // Check if we need more questions
+    // file: retentionSessionController.js
+    // In the getNextQuestion function, update the remainingInBatch check (around line 1430-1450)
+
+    // Check if we need more questions - use a larger threshold
     const remainingInBatch =
       session.currentBatchQuestions.length - session.currentQuestionIndex;
 
+    // Always try to maintain at least 5 questions in the queue
+    if (remainingInBatch < 5) {
+      console.log(
+        `Low on questions (${remainingInBatch} remaining), refilling...`,
+      );
+
+      // Get more questions from the course
+      let additionalQuestions = await getPracticeQuestionsByCourse(
+        session.courseId,
+        session.topics,
+        15, // Fetch 15 new questions
+      );
+
+      // If no questions from course, try fallback
+      if (!additionalQuestions || additionalQuestions.length === 0) {
+        console.log("No questions from course, trying fallback...");
+        additionalQuestions = await getPracticeQuestionsByTopics(
+          "general",
+          session.topics,
+          15,
+        );
+      }
+
+      if (additionalQuestions && additionalQuestions.length > 0) {
+        console.log(
+          `Adding ${additionalQuestions.length} new questions to queue`,
+        );
+        addQuestionsToSessionQueue(session, additionalQuestions, "fresh");
+        await session.save();
+      } else {
+        console.warn("Unable to fetch additional questions");
+      }
+    }
     if (remainingInBatch < 2) {
       // Get next batch from Flask
       try {
@@ -1377,12 +1467,16 @@ exports.getNextQuestion = async (req, res) => {
           fatigue_index: a.fatigueIndex,
         }));
 
+        const flaskSubject = mapCourseToFlaskSubject(
+          session.courseId,
+          session.courseName,
+        );
         const flaskResponse = await retentionFlaskService.getNextQuestions(
           session.flaskSessionId || session.sessionId,
           recentAnswers,
           {
             studentId: session.studentId,
-            subject: session.subject,
+            subject: flaskSubject, // Use mapped subject
             currentStress: currentStress || 0.3,
             currentFatigue: currentFatigue || 0.3,
             timeoutMs: 2500,
@@ -1439,21 +1533,64 @@ exports.getNextQuestion = async (req, res) => {
     }
 
     // Get current question
+    // file: retentionSessionController.js
+    // In the getNextQuestion function, update the question retrieval logic (around line 1450-1480)
+
+    // Get current question
     const currentQuestionData =
       session.currentBatchQuestions[session.currentQuestionIndex];
 
     if (!currentQuestionData) {
-      // Session complete
-      session.status = "completed";
-      session.endTime = new Date();
-      session.calculateMetrics();
-      await session.save();
+      // Try to get more questions before completing session
+      console.log(
+        "No current question data, attempting to fetch more questions...",
+      );
 
-      return res.json({
-        success: true,
-        sessionComplete: true,
-        metrics: session.metrics,
-      });
+      // Try to get more questions from the course
+      const additionalQuestions = await getPracticeQuestionsByCourse(
+        session.courseId,
+        session.topics,
+        10,
+      );
+
+      if (additionalQuestions && additionalQuestions.length > 0) {
+        console.log(
+          `Adding ${additionalQuestions.length} additional questions to queue`,
+        );
+        addQuestionsToSessionQueue(session, additionalQuestions, "fresh");
+        await session.save();
+
+        // Retry getting current question
+        const retryQuestionData =
+          session.currentBatchQuestions[session.currentQuestionIndex];
+        if (retryQuestionData) {
+          currentQuestionData = retryQuestionData;
+        } else {
+          // Session complete
+          session.status = "completed";
+          session.endTime = new Date();
+          session.calculateMetrics();
+          await session.save();
+
+          return res.json({
+            success: true,
+            sessionComplete: true,
+            metrics: session.metrics,
+          });
+        }
+      } else {
+        // Session complete
+        session.status = "completed";
+        session.endTime = new Date();
+        session.calculateMetrics();
+        await session.save();
+
+        return res.json({
+          success: true,
+          sessionComplete: true,
+          metrics: session.metrics,
+        });
+      }
     }
 
     // Get full question details
@@ -1634,6 +1771,7 @@ exports.submitAnswer = async (req, res) => {
         session.subject,
         question.topicId || question.topic,
       ),
+      courseId: session.courseId,
       subject: session.subject,
       topicCategory: normalizeRetentionTopic(
         session.subject,
@@ -1666,6 +1804,7 @@ exports.submitAnswer = async (req, res) => {
           ...req.body,
           user_id: session.studentId,
           subject: session.subject,
+          courseId: session.courseId,
         }),
       ];
 
@@ -1739,6 +1878,10 @@ exports.submitAnswer = async (req, res) => {
     }
 
     // Update question repetition schedule
+    // file: retentionSessionController.js
+    // In the submitAnswer function, update the call to updateQuestionRepetition (around line 1350-1380)
+
+    // Update question repetition schedule
     const updatedRetentionReview = await updateQuestionRepetition(
       session.studentId,
       session.userId,
@@ -1752,6 +1895,9 @@ exports.submitAnswer = async (req, res) => {
         topicId: answer.topicId,
         topicCategory: answer.topicCategory,
         flaskSchedule: flaskScheduleForQuestion,
+        session: session, // Pass the session object to get courseId
+        courseId: session.courseId,
+        courseName: session.courseName,
       },
     );
 
@@ -2280,9 +2426,77 @@ const getDefaultTopics = (subject) => {
   return RETENTION_TOPICS[subject] || RETENTION_TOPICS.gk;
 };
 
+// Add new helper function to get questions by course
+const getPracticeQuestionsByCourse = async (courseId, topics, count) => {
+  try {
+    const CourseQuestionBank = require("../models/Question/questionAdaptationSchema");
+
+    // Find the question bank for this course
+    const questionBank = await CourseQuestionBank.findOne({
+      course: courseId,
+    }).lean();
+
+    if (
+      !questionBank ||
+      !questionBank.questions ||
+      questionBank.questions.length === 0
+    ) {
+      console.warn(`No question bank found for course: ${courseId}`);
+      return [];
+    }
+
+    let filteredQuestions = [...questionBank.questions];
+
+    // Filter by topics if provided
+    if (topics && topics.length > 0) {
+      filteredQuestions = filteredQuestions.filter((q) => {
+        const questionTopic = q.topic || q.concept_area || "General";
+        return topics.some((t) =>
+          questionTopic.toLowerCase().includes(t.toLowerCase()),
+        );
+      });
+    }
+
+    // Filter active questions
+    filteredQuestions = filteredQuestions.filter((q) => q.isActive !== false);
+
+    if (filteredQuestions.length === 0) {
+      return [];
+    }
+
+    // Shuffle and return requested count
+    for (let i = filteredQuestions.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [filteredQuestions[i], filteredQuestions[j]] = [
+        filteredQuestions[j],
+        filteredQuestions[i],
+      ];
+    }
+
+    const normalizedQuestions = filteredQuestions.slice(0, count).map((q) => ({
+      ...q,
+      _id: q._id || q.questionId,
+      questionId: q.questionId || q._id,
+      id: q.questionId || q._id,
+      topicCategory: q.topic || q.concept_area || "General",
+      subject: courseId,
+      expectedTime: q.expected_time || q.expectedTime || 90,
+      correctAnswer: q.correct_answer || q.correctAnswer,
+      solutionSteps: q.solution_steps || q.solutionSteps || [],
+    }));
+
+    return normalizedQuestions;
+  } catch (error) {
+    console.error("Error getting practice questions by course:", error);
+    return [];
+  }
+};
+// file: retentionSessionController.js
+// Update getInitialQuestions function
+
 const getInitialQuestions = async (
   studentId,
-  subject,
+  courseId,
   topics,
   predictions,
   options = {},
@@ -2290,45 +2504,64 @@ const getInitialQuestions = async (
   const sessionStartMs = getSessionStartMsSafe(options?.sessionStartAt);
   const sessionStartDate = sessionStartMs > 0 ? new Date(sessionStartMs) : null;
 
-  // Get due questions from repetition schedule
+  // Validate that courseId is a valid ObjectId before querying
+  const isValidObjectId = mongoose.Types.ObjectId.isValid(courseId);
+
+  if (!isValidObjectId) {
+    console.warn(`Invalid course ID format: ${courseId}`);
+    // If not a valid ObjectId, treat as subject string
+    const questions = await getPracticeQuestionsByTopics(courseId, topics, 10);
+    return { questions: questions.slice(0, 10), retentionQuestionIds: [] };
+  }
+
+  const Course = mongoose.model("Course");
+  const course = await Course.findById(courseId);
+
+  if (!course) {
+    console.error(`Course not found: ${courseId}`);
+    // Fallback - try to get questions by subject
+    const questions = await getPracticeQuestionsByTopics(courseId, topics, 10);
+    return { questions: questions.slice(0, 10), retentionQuestionIds: [] };
+  }
+
+  // Get due questions from repetition schedule for this course
   const dueQuestions = sessionStartDate
     ? await QuestionRepetition.find({
         studentId,
+        courseId: courseId,
         isMastered: false,
         nextScheduledDate: { $lte: new Date() },
         createdAt: { $gte: sessionStartDate },
       }).sort({ nextScheduledDate: 1 })
-    : await QuestionRepetition.findDueQuestions(studentId);
+    : await (QuestionRepetition.findDueQuestions ?
+        QuestionRepetition.findDueQuestions(studentId, courseId) :
+        []);
 
-  if (dueQuestions.length > 0) {
+  if (dueQuestions && dueQuestions.length > 0) {
     // Use due questions first
     const questionIds = dueQuestions.slice(0, 5).map((q) => q.questionId);
-    const questions = await getQuestionsByIds(questionIds);
+    const questions = await getQuestionsByIds(questionIds, courseId);
     return {
       questions,
       retentionQuestionIds: questionIds,
     };
   }
 
-  // Get new questions based on predictions
+  // Get new questions based on predictions or default
   const batchType = predictions.micro?.batch_type || "immediate";
   const count = getQuestionsCountForBatch(batchType);
 
+  // Fetch questions from the course's question bank
+  const fetchedQuestions = await getPracticeQuestionsByCourse(
+    courseId,
+    topics,
+    count,
+  );
+
   return {
-    questions: getPracticeQuestionsByTopics(subject, topics, count),
+    questions: fetchedQuestions,
     retentionQuestionIds: [],
   };
-};
-
-const getQuestionsCountForBatch = (batchType) => {
-  const counts = {
-    immediate: 3,
-    short_term: 5,
-    medium_term: 8,
-    long_term: 10,
-    mastered: 5,
-  };
-  return counts[batchType] || 5;
 };
 
 const processFlaskQuestions = async (flaskQuestions, subject) => {
@@ -2366,9 +2599,56 @@ const processFlaskQuestions = async (flaskQuestions, subject) => {
   return questions;
 };
 
+// file: retentionSessionController.js
+// Replace the getLocalQuestions function
+
 const getLocalQuestions = async (studentId, subject, topics, batchType) => {
   const count = getQuestionsCountForBatch(batchType);
-  return getPracticeQuestionsByTopics(subject, topics, count);
+  const questions = await getPracticeQuestionsByTopics(subject, topics, count);
+
+  // If no questions found, try to get from any available course
+  if (!questions || questions.length === 0) {
+    console.warn(`No questions found for subject: ${subject}, trying fallback...`);
+
+    // Try to get from any question bank
+    const CourseQuestionBank = require("../models/Question/questionAdaptationSchema");
+    const anyBank = await CourseQuestionBank.findOne({}).lean();
+
+    if (anyBank && anyBank.questions && anyBank.questions.length > 0) {
+      console.log(`Found fallback question bank with ${anyBank.questions.length} questions`);
+      const shuffled = [...anyBank.questions];
+      for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+      }
+      const fallbackQuestions = shuffled.slice(0, count).map(q => ({
+        ...q,
+        _id: q._id || q.questionId,
+        questionId: q.questionId || q._id,
+        id: q.questionId || q._id,
+        text: q.text || "Question text unavailable",
+        type: q.type || "MCQ",
+        difficulty: typeof q.difficulty === 'number' ? q.difficulty : 0.5,
+        difficultyLevel: q.difficulty_level || "medium",
+        options: q.options || [],
+        correctAnswer: q.correct_answer || q.correctAnswer,
+        explanation: q.explanation || "",
+        solutionSteps: q.solution_steps || q.solutionSteps || [],
+        hints: q.hints || [],
+        topic: q.topic || q.concept_area || "General",
+        topicCategory: q.topic || q.concept_area || "General",
+        marks: typeof q.marks === 'number' ? q.marks : 4,
+        expectedTime: q.expected_time || q.expectedTime || 90,
+        tags: q.tags || [],
+        fromCourseBank: true,
+      }));
+      return fallbackQuestions;
+    }
+
+    return [];
+  }
+
+  return questions;
 };
 
 const normalizeQuestionForSession = (question) => {
@@ -2383,103 +2663,193 @@ const normalizeQuestionForSession = (question) => {
     expectedTime: question.expectedTime || 90,
   };
 };
+// file: retentionSessionController.js
+// file: retentionSessionController.js
+// Replace the getPracticeQuestionsByTopics function
+// file: retentionSessionController.js
+// Replace the getPracticeQuestionsByTopics function
 
-const getPracticeQuestionsByTopics = (subject, topics, count) => {
-  const retentionSubject = toRetentionSubject(subject);
-  const mappedSubject = SUBJECT_BANK_MAP[retentionSubject] || retentionSubject;
-  const selectedTopics =
-    Array.isArray(topics) && topics.length > 0
-      ? topics
-      : getDefaultTopics(retentionSubject);
+const getPracticeQuestionsByTopics = async (subject, topics, count) => {
+  try {
+    const mongoose = require("mongoose");
+    const CourseQuestionBank = require("../models/Question/questionAdaptationSchema");
 
-  // Dedicated retention bank first.
-  const retentionPool = questionBankService.getRetentionQuestions({
-    subject: retentionSubject,
-    topics: selectedTopics,
-    count,
-  });
-  if (retentionPool.length >= count) {
-    return retentionPool.map(normalizeQuestionForSession);
+    // If subject is "general" or empty, try to find any available question bank
+    if (!subject || subject === 'general' || subject === 'undefined') {
+      console.log('Subject is general/empty, looking for any available question bank');
+      const anyBank = await CourseQuestionBank.findOne({}).lean();
+      if (anyBank && anyBank.questions && anyBank.questions.length > 0) {
+        console.log(`Found fallback bank with ${anyBank.questions.length} questions`);
+        const filtered = filterQuestionsByTopics(anyBank.questions, topics, count);
+        if (filtered.length > 0) return filtered;
+      }
+      return [];
+    }
+
+    let query = {};
+
+    // Check if subject is a valid ObjectId (course ID)
+    const isValidObjectId = mongoose.Types.ObjectId.isValid(subject);
+
+    if (isValidObjectId) {
+      // Subject is a course ID - query by course
+      const courseId = subject;
+      const course = await mongoose.model("Course").findById(courseId).catch(() => null);
+      if (!course) {
+        console.warn(`Course not found: ${courseId}`);
+        // Try to find by subject string instead
+        query.subject = subject;
+      } else {
+        query.course = courseId;
+      }
+    } else {
+      // Subject is a string - query by subject field
+      query.subject = subject;
+    }
+
+    // Find the question bank
+    let questionBank = await CourseQuestionBank.findOne(query).lean();
+
+    // If not found and we have a valid ObjectId, try to find by course ID as string
+    if (!questionBank && isValidObjectId) {
+      questionBank = await CourseQuestionBank.findOne({ course: subject }).lean();
+    }
+
+    // If still not found, try to find by subject field
+    if (!questionBank && !isValidObjectId) {
+      questionBank = await CourseQuestionBank.findOne({ subject }).lean();
+    }
+
+    // If still not found, try to find any question bank
+    if (!questionBank) {
+      console.warn(`No question bank found for: ${subject}, looking for any bank`);
+      questionBank = await CourseQuestionBank.findOne({}).lean();
+      if (!questionBank) {
+        console.error('No question banks found in database');
+        return [];
+      }
+    }
+
+    if (!questionBank.questions || questionBank.questions.length === 0) {
+      console.warn(`Question bank has no questions: ${subject}`);
+      return [];
+    }
+
+    // Filter questions
+    let filteredQuestions = [...questionBank.questions];
+
+    // Filter by topics if provided and not "General"
+    if (topics && topics.length > 0 && !(topics.length === 1 && topics[0] === 'General')) {
+      filteredQuestions = filteredQuestions.filter((q) => {
+        const questionTopic = (q.topic || q.concept_area || "General").toLowerCase();
+        return topics.some(t =>
+          questionTopic.includes(t.toLowerCase()) ||
+          t.toLowerCase().includes(questionTopic)
+        );
+      });
+      console.log(`After topic filter: ${filteredQuestions.length} questions remain`);
+    }
+
+    // Filter active questions
+    filteredQuestions = filteredQuestions.filter((q) => q.isActive !== false);
+
+    if (filteredQuestions.length === 0) {
+      console.warn(`No active questions after filtering for: ${subject}`);
+      // Return unfiltered questions as fallback
+      filteredQuestions = [...questionBank.questions].filter((q) => q.isActive !== false);
+      if (filteredQuestions.length === 0) return [];
+    }
+
+    // Shuffle and return requested count
+    for (let i = filteredQuestions.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [filteredQuestions[i], filteredQuestions[j]] = [filteredQuestions[j], filteredQuestions[i]];
+    }
+
+    const resultCount = Math.min(count, filteredQuestions.length);
+    const selectedQuestions = filteredQuestions.slice(0, resultCount);
+
+    console.log(`Returning ${selectedQuestions.length} questions for subject: ${subject}`);
+
+    const normalizedQuestions = selectedQuestions.map((q) => ({
+      ...q,
+      _id: q._id || q.questionId,
+      questionId: q.questionId || q._id,
+      id: q.questionId || q._id,
+      text: q.text || "Question text unavailable",
+      type: q.type || "MCQ",
+      difficulty: typeof q.difficulty === 'number' ? q.difficulty : 0.5,
+      difficultyLevel: q.difficulty_level || "medium",
+      options: q.options || [],
+      correctAnswer: q.correct_answer || q.correctAnswer,
+      explanation: q.explanation || "",
+      solutionSteps: q.solution_steps || q.solutionSteps || [],
+      hints: q.hints || [],
+      topic: q.topic || q.concept_area || "General",
+      topicCategory: q.topic || q.concept_area || "General",
+      marks: typeof q.marks === 'number' ? q.marks : 4,
+      expectedTime: q.expected_time || q.expectedTime || 90,
+      tags: q.tags || [],
+      fromCourseBank: true,
+    }));
+
+    return normalizedQuestions;
+  } catch (error) {
+    console.error("Error in getPracticeQuestionsByTopics:", error);
+    return [];
   }
-
-  const picked = [];
-  const seen = new Set();
-
-  const addUnique = (items = []) => {
-    items.forEach((item) => {
-      const normalized = normalizeQuestionForSession(item);
-      const id = normalized?._id || normalized?.questionId;
-      if (!normalized || !id || seen.has(id) || picked.length >= count) return;
-      seen.add(id);
-      picked.push(normalized);
-    });
-  };
-
-  // Topic-priority sampling from selected subject.
-  const perTopicCount = Math.max(
-    1,
-    Math.ceil(count / Math.max(1, selectedTopics.length)),
-  );
-  selectedTopics.forEach((topic) => {
-    const byTopic = questionBankService.getQuestions({
-      subject: mappedSubject,
-      topic,
-      count: perTopicCount,
-      excludeIds: Array.from(seen),
-    });
-    addUnique(byTopic);
-  });
-
-  // Subject fallback to fill remaining slots.
-  if (picked.length < count) {
-    const subjectPool = questionBankService.getQuestions({
-      subject: mappedSubject,
-      count: count - picked.length,
-      excludeIds: Array.from(seen),
-    });
-    addUnique(subjectPool);
-  }
-
-  // Subject-only adaptive fallback (keeps retention strictly scoped by chosen subject).
-  if (picked.length < count) {
-    const adaptiveSubjectPool = questionBankService
-      .getQuestions({
-        subject: mappedSubject,
-        minDifficulty: 0,
-        maxDifficulty: 1,
-        count: Math.max(count * 2, count - picked.length),
-        excludeIds: Array.from(seen),
-      })
-      .filter((q) =>
-        selectedTopics.length > 0 ? selectedTopics.includes(q.topic) : true,
-      );
-    addUnique(adaptiveSubjectPool);
-  }
-
-  // Subject-topic reuse fallback: repeat from already chosen subject/topic pool only.
-  if (picked.length < count) {
-    const subjectTopicPool = questionBankService.getQuestions({
-      subject: mappedSubject,
-      count: Math.max(count * 3, count),
-      excludeIds: [],
-    });
-
-    const filteredReusePool = subjectTopicPool.filter((q) =>
-      selectedTopics.length > 0 ? selectedTopics.includes(q.topic) : true,
-    );
-
-    const reusePool =
-      filteredReusePool.length > 0 ? filteredReusePool : subjectTopicPool;
-
-    reusePool.forEach((item) => {
-      const normalized = normalizeQuestionForSession(item);
-      if (!normalized || picked.length >= count) return;
-      picked.push(normalized);
-    });
-  }
-
-  return picked.slice(0, count);
 };
+
+// Helper function to filter questions by topics
+const filterQuestionsByTopics = (questions, topics, count) => {
+  if (!questions || questions.length === 0) return [];
+
+  let filtered = [...questions];
+
+  if (topics && topics.length > 0 && !(topics.length === 1 && topics[0] === 'General')) {
+    filtered = filtered.filter((q) => {
+      const questionTopic = (q.topic || q.concept_area || "General").toLowerCase();
+      return topics.some(t =>
+        questionTopic.includes(t.toLowerCase()) ||
+        t.toLowerCase().includes(questionTopic)
+      );
+    });
+  }
+
+  filtered = filtered.filter((q) => q.isActive !== false);
+
+  if (filtered.length === 0) return [];
+
+  // Shuffle
+  for (let i = filtered.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [filtered[i], filtered[j]] = [filtered[j], filtered[i]];
+  }
+
+  const resultCount = Math.min(count, filtered.length);
+  return filtered.slice(0, resultCount).map((q) => ({
+    ...q,
+    _id: q._id || q.questionId,
+    questionId: q.questionId || q._id,
+    id: q.questionId || q._id,
+    text: q.text || "Question text unavailable",
+    type: q.type || "MCQ",
+    difficulty: typeof q.difficulty === 'number' ? q.difficulty : 0.5,
+    difficultyLevel: q.difficulty_level || "medium",
+    options: q.options || [],
+    correctAnswer: q.correct_answer || q.correctAnswer,
+    explanation: q.explanation || "",
+    solutionSteps: q.solution_steps || q.solutionSteps || [],
+    hints: q.hints || [],
+    topic: q.topic || q.concept_area || "General",
+    topicCategory: q.topic || q.concept_area || "General",
+    marks: typeof q.marks === 'number' ? q.marks : 4,
+    expectedTime: q.expected_time || q.expectedTime || 90,
+    tags: q.tags || [],
+    fromCourseBank: true,
+  }));
+};
+
 
 const getQuestionBySourceId = async (sourceId) => {
   if (!sourceId) return null;
@@ -2495,36 +2865,133 @@ const getQuestionBySourceId = async (sourceId) => {
     questionBankService.getRetentionQuestionById(sourceId);
   return normalizeQuestionForSession(bankQuestion);
 };
+// file: retentionSessionController.js
+// Replace the getQuestionById and getQuestionsByIds functions (around line 2580-2620)
 
-const getQuestionById = async (questionId) => {
-  // Try to get from MongoDB first
-  const Question = mongoose.model("Question");
-  let question = await Question.findOne({ questionId });
+// Import the CourseQuestionBank model at the top of the file
+const CourseQuestionBank = require("../models/Question/questionAdaptationSchema");
 
-  if (!question) {
-    // Fallback to question bank service
-    question =
-      questionBankService.getQuestionById(questionId) ||
-      questionBankService.getRetentionQuestionById(questionId);
+// Updated getQuestionById - only use CourseQuestionBank (no separate Question model)
+const getQuestionById = async (questionId, courseId = null) => {
+  try {
+    if (!questionId) return null;
+
+    // Build query to find question in CourseQuestionBank
+    let query = { "questions.questionId": questionId };
+    if (courseId) {
+      query.course = courseId;
+    }
+
+    // Also try by _id as fallback
+    const questionBank = await CourseQuestionBank.findOne(query).lean();
+
+    if (questionBank && questionBank.questions) {
+      const found = questionBank.questions.find(
+        (q) => String(q.questionId) === String(questionId) ||
+               String(q._id) === String(questionId)
+      );
+      if (found) {
+        return {
+          ...found,
+          _id: found._id || found.questionId,
+          questionId: found.questionId || found._id,
+          topicCategory: found.topic || found.concept_area || "General",
+          correctAnswer: found.correct_answer || found.correctAnswer,
+          expectedTime: found.expected_time || found.expectedTime || 90,
+        };
+      }
+    }
+
+    // Try searching across all question banks
+    const allBanks = await CourseQuestionBank.find({}).lean();
+    for (const bank of allBanks) {
+      if (bank.questions) {
+        const found = bank.questions.find(
+          (q) => String(q.questionId) === String(questionId) ||
+                 String(q._id) === String(questionId)
+        );
+        if (found) {
+          return {
+            ...found,
+            _id: found._id || found.questionId,
+            questionId: found.questionId || found._id,
+            topicCategory: found.topic || found.concept_area || "General",
+            correctAnswer: found.correct_answer || found.correctAnswer,
+            expectedTime: found.expected_time || found.expectedTime || 90,
+          };
+        }
+      }
+    }
+
+    return null;
+  } catch (error) {
+    console.error("Error in getQuestionById:", error.message);
+    return null;
   }
-
-  return question;
 };
 
-const getQuestionsByIds = async (questionIds) => {
-  const Question = mongoose.model("Question");
-  const questions = await Question.find({ questionId: { $in: questionIds } });
+// Updated getQuestionsByIds - only use CourseQuestionBank
+const getQuestionsByIds = async (questionIds, courseId = null) => {
+  try {
+    if (!questionIds || questionIds.length === 0) return [];
 
-  // Fill missing with question bank
-  const foundIds = questions.map((q) => q.questionId);
-  const missingIds = questionIds.filter((id) => !foundIds.includes(id));
+    const questions = [];
+    const foundIds = new Set();
 
-  for (const id of missingIds) {
-    const q = questionBankService.getQuestionById(id);
-    if (q) questions.push(q);
+    // Build query for specific course if provided
+    if (courseId) {
+      const questionBank = await CourseQuestionBank.findOne({
+        course: courseId
+      }).lean();
+
+      if (questionBank && questionBank.questions) {
+        for (const q of questionBank.questions) {
+          const qId = String(q.questionId || q._id);
+          if (questionIds.includes(qId) && !foundIds.has(qId)) {
+            foundIds.add(qId);
+            questions.push({
+              ...q,
+              _id: q._id || q.questionId,
+              questionId: q.questionId || q._id,
+              topicCategory: q.topic || q.concept_area || "General",
+              correctAnswer: q.correct_answer || q.correctAnswer,
+              expectedTime: q.expected_time || q.expectedTime || 90,
+            });
+          }
+        }
+      }
+    }
+
+    // If not all found, search across all banks
+    if (foundIds.size < questionIds.length) {
+      const allBanks = await CourseQuestionBank.find({}).lean();
+      const remainingIds = questionIds.filter(id => !foundIds.has(id));
+
+      for (const bank of allBanks) {
+        if (!bank.questions) continue;
+
+        for (const q of bank.questions) {
+          const qId = String(q.questionId || q._id);
+          if (remainingIds.includes(qId) && !foundIds.has(qId)) {
+            foundIds.add(qId);
+            questions.push({
+              ...q,
+              _id: q._id || q.questionId,
+              questionId: q.questionId || q._id,
+              topicCategory: q.topic || q.concept_area || "General",
+              correctAnswer: q.correct_answer || q.correctAnswer,
+              expectedTime: q.expected_time || q.expectedTime || 90,
+            });
+          }
+        }
+      }
+    }
+
+    return questions;
+  } catch (error) {
+    console.error("Error in getQuestionsByIds:", error.message);
+    return [];
   }
-
-  return questions;
 };
 
 const checkAnswer = (question, selectedOptions) => {
@@ -2560,6 +3027,8 @@ const getTimeSinceLast = (session) => {
   const lastAnswer = session.answers[session.answers.length - 1];
   return Date.now() - new Date(lastAnswer.submittedAt).getTime();
 };
+// file: retentionSessionController.js
+// Replace the updateQuestionRepetition function (around line 2750-2830)
 
 const updateQuestionRepetition = async (
   studentId,
@@ -2572,25 +3041,50 @@ const updateQuestionRepetition = async (
   context = {},
 ) => {
   let question = context.question || null;
+
+  // Get courseId from session context
+  const session = context.session || await RetentionSession.findOne({ sessionId });
+  const courseId = session?.courseId || context.courseId;
+  const courseName = session?.courseName || context.courseName || "";
+
   let repetition = await QuestionRepetition.findOne({
     studentId,
     questionId,
+    courseId,
   });
 
   if (!repetition) {
-    // Get question details
-    question = await getQuestionById(questionId);
-    if (!question) return;
+    // Get question details if not provided
+    if (!question) {
+      question = await getQuestionById(questionId, courseId);
+    }
+
+    if (!question) {
+      console.warn(`Question not found for repetition: ${questionId}`);
+      return null;
+    }
+
+    const topicCategory = context.topicCategory ||
+                         question.topicCategory ||
+                         question.topic ||
+                         question.concept_area ||
+                         "General";
 
     repetition = new QuestionRepetition({
       studentId,
       userId,
       questionId,
-      topicId: question.topicId || question.topic,
-      subject: toRetentionSubject(question.subject),
-      topicCategory: question.topicCategory || question.topic,
-      difficulty: question.difficulty,
-      currentBatchType: batchType,
+      courseId: courseId || session?.courseId || "unknown",
+      courseName: courseName || session?.courseName || "",
+      topicId: context.topicId || topicCategory,
+      subject: "general", // Set default subject
+      topicCategory: topicCategory,
+      difficulty: typeof question.difficulty === 'number' ? question.difficulty : 0.5,
+      currentBatchType: batchType || "immediate",
+      metadata: {
+        sourceQuestionId: questionId,
+        generatedBy: "system",
+      },
     });
     repetition.initializeSchedule();
   }
@@ -2599,22 +3093,22 @@ const updateQuestionRepetition = async (
 
   const questionRef = context.question || question;
   if (questionRef) {
-    safeAssignFlexiblePath(repetition, "latestQuestionSnapshot", {
-      text: questionRef.text,
-      type: questionRef.type,
-      difficulty: Number(questionRef.difficulty || 0),
-      topic: questionRef.topic,
-      topicCategory:
-        context.topicCategory || questionRef.topicCategory || questionRef.topic,
-      subject: questionRef.subject,
+    // Safely assign question snapshot
+    repetition.latestQuestionSnapshot = {
+      text: questionRef.text || "Question text unavailable",
+      type: questionRef.type || "MCQ",
+      difficulty: typeof questionRef.difficulty === 'number' ? questionRef.difficulty : 0.5,
+      topic: questionRef.topic || questionRef.concept_area || "General",
+      topicCategory: context.topicCategory || questionRef.topicCategory || questionRef.topic || "General",
+      subject: questionRef.subject || courseId,
       options: Array.isArray(questionRef.options)
         ? questionRef.options.map((opt) =>
             String(opt?.label || opt?.text || opt?.value || opt),
           )
         : [],
-      expectedTime: Number(questionRef.expectedTime || 0),
+      expectedTime: typeof questionRef.expectedTime === 'number' ? questionRef.expectedTime : 90,
       savedAt: new Date(),
-    });
+    };
   }
 
   const flaskSchedule = context.flaskSchedule;
@@ -2651,7 +3145,7 @@ const updateQuestionRepetition = async (
   effectiveSchedule.source = flaskSchedule ? "flask" : "fallback";
   effectiveSchedule.updatedAt = new Date();
 
-  safeAssignFlexiblePath(repetition, "latestFlaskMetrics", effectiveSchedule);
+  repetition.latestFlaskMetrics = effectiveSchedule;
   repetition.currentRetention = clampRatio(
     effectiveSchedule.retentionProbability,
     repetition.currentRetention,

@@ -10,25 +10,17 @@ const RetentionAnswerSchema = new mongoose.Schema({
     required: true,
     index: true,
   },
+  courseId: {
+    type: String,
+    required: true,
+    index: true,
+  },
   subject: {
     type: String,
-    enum: ["english", "gk"],
-    required: true,
+    default: "general",
   },
   topicCategory: {
     type: String,
-    enum: [
-      "vocabulary",
-      "idioms",
-      "phrases",
-      "synonyms",
-      "antonyms",
-      "one_word_substitution",
-      "history",
-      "geography",
-      "science",
-      "current_affairs",
-    ],
     required: true,
   },
   isCorrect: {
@@ -128,28 +120,23 @@ const RetentionSessionSchema = new mongoose.Schema(
       required: true,
       index: true,
     },
-    subject: {
+    courseId: {
       type: String,
-      enum: ["english", "gk"],
+      required: true,
+      index: true,
+    },
+    courseName: {
+      type: String,
       required: true,
     },
-    topics: [
-      {
-        type: String,
-        enum: [
-          "vocabulary",
-          "idioms",
-          "phrases",
-          "synonyms",
-          "antonyms",
-          "one_word_substitution",
-          "history",
-          "geography",
-          "science",
-          "current_affairs",
-        ],
-      },
-    ],
+    subject: {
+      type: String,
+      default: "general",
+    },
+    topics: {
+      type: [String],
+      default: [],
+    },
     status: {
       type: String,
       enum: ["pending", "active", "paused", "completed", "abandoned"],
@@ -175,7 +162,9 @@ const RetentionSessionSchema = new mongoose.Schema(
       {
         questionId: String,
         topicId: String,
+        topicCategory: String,
         order: Number,
+        courseId: String,
         source: {
           type: String,
           enum: ["fresh", "retention"],
@@ -226,6 +215,7 @@ const RetentionSessionSchema = new mongoose.Schema(
       stressPattern: mongoose.Schema.Types.Mixed,
       fatigueTrend: mongoose.Schema.Types.Mixed,
       focusTrend: mongoose.Schema.Types.Mixed,
+      topicBreakdown: mongoose.Schema.Types.Mixed,
     },
     uiState: {
       retentionQueue: {
@@ -262,7 +252,8 @@ const RetentionSessionSchema = new mongoose.Schema(
 
 // Indexes
 RetentionSessionSchema.index({ studentId: 1, startTime: -1 });
-RetentionSessionSchema.index({ studentId: 1, subject: 1 });
+RetentionSessionSchema.index({ studentId: 1, courseId: 1 });
+RetentionSessionSchema.index({ studentId: 1, status: 1 });
 
 // Calculate metrics
 RetentionSessionSchema.methods.calculateMetrics = function () {
@@ -275,18 +266,30 @@ RetentionSessionSchema.methods.calculateMetrics = function () {
     this.answers.reduce((sum, a) => sum + a.difficulty, 0) / answered;
 
   // Calculate accuracy by topic
-  const topicAccuracy = {};
+  const topicBreakdown = {};
   this.answers.forEach((answer) => {
-    if (!topicAccuracy[answer.topicCategory]) {
-      topicAccuracy[answer.topicCategory] = { total: 0, correct: 0 };
+    const topicKey = answer.topicCategory || answer.topicId || "General";
+    if (!topicBreakdown[topicKey]) {
+      topicBreakdown[topicKey] = { total: 0, correct: 0, timeSum: 0 };
     }
-    topicAccuracy[answer.topicCategory].total++;
-    if (answer.isCorrect) topicAccuracy[answer.topicCategory].correct++;
+    topicBreakdown[topicKey].total++;
+    if (answer.isCorrect) topicBreakdown[topicKey].correct++;
+    topicBreakdown[topicKey].timeSum += answer.responseTimeMs;
+  });
+
+  // Add accuracy percentages
+  Object.keys(topicBreakdown).forEach((topic) => {
+    const data = topicBreakdown[topic];
+    data.accuracy = (data.correct / data.total) * 100;
+    data.avgTimeMs = data.timeSum / data.total;
   });
 
   // Calculate stress pattern
   const stressLevels = this.answers.map((a) => a.stressLevel);
-  const avgStress = stressLevels.reduce((a, b) => a + b, 0) / answered;
+  const avgStress =
+    stressLevels.length > 0
+      ? stressLevels.reduce((a, b) => a + b, 0) / stressLevels.length
+      : 0;
   const stressTrend = this.calculateTrend(stressLevels);
 
   // Calculate fatigue trend
@@ -315,7 +318,6 @@ RetentionSessionSchema.methods.calculateMetrics = function () {
           : stressTrend < -0.01
             ? "decreasing"
             : "stable",
-      byTopic: topicAccuracy,
     },
     fatigueTrend:
       fatigueTrend > 0.01
@@ -329,6 +331,7 @@ RetentionSessionSchema.methods.calculateMetrics = function () {
         : focusTrend < -0.01
           ? "declining"
           : "stable",
+    topicBreakdown,
   };
 };
 
@@ -353,14 +356,15 @@ RetentionSessionSchema.methods.calculateLearningVelocity = function () {
   // Group by topic and calculate mastery
   const topicMastery = {};
   this.answers.forEach((answer) => {
-    if (!topicMastery[answer.topicCategory]) {
-      topicMastery[answer.topicCategory] = { total: 0, correct: 0 };
+    const topicKey = answer.topicCategory || answer.topicId || "General";
+    if (!topicMastery[topicKey]) {
+      topicMastery[topicKey] = { total: 0, correct: 0 };
     }
-    topicMastery[answer.topicCategory].total++;
-    if (answer.isCorrect) topicMastery[answer.topicCategory].correct++;
+    topicMastery[topicKey].total++;
+    if (answer.isCorrect) topicMastery[topicKey].correct++;
   });
 
-  // Count topics with >70% accuracy
+  // Count topics with >70% accuracy and at least 3 attempts
   const masteredTopics = Object.values(topicMastery).filter(
     (t) => t.total >= 3 && t.correct / t.total > 0.7,
   ).length;
@@ -370,7 +374,7 @@ RetentionSessionSchema.methods.calculateLearningVelocity = function () {
     ? (this.endTime - this.startTime) / (1000 * 60)
     : 30;
 
-  return (masteredTopics / duration) * 60; // topics per hour
+  return duration > 0 ? (masteredTopics / duration) * 60 : 0; // topics per hour
 };
 
 // Calculate retention rate
@@ -395,6 +399,24 @@ RetentionSessionSchema.methods.complete = function () {
   this.status = "completed";
   this.endTime = new Date();
   this.calculateMetrics();
+};
+
+// Get session summary
+RetentionSessionSchema.methods.getSummary = function () {
+  return {
+    sessionId: this.sessionId,
+    courseId: this.courseId,
+    courseName: this.courseName,
+    topics: this.topics,
+    startTime: this.startTime,
+    endTime: this.endTime,
+    duration: this.endTime
+      ? (this.endTime - this.startTime) / (1000 * 60)
+      : null,
+    metrics: this.metrics,
+    totalQuestions: this.answers.length,
+    topicsCovered: Object.keys(this.metrics?.topicBreakdown || {}),
+  };
 };
 
 module.exports = mongoose.model("RetentionSession", RetentionSessionSchema);
