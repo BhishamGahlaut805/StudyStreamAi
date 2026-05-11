@@ -414,33 +414,142 @@ The retention results matter because they show two different levels of learning 
 | AI config                | [AI/config.py](AI/config.py)                                                                                 |
 | AI services              | [AI/services](AI/services)                                                                                   |
 | AI models                | [AI/models](AI/models)                                                                                       |
-
 ## 9. System Image Gallery
 
-The following screenshots are included in the [SystemImage](SystemImage) folder and document the main product surfaces, user roles, and learning flows.
+The following screenshots are included in the `SystemImage` folder and document the main product surfaces, user roles, and learning flows.
 
-| Image                                                      | Description                                                                                                                                     |
-| ---------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
-| [HomePage.png](SystemImage/HomePage.png)                   | Main landing page showing the core product message, adaptive learning, retention learning, teacher/student courses, and dashboard entry points. |
-| [HomePage2.png](SystemImage/HomePage2.png)                 | Landing-style dashboard hub with shortcuts to Dashboard, Practice, Retention Learning, Create a Course, Architecture, and Course Overview.      |
-| [LoginPage.png](SystemImage/LoginPage.png)                 | Authentication screen with login and register tabs, email/password input, and external sign-in options.                                         |
-| [StudentDashboard1.png](SystemImage/StudentDashboard1.png) | Student dashboard overview with performance cards, study metrics, streaks, and learning progress indicators.                                    |
-| [StudentDashboard2.png](SystemImage/StudentDashboard2.png) | Learning modes page comparing Adaptive Practice and Retention Learning with clear call-to-action buttons.                                       |
-| [AdaptiveTest1.png](SystemImage/AdaptiveTest1.png)         | Active adaptive practice session with live question flow, difficulty lock, analytics panel, and answer controls.                                |
-| [AdaptiveTest2.png](SystemImage/AdaptiveTest2.png)         | Adaptive practice results page showing accuracy, confidence, difficulty trend, weak topics, and performance analysis.                           |
-| [PracticeSetup1.png](SystemImage/PracticeSetup1.png)       | Practice setup screen where the learner chooses between adaptive practice and real exam mode.                                                   |
-| [Realtest.png](SystemImage/Realtest.png)                   | Real exam interface with timer, question palette, section tracking, and answer submission controls.                                             |
-| [Retention1.png](SystemImage/Retention1.png)               | Retention session view showing due questions, repeat timing, retention scores, and question cards.                                              |
-| [Retention2.png](SystemImage/Retention2.png)               | Retention workspace with repeated items, concept mastery visualization, and retention score summaries.                                          |
-| [Courses1.png](SystemImage/Courses1.png)                   | Public course catalog displaying published courses, pricing, access labels, and detail buttons.                                                 |
-| [Courses2.png](SystemImage/Courses2.png)                   | Course detail page showing the selected course overview, enrollment status, and continue-learning actions.                                      |
-| [AdminDashboard1.png](SystemImage/AdminDashboard1.png)     | Admin overview dashboard with verification counts, total users, teachers, and course intelligence summaries.                                    |
-| [AdminDashboard2.png](SystemImage/AdminDashboard2.png)     | Admin user control table for searching users, reviewing status, and removing accounts when needed.                                              |
-| [AdminDashboard3.png](SystemImage/AdminDashboard3.png)     | Admin profile screen with personal details, contact data, and account information for the platform administrator.                               |
-| [teacherDashboard1.png](SystemImage/teacherDashboard1.png) | Teacher hub dashboard with class-wide performance summaries and analytics-oriented course navigation.                                           |
-| [TeacherDashboard2.png](SystemImage/TeacherDashboard2.png) | Teacher enrollment management view showing enrolled students and the courses attached to each learner.                                          |
-| [Teacherdashboard3.png](SystemImage/Teacherdashboard3.png) | Teacher course management page with course cards, student counts, ratings, and publish-state indicators.                                        |
+---
 
+### Home Page
+![HomePage](SystemImage/HomePage.png)
+
+Main landing page showing the core product message, adaptive learning, retention learning, teacher/student courses, and dashboard entry points.
+
+---
+
+### Home Page 2
+![HomePage2](SystemImage/HomePage2.png)
+
+Landing-style dashboard hub with shortcuts to Dashboard, Practice, Retention Learning, Create a Course, Architecture, and Course Overview.
+
+---
+
+### Login Page
+![LoginPage](SystemImage/LoginPage.png)
+
+Authentication screen with login and register tabs, email/password input, and external sign-in options.
+
+---
+
+### Student Dashboard 1
+![StudentDashboard1](SystemImage/StudentDashboard1.png)
+
+Student dashboard overview with performance cards, study metrics, streaks, and learning progress indicators.
+
+---
+
+### Student Dashboard 2
+![StudentDashboard2](SystemImage/StudentDashboard2.png)
+
+Learning modes page comparing Adaptive Practice and Retention Learning with clear call-to-action buttons.
+
+---
+
+### Adaptive Test 1
+![AdaptiveTest1](SystemImage/AdaptiveTest1.png)
+
+Active adaptive practice session with live question flow, difficulty lock, analytics panel, and answer controls.
+
+---
+
+### Adaptive Test 2
+![AdaptiveTest2](SystemImage/AdaptiveTest2.png)
+
+Adaptive practice results page showing accuracy, confidence, difficulty trend, weak topics, and performance analysis.
+
+---
+
+### Practice Setup
+![PracticeSetup1](SystemImage/PracticeSetup1.png)
+
+Practice setup screen where the learner chooses between adaptive practice and real exam mode.
+
+---
+
+### Real Test
+![Realtest](SystemImage/Realtest.png)
+
+Real exam interface with timer, question palette, section tracking, and answer submission controls.
+
+---
+
+### Retention Learning 1
+![Retention1](SystemImage/Retention1.png)
+
+Retention session view showing due questions, repeat timing, retention scores, and question cards.
+
+---
+
+### Retention Learning 2
+![Retention2](SystemImage/Retention2.png)
+
+Retention workspace with repeated items, concept mastery visualization, and retention score summaries.
+
+---
+
+### Courses 1
+![Courses1](SystemImage/Courses1.png)
+
+Public course catalog displaying published courses, pricing, access labels, and detail buttons.
+
+---
+
+### Courses 2
+![Courses2](SystemImage/Courses2.png)
+
+Course detail page showing the selected course overview, enrollment status, and continue-learning actions.
+
+---
+
+### Admin Dashboard 1
+![AdminDashboard1](SystemImage/AdminDashboard1.png)
+
+Admin overview dashboard with verification counts, total users, teachers, and course intelligence summaries.
+
+---
+
+### Admin Dashboard 2
+![AdminDashboard2](SystemImage/AdminDashboard2.png)
+
+Admin user control table for searching users, reviewing status, and removing accounts when needed.
+
+---
+
+### Admin Dashboard 3
+![AdminDashboard3](SystemImage/AdminDashboard3.png)
+
+Admin profile screen with personal details, contact data, and account information for the platform administrator.
+
+---
+
+### Teacher Dashboard 1
+![teacherDashboard1](SystemImage/teacherDashboard1.png)
+
+Teacher hub dashboard with class-wide performance summaries and analytics-oriented course navigation.
+
+---
+
+### Teacher Dashboard 2
+![TeacherDashboard2](SystemImage/TeacherDashboard2.png)
+
+Teacher enrollment management view showing enrolled students and the courses attached to each learner.
+
+---
+
+### Teacher Dashboard 3
+![Teacherdashboard3](SystemImage/Teacherdashboard3.png)
+
+Teacher course management page with course cards, student counts, ratings, and publish-state indicators.
 ## 10. Conclusion
 
 StudyStream AI is built around one main philosophy: learning systems should not be static.
