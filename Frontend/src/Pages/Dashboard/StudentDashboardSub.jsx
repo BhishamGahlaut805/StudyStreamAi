@@ -1020,34 +1020,34 @@ const StudentDashboard = () => {
               initial={{ opacity: 0, y: -20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="mb-8"
+              className="mb-6 sm:mb-8"
             >
-              <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-6 text-white shadow-xl relative overflow-hidden">
-                <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-32 translate-x-32" />
-                <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full translate-y-24 -translate-x-24" />
+              <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-xl sm:rounded-3xl p-4 sm:p-6 md:p-8 text-white shadow-2xl relative overflow-hidden backdrop-blur-xl border border-white/10">
+                <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-32 translate-x-32" />
+                <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-24 -translate-x-24" />
 
-                <div className="relative z-10 flex items-start justify-between">
-                  <div>
-                    <h2 className="text-2xl font-bold mb-2">
+                <div className="relative z-10 flex items-start justify-between flex-col sm:flex-row gap-4">
+                  <div className="flex-1">
+                    <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-1 sm:mb-2 leading-tight">
                       Welcome back, {student?.name || "Student"}! 👋
                     </h2>
-                    <p className="text-indigo-100 mb-4">
+                    <p className="text-indigo-50 sm:text-indigo-100 mb-4 sm:mb-6 text-sm sm:text-base">
                       {performance?.overallStats?.lastActive
                         ? `Last active ${formatDate(
                             performance.overallStats.lastActive,
                           )}`
                         : "Ready to continue your learning journey?"}
                     </p>
-                    <div className="flex space-x-3">
+                    <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
                       <button
                         onClick={goToPractice}
-                        className="px-4 py-2 bg-white text-indigo-600 rounded-xl font-medium hover:bg-opacity-90 transition-colors"
+                        className="px-4 sm:px-6 py-2.5 sm:py-3 bg-white text-indigo-600 rounded-lg sm:rounded-xl font-medium hover:bg-opacity-95 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 text-sm sm:text-base whitespace-nowrap"
                       >
                         Start Practice
                       </button>
                       <button
                         onClick={goToRealExam}
-                        className="px-4 py-2 bg-white/20 text-white rounded-xl font-medium hover:bg-white/30 transition-colors"
+                        className="px-4 sm:px-6 py-2.5 sm:py-3 bg-white/20 text-white rounded-lg sm:rounded-xl font-medium hover:bg-white/30 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 text-sm sm:text-base whitespace-nowrap"
                       >
                         Take Exam
                       </button>
@@ -1055,7 +1055,7 @@ const StudentDashboard = () => {
                   </div>
                   <button
                     onClick={() => setShowWelcome(false)}
-                    className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+                    className="p-2 hover:bg-white/20 rounded-lg transition-colors flex-shrink-0"
                   >
                     <FiX className="w-5 h-5" />
                   </button>
@@ -1092,58 +1092,58 @@ const StudentDashboard = () => {
           )}
         </AnimatePresence>
 
-        {/* Stats Grid */}
+        {/* Stats Grid - Mobile First */}
         <motion.div
           variants={stagger}
           initial="initial"
           animate="animate"
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8"
+          className="order-2 sm:order-1 grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4 mb-6 sm:mb-8"
         >
           <motion.div
             variants={fadeInUp}
-            className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-indigo-100 dark:border-indigo-900"
+            className="bg-white/80 dark:bg-gray-800/70 backdrop-blur-xl rounded-lg sm:rounded-2xl p-3 sm:p-4 md:p-6 border border-white/40 dark:border-indigo-900/30 shadow-lg hover:shadow-2xl hover:bg-white/95 dark:hover:bg-gray-800/90 transition-all duration-300 transform hover:-translate-y-1 hover:scale-105"
           >
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl">
-                <FiBookOpen className="w-6 h-6 text-white" />
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
+              <div className="p-2 sm:p-3 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg sm:rounded-xl">
+                <FiBookOpen className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               </div>
-              <span className="text-xs font-medium px-2 py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full">
+              <span className="text-[10px] sm:text-xs font-medium px-1.5 sm:px-2 py-0.5 sm:py-1 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-full">
                 Total
               </span>
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
+            <h3 className="text-lg sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-1 line-clamp-1">
               {performance?.overallStats?.totalQuestions || 0}
             </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 line-clamp-2">
               Questions Answered
             </p>
-            <div className="mt-4 flex items-center text-xs text-gray-400">
-              <FiTrendingUp className="w-3 h-3 mr-1" />
-              <span>
-                {performance?.overallStats?.totalTests || 0} tests completed
+            <div className="mt-2 sm:mt-4 flex items-center text-[10px] sm:text-xs text-gray-400">
+              <FiTrendingUp className="w-3 h-3 mr-1 flex-shrink-0" />
+              <span className="truncate">
+                {performance?.overallStats?.totalTests || 0} tests
               </span>
             </div>
           </motion.div>
 
           <motion.div
             variants={fadeInUp}
-            className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-indigo-100 dark:border-indigo-900"
+            className="bg-white/80 dark:bg-gray-800/70 backdrop-blur-xl rounded-lg sm:rounded-2xl p-3 sm:p-4 md:p-6 border border-white/40 dark:border-indigo-900/30 shadow-lg hover:shadow-2xl hover:bg-white/95 dark:hover:bg-gray-800/90 transition-all duration-300 transform hover:-translate-y-1 hover:scale-105"
           >
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-xl">
-                <FiTarget className="w-6 h-6 text-white" />
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
+              <div className="p-2 sm:p-3 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg sm:rounded-xl">
+                <FiTarget className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               </div>
-              <span className="text-xs font-medium px-2 py-1 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-full">
+              <span className="text-[10px] sm:text-xs font-medium px-1.5 sm:px-2 py-0.5 sm:py-1 bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400 rounded-full">
                 Accuracy
               </span>
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
+            <h3 className="text-lg sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-1">
               {Math.round(performance?.overallStats?.accuracy || 0)}%
             </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
               Overall Accuracy
             </p>
-            <div className="mt-4">
+            <div className="mt-2 sm:mt-4">
               <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
                 <div
                   className={`h-2 rounded-full ${getProgressColor(
@@ -1159,51 +1159,50 @@ const StudentDashboard = () => {
 
           <motion.div
             variants={fadeInUp}
-            className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-indigo-100 dark:border-indigo-900"
+            className="bg-white/80 dark:bg-gray-800/70 backdrop-blur-xl rounded-lg sm:rounded-2xl p-3 sm:p-4 md:p-6 border border-white/40 dark:border-indigo-900/30 shadow-lg hover:shadow-2xl hover:bg-white/95 dark:hover:bg-gray-800/90 transition-all duration-300 transform hover:-translate-y-1 hover:scale-105"
           >
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-gradient-to-br from-orange-500 to-red-600 rounded-xl">
-                <FaFire className="w-6 h-6 text-white" />
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
+              <div className="p-2 sm:p-3 bg-gradient-to-br from-orange-500 to-red-600 rounded-lg sm:rounded-xl">
+                <FaFire className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               </div>
-              <span className="text-xs font-medium px-2 py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-full">
+              <span className="text-[10px] sm:text-xs font-medium px-1.5 sm:px-2 py-0.5 sm:py-1 bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 rounded-full">
                 Streak
               </span>
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
+            <h3 className="text-lg sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-1">
               {currentStreak}
             </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
               Day Streak
             </p>
-            <div className="mt-4 flex items-center text-xs text-gray-400">
-              <FiAward className="w-3 h-3 mr-1" />
-              <span>Best: {longestStreak} days</span>
+            <div className="mt-2 sm:mt-4 flex items-center text-[10px] sm:text-xs text-gray-400 truncate">
+              <FiAward className="w-3 h-3 mr-1 flex-shrink-0" />
+              <span className="truncate">Best: {longestStreak}d</span>
             </div>
           </motion.div>
 
           <motion.div
             variants={fadeInUp}
-            className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-indigo-100 dark:border-indigo-900"
+            className="bg-white/80 dark:bg-gray-800/70 backdrop-blur-xl rounded-lg sm:rounded-2xl p-3 sm:p-4 md:p-6 border border-white/40 dark:border-indigo-900/30 shadow-lg hover:shadow-2xl hover:bg-white/95 dark:hover:bg-gray-800/90 transition-all duration-300 transform hover:-translate-y-1 hover:scale-105"
           >
-            <div className="flex items-center justify-between mb-4">
-              <div className="p-3 bg-gradient-to-br from-purple-500 to-pink-600 rounded-xl">
-                <FaBrain className="w-6 h-6 text-white" />
+            <div className="flex items-center justify-between mb-3 sm:mb-4">
+              <div className="p-2 sm:p-3 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg sm:rounded-xl">
+                <FaBrain className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               </div>
-              <span className="text-xs font-medium px-2 py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-full">
+              <span className="text-[10px] sm:text-xs font-medium px-1.5 sm:px-2 py-0.5 sm:py-1 bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 rounded-full">
                 Mastery
               </span>
             </div>
-            <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-1">
+            <h3 className="text-lg sm:text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mb-1">
               {analytics?.summary?.conceptMastery || 0}
             </h3>
-            <p className="text-sm text-gray-500 dark:text-gray-400">
+            <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
               Topics Mastered
             </p>
-            <div className="mt-4 flex items-center text-xs text-gray-400">
-              <FiClock className="w-3 h-3 mr-1" />
-              <span>
-                {Math.round(performance?.overallStats?.totalTimeSpent || 0)} min
-                total
+            <div className="mt-2 sm:mt-4 flex items-center text-[10px] sm:text-xs text-gray-400 truncate">
+              <FiClock className="w-3 h-3 mr-1 flex-shrink-0" />
+              <span className="truncate">
+                {Math.round(performance?.overallStats?.totalTimeSpent || 0)}m
               </span>
             </div>
           </motion.div>
@@ -1214,7 +1213,7 @@ const StudentDashboard = () => {
           variants={stagger}
           initial="initial"
           animate="animate"
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
+          className="order-4 sm:order-2 grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4 mb-6 sm:mb-8"
         >
           {performanceCards.map((card) => {
             const IconComp = card.icon;
@@ -1222,25 +1221,25 @@ const StudentDashboard = () => {
               <motion.div
                 key={card.key}
                 variants={fadeInUp}
-                className="bg-white dark:bg-gray-800 rounded-2xl border border-indigo-100 dark:border-indigo-900 p-4 shadow-sm"
+                className="bg-white/80 dark:bg-gray-800/70 backdrop-blur-xl rounded-lg sm:rounded-2xl border border-white/40 dark:border-indigo-900/30 p-3 sm:p-4 md:p-5 shadow-lg hover:shadow-2xl hover:bg-white/95 dark:hover:bg-gray-800/90 transition-all duration-300 transform hover:-translate-y-1 hover:scale-105"
               >
-                <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center justify-between mb-2 sm:mb-3">
                   <div
-                    className={`p-2.5 rounded-xl bg-gradient-to-br ${card.tone}`}
+                    className={`p-2 sm:p-2.5 rounded-lg sm:rounded-xl bg-gradient-to-br ${card.tone}`}
                   >
-                    <IconComp className="w-4 h-4 text-white" />
+                    <IconComp className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-white" />
                   </div>
-                  <span className="text-[11px] px-2 py-1 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300">
+                  <span className="text-[9px] sm:text-[11px] px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300">
                     Metric
                   </span>
                 </div>
-                <p className="text-xl font-bold text-gray-900 dark:text-white">
+                <p className="text-base sm:text-lg md:text-xl font-bold text-gray-900 dark:text-white line-clamp-1">
                   {card.value}
                 </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1 line-clamp-2">
                   {card.label}
                 </p>
-                <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-2">
+                <p className="text-[10px] sm:text-[11px] text-gray-400 dark:text-gray-500 mt-1.5 sm:mt-2 line-clamp-2">
                   {card.hint}
                 </p>
               </motion.div>
@@ -1248,42 +1247,42 @@ const StudentDashboard = () => {
           })}
         </motion.div>
 
-        {/* Daily Streak Manager + Trends */}
+        {/* Daily Streak Manager + Trends - Mobile First Reordering */}
         <motion.div
           variants={fadeInUp}
           initial="initial"
           animate="animate"
-          className="mb-8 grid grid-cols-1 xl:grid-cols-3 gap-6"
+          className="order-1 sm:order-3 mb-6 sm:mb-8 grid grid-cols-1 xl:grid-cols-3 gap-4 sm:gap-6"
         >
-          <div className="xl:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-indigo-100 dark:border-indigo-900">
-            <div className="flex items-start justify-between gap-3 mb-4">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-                  <FiCalendar className="w-5 h-5 mr-2 text-indigo-600" />
+          <div className="xl:col-span-2 bg-white/80 dark:bg-gray-800/70 backdrop-blur-xl rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 border border-white/40 dark:border-indigo-900/30 hover:shadow-2xl hover:bg-white/95 dark:hover:bg-gray-800/90 transition-all duration-300">
+            <div className="flex items-start justify-between gap-3 mb-4 flex-col sm:flex-row">
+              <div className="flex-1">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                  <FiCalendar className="w-4 sm:w-5 h-4 sm:h-5 mr-2 text-indigo-600" />
                   Daily Streak Manager
                 </h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Last 14 days activity, momentum, and consistency tracking
+                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  Last 14 days activity & consistency
                 </p>
               </div>
               <div
-                className="text-right"
+                className="text-right flex-shrink-0"
                 title="Streak completion = (current streak / 14-day target) × 100"
               >
-                <p className="text-2xl font-bold text-indigo-600">
+                <p className="text-xl sm:text-2xl font-bold text-indigo-600">
                   {streakCompletion}%
                 </p>
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  14-day streak target
+                <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">
+                  14-day target
                 </p>
               </div>
             </div>
 
-            <div className="grid grid-cols-7 gap-2 mb-4">
+            <div className="grid grid-cols-7 gap-1.5 sm:gap-2 mb-4 overflow-x-auto pb-2">
               {streakHeatmap.map((day) => (
                 <div
                   key={day.key}
-                  className="rounded-xl border border-indigo-100 dark:border-indigo-900/50 p-2 text-center"
+                  className="rounded-lg sm:rounded-xl border border-indigo-100 dark:border-indigo-900/50 p-1.5 sm:p-2 text-center flex-shrink-0 min-w-fit"
                   style={{
                     backgroundColor:
                       day.attempts > 0
@@ -1292,104 +1291,120 @@ const StudentDashboard = () => {
                   }}
                   title={`${day.label} ${day.day}: ${day.attempts} session(s), ${day.avgAccuracy}% avg accuracy`}
                 >
-                  <p className="text-[10px] text-gray-500 dark:text-gray-400">
+                  <p className="text-[8px] sm:text-[10px] text-gray-500 dark:text-gray-400">
                     {day.label}
                   </p>
-                  <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">
+                  <p className="text-xs sm:text-sm font-semibold text-gray-800 dark:text-gray-100">
                     {day.day}
                   </p>
-                  <p className="text-[10px] text-gray-600 dark:text-gray-300">
+                  <p className="text-[8px] sm:text-[10px] text-gray-600 dark:text-gray-300">
                     {day.attempts > 0 ? `${day.attempts}x` : "-"}
                   </p>
                 </div>
               ))}
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="grid grid-cols-3 gap-2 sm:gap-3">
               <div
-                className="p-3 rounded-xl bg-indigo-50 dark:bg-indigo-900/30"
+                className="p-2.5 sm:p-3 rounded-lg sm:rounded-xl bg-indigo-50 dark:bg-indigo-900/30 hover:shadow-md transition-all transform hover:-translate-y-0.5"
                 title="Current streak computed from consecutive active days"
               >
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Current Streak
+                <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 truncate">
+                  Current
                 </p>
-                <p className="text-xl font-bold text-indigo-700 dark:text-indigo-300">
-                  {currentStreak} days
+                <p className="text-base sm:text-lg md:text-xl font-bold text-indigo-700 dark:text-indigo-300 mt-0.5">
+                  {currentStreak}d
                 </p>
               </div>
               <div
-                className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-900/20"
+                className="p-2.5 sm:p-3 rounded-lg sm:rounded-xl bg-emerald-50 dark:bg-emerald-900/20 hover:shadow-md transition-all transform hover:-translate-y-0.5"
                 title="Longest streak observed from profile and timeline data"
               >
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Best Streak
+                <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 truncate">
+                  Best
                 </p>
-                <p className="text-xl font-bold text-emerald-700 dark:text-emerald-300">
-                  {longestStreak} days
+                <p className="text-base sm:text-lg md:text-xl font-bold text-emerald-700 dark:text-emerald-300 mt-0.5">
+                  {longestStreak}d
                 </p>
               </div>
               <div
-                className="p-3 rounded-xl bg-amber-50 dark:bg-amber-900/20"
+                className="p-2.5 sm:p-3 rounded-lg sm:rounded-xl bg-amber-50 dark:bg-amber-900/20 hover:shadow-md transition-all transform hover:-translate-y-0.5"
                 title="Number of active days in the last 14 days"
               >
-                <p className="text-xs text-gray-500 dark:text-gray-400">
-                  Active Days (14d)
+                <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 truncate">
+                  Active
                 </p>
-                <p className="text-xl font-bold text-amber-700 dark:text-amber-300">
+                <p className="text-base sm:text-lg md:text-xl font-bold text-amber-700 dark:text-amber-300 mt-0.5">
                   {streakHeatmap.filter((d) => d.attempts > 0).length}
                 </p>
               </div>
             </div>
           </div>
 
-          <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-indigo-100 dark:border-indigo-900">
-            <h4 className="text-base font-semibold text-gray-900 dark:text-white flex items-center mb-4">
-              <FiTrendingUp className="w-5 h-5 mr-2 text-indigo-600" />
+          <div className="bg-white/80 dark:bg-gray-800/70 backdrop-blur-xl rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 border border-white/40 dark:border-indigo-900/30 hover:shadow-2xl hover:bg-white/95 dark:hover:bg-gray-800/90 transition-all duration-300">
+            <h4 className="text-sm sm:text-base font-semibold text-gray-900 dark:text-white flex items-center mb-3 sm:mb-4">
+              <FiTrendingUp className="w-4 sm:w-5 h-4 sm:h-5 mr-2 text-indigo-600" />
               Momentum Graphs
             </h4>
 
             <div
-              className="mb-5"
+              className="mb-4 sm:mb-5"
               title="Line trend of your last 10 session accuracy values"
             >
-              <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-                Accuracy Trend (last 10 sessions)
+              <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mb-2">
+                Accuracy Trend
               </p>
               {recentAccuracyTrend.length > 1 ? (
-                <svg viewBox="0 0 220 70" className="w-full h-20">
+                <svg viewBox="0 0 220 70" className="w-full h-16 sm:h-20">
+                  <defs>
+                    <linearGradient
+                      id="sparklineGrad"
+                      x1="0%"
+                      y1="0%"
+                      x2="0%"
+                      y2="100%"
+                    >
+                      <stop offset="0%" stopColor="#4F46E5" stopOpacity="0.6" />
+                      <stop
+                        offset="100%"
+                        stopColor="#4F46E5"
+                        stopOpacity="0.1"
+                      />
+                    </linearGradient>
+                  </defs>
                   <path
                     d={buildSparklinePath(recentAccuracyTrend, 220, 70)}
-                    fill="none"
+                    fill="url(#sparklineGrad)"
                     stroke="currentColor"
                     strokeWidth="3"
                     className="text-indigo-600"
                   />
                 </svg>
               ) : (
-                <p className="text-xs text-gray-400 dark:text-gray-500">
-                  More sessions are needed to draw the trend graph.
+                <p className="text-[10px] sm:text-xs text-gray-400 dark:text-gray-500">
+                  Need more sessions
                 </p>
               )}
             </div>
 
             <div title="Fatigue readiness is derived from fatigue sensitivity model outputs">
-              <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+              <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mb-2">
                 Readiness vs Fatigue
               </p>
               {fatigueTrendPoints.length > 0 ? (
-                <div className="flex items-end gap-1 h-20">
+                <div className="flex items-end gap-0.5 h-16 sm:h-20">
                   {fatigueTrendPoints.slice(-12).map((value, idx) => (
                     <div
                       key={`fatigue-${idx}`}
-                      className="flex-1 rounded-t-md bg-gradient-to-t from-purple-500 to-indigo-500"
+                      className="flex-1 rounded-t-md bg-gradient-to-t from-purple-500 to-indigo-500 hover:shadow-lg transition-all transform hover:-translate-y-1"
                       style={{ height: `${Math.max(6, value)}%` }}
                       title={`Session ${idx + 1}: readiness ${value}%`}
                     />
                   ))}
                 </div>
               ) : (
-                <p className="text-xs text-gray-400 dark:text-gray-500">
-                  Fatigue graph will appear after more attempts.
+                <p className="text-[10px] sm:text-xs text-gray-400 dark:text-gray-500">
+                  Graph after attempts
                 </p>
               )}
             </div>
@@ -1401,14 +1416,14 @@ const StudentDashboard = () => {
           variants={fadeInUp}
           initial="initial"
           animate="animate"
-          className="mb-8 bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-indigo-100 dark:border-indigo-900"
+          className="order-5 sm:order-4 mb-6 sm:mb-8 bg-white/80 dark:bg-gray-800/70 backdrop-blur-xl rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 border border-white/40 dark:border-indigo-900/30 hover:shadow-2xl hover:bg-white/95 dark:hover:bg-gray-800/90 transition-all duration-300"
         >
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-              <FiBarChart2 className="w-5 h-5 mr-2 text-indigo-600" />
-              Subject-wise Performance Metrics
+          <div className="flex items-center justify-between mb-4 gap-2 flex-col sm:flex-row">
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+              <FiBarChart2 className="w-4 sm:w-5 h-4 sm:h-5 mr-2 text-indigo-600" />
+              Subject Performance
             </h3>
-            <span className="text-xs px-2 py-1 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300">
+            <span className="text-[10px] sm:text-xs px-2 py-1 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300 flex-shrink-0">
               Deep View
             </span>
           </div>
@@ -1506,108 +1521,118 @@ const StudentDashboard = () => {
           variants={stagger}
           initial="initial"
           animate="animate"
-          className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8"
+          className="order-3 sm:order-5 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8"
         >
           <motion.div
             variants={fadeInUp}
-            className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-6 text-white shadow-xl"
+            className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl sm:rounded-2xl p-4 sm:p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1"
           >
-            <div className="flex items-start justify-between mb-4">
-              <div className="p-3 bg-white/20 rounded-xl">
-                <FaBrain className="w-8 h-8" />
+            <div className="flex items-start justify-between mb-3 sm:mb-4">
+              <div className="p-2 sm:p-3 bg-white/20 rounded-lg sm:rounded-xl">
+                <FaBrain className="w-6 sm:w-8 h-6 sm:h-8" />
               </div>
-              <span className="px-3 py-1 bg-white/20 rounded-full text-sm">
+              <span className="px-2 sm:px-3 py-1 bg-white/20 rounded-full text-xs sm:text-sm">
                 Practice Mode
               </span>
             </div>
-            <h3 className="text-xl font-bold mb-2">Adaptive Practice</h3>
-            <p className="text-indigo-100 mb-6">
+            <h3 className="text-lg sm:text-xl font-bold mb-1 sm:mb-2">
+              Adaptive Practice
+            </h3>
+            <p className="text-indigo-100 mb-4 sm:mb-6 text-sm sm:text-base">
               Questions adapt to your skill level in real-time. Get instant
               feedback and explanations.
             </p>
-            <div className="grid grid-cols-2 gap-3 mb-6">
-              <div className="bg-white/10 rounded-lg p-3">
-                <FiZap className="w-5 h-5 mb-2" />
-                <p className="text-sm font-semibold">Adaptive</p>
-                <p className="text-xs opacity-80">Difficulty adjusts to you</p>
+            <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-4 sm:mb-6">
+              <div className="bg-white/10 rounded-lg p-2 sm:p-3">
+                <FiZap className="w-4 sm:w-5 h-4 sm:h-5 mb-1 sm:mb-2" />
+                <p className="text-xs sm:text-sm font-semibold">Adaptive</p>
+                <p className="text-[10px] sm:text-xs opacity-80">
+                  Difficulty adjusts
+                </p>
               </div>
-              <div className="bg-white/10 rounded-lg p-3">
-                <FiActivity className="w-5 h-5 mb-2" />
-                <p className="text-sm font-semibold">Real-time</p>
-                <p className="text-xs opacity-80">Live analytics</p>
+              <div className="bg-white/10 rounded-lg p-2 sm:p-3">
+                <FiActivity className="w-4 sm:w-5 h-4 sm:h-5 mb-1 sm:mb-2" />
+                <p className="text-xs sm:text-sm font-semibold">Real-time</p>
+                <p className="text-[10px] sm:text-xs opacity-80">
+                  Live analytics
+                </p>
               </div>
             </div>
             <button
               onClick={goToPractice}
-              className="w-full py-3 bg-white text-indigo-600 rounded-xl font-semibold hover:bg-opacity-90 transition-all flex items-center justify-center space-x-2"
+              className="w-full py-2.5 sm:py-3 bg-white text-indigo-600 rounded-lg sm:rounded-xl font-semibold hover:bg-opacity-90 transition-all flex items-center justify-center space-x-2 text-sm sm:text-base"
             >
               <span>Start Practice</span>
-              <FiChevronRight className="w-5 h-5" />
+              <FiChevronRight className="w-4 sm:w-5 h-4 sm:h-5" />
             </button>
           </motion.div>
 
           <motion.div
             variants={fadeInUp}
-            className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl p-6 text-white shadow-xl"
+            className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-xl sm:rounded-2xl p-4 sm:p-6 text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1"
           >
-            <div className="flex items-start justify-between mb-4">
-              <div className="p-3 bg-white/20 rounded-xl">
-                <FaRocket className="w-8 h-8" />
+            <div className="flex items-start justify-between mb-3 sm:mb-4">
+              <div className="p-2 sm:p-3 bg-white/20 rounded-lg sm:rounded-xl">
+                <FaRocket className="w-6 sm:w-8 h-6 sm:h-8" />
               </div>
-              <span className="px-3 py-1 bg-white/20 rounded-full text-sm">
+              <span className="px-2 sm:px-3 py-1 bg-white/20 rounded-full text-xs sm:text-sm">
                 Exam Mode
               </span>
             </div>
-            <h3 className="text-xl font-bold mb-2">Real Exam Simulation</h3>
-            <p className="text-purple-100 mb-6">
+            <h3 className="text-lg sm:text-xl font-bold mb-1 sm:mb-2">
+              Real Exam Simulation
+            </h3>
+            <p className="text-purple-100 mb-4 sm:mb-6 text-sm sm:text-base">
               Test your knowledge with timed exams. 100 questions, 60 minutes,
               detailed analysis.
             </p>
-            <div className="grid grid-cols-2 gap-3 mb-6">
-              <div className="bg-white/10 rounded-lg p-3">
-                <FiClock className="w-5 h-5 mb-2" />
-                <p className="text-sm font-semibold">60 min</p>
-                <p className="text-xs opacity-80">Timed exam</p>
+            <div className="grid grid-cols-2 gap-2 sm:gap-3 mb-4 sm:mb-6">
+              <div className="bg-white/10 rounded-lg p-2 sm:p-3">
+                <FiClock className="w-4 sm:w-5 h-4 sm:h-5 mb-1 sm:mb-2" />
+                <p className="text-xs sm:text-sm font-semibold">60 min</p>
+                <p className="text-[10px] sm:text-xs opacity-80">Timed exam</p>
               </div>
-              <div className="bg-white/10 rounded-lg p-3">
-                <FiBarChart2 className="w-5 h-5 mb-2" />
-                <p className="text-sm font-semibold">100 Qs</p>
-                <p className="text-xs opacity-80">25 per subject</p>
+              <div className="bg-white/10 rounded-lg p-2 sm:p-3">
+                <FiBarChart2 className="w-4 sm:w-5 h-4 sm:h-5 mb-1 sm:mb-2" />
+                <p className="text-xs sm:text-sm font-semibold">100 Qs</p>
+                <p className="text-[10px] sm:text-xs opacity-80">
+                  25 per subject
+                </p>
               </div>
             </div>
             <button
               onClick={goToRealExam}
-              className="w-full py-3 bg-white text-purple-600 rounded-xl font-semibold hover:bg-opacity-90 transition-all flex items-center justify-center space-x-2"
+              className="w-full py-2.5 sm:py-3 bg-white text-purple-600 rounded-lg sm:rounded-xl font-semibold hover:bg-opacity-90 transition-all flex items-center justify-center space-x-2 text-sm sm:text-base"
             >
               <span>Start Exam</span>
-              <FiChevronRight className="w-5 h-5" />
+              <FiChevronRight className="w-4 sm:w-5 h-4 sm:h-5" />
             </button>
           </motion.div>
         </motion.div>
 
         {/* Analytics Dashboard */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6 mb-6 sm:mb-8">
           {/* Left Column - Concept Mastery */}
           <motion.div
             variants={fadeInUp}
             initial="initial"
             animate="animate"
-            className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-indigo-100 dark:border-indigo-900"
+            className="lg:col-span-2 bg-white/80 dark:bg-gray-800/70 backdrop-blur-xl rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 border border-white/40 dark:border-indigo-900/30 hover:shadow-2xl hover:bg-white/95 dark:hover:bg-gray-800/90 transition-all duration-300"
           >
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-                  <FiPieChart className="w-5 h-5 mr-2 text-indigo-600" />
+            <div className="flex items-center justify-between mb-4 sm:mb-6 gap-2 flex-col sm:flex-row">
+              <div className="flex-1">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                  <FiPieChart className="w-4 sm:w-5 h-4 sm:h-5 mr-2 text-indigo-600" />
                   Concept Mastery
                 </h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Your proficiency across different topics
+                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  Proficiency across topics
                 </p>
               </div>
               <select
                 value={selectedPeriod}
                 onChange={(e) => setSelectedPeriod(e.target.value)}
-                className="px-3 py-2 bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-800 rounded-lg text-sm text-gray-700 dark:text-gray-300"
+                className="px-2 sm:px-3 py-1.5 sm:py-2 bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-800 rounded-lg text-xs sm:text-sm text-gray-700 dark:text-gray-300"
               >
                 <option value="daily">Daily</option>
                 <option value="weekly">Weekly</option>
@@ -1663,18 +1688,18 @@ const StudentDashboard = () => {
             variants={fadeInUp}
             initial="initial"
             animate="animate"
-            className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-indigo-100 dark:border-indigo-900"
+            className="bg-white/80 dark:bg-gray-800/70 backdrop-blur-xl rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 border border-white/40 dark:border-indigo-900/30 hover:shadow-2xl hover:bg-white/95 dark:hover:bg-gray-800/90 transition-all duration-300"
           >
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-                <FiTarget className="w-5 h-5 mr-2 text-red-500" />
+            <div className="flex items-center justify-between mb-3 sm:mb-4 gap-2">
+              <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                <FiTarget className="w-4 sm:w-5 h-4 sm:h-5 mr-2 text-red-500" />
                 Priority Areas
               </h3>
               <span
-                className="text-xs px-2 py-1 rounded-full bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-300"
+                className="text-[10px] sm:text-xs px-2 py-1 rounded-full bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-300 flex-shrink-0"
                 title="Urgency is derived from weakness severity ranking and retention decay"
               >
-                Ranked by urgency
+                Ranked
               </span>
             </div>
 
@@ -1833,17 +1858,17 @@ const StudentDashboard = () => {
         </div>
 
         {/* Learning Path & Recent Tests */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
           {/* Learning Path */}
           <motion.div
             variants={fadeInUp}
             initial="initial"
             animate="animate"
-            className="lg:col-span-1 bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-indigo-100 dark:border-indigo-900"
+            className="lg:col-span-1 bg-white/80 dark:bg-gray-800/70 backdrop-blur-xl rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 border border-white/40 dark:border-indigo-900/30 hover:shadow-2xl hover:bg-white/95 dark:hover:bg-gray-800/90 transition-all duration-300"
           >
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-              <FiMap className="w-5 h-5 mr-2 text-green-500" />
-              Your Learning Path
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4 flex items-center">
+              <FiMap className="w-4 sm:w-5 h-4 sm:h-5 mr-2 text-green-500" />
+              Learning Path
             </h3>
 
             {learningPath ? (
@@ -1931,24 +1956,24 @@ const StudentDashboard = () => {
             variants={fadeInUp}
             initial="initial"
             animate="animate"
-            className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-indigo-100 dark:border-indigo-900"
+            className="lg:col-span-2 bg-white/80 dark:bg-gray-800/70 backdrop-blur-xl rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 border border-white/40 dark:border-indigo-900/30 hover:shadow-2xl hover:bg-white/95 dark:hover:bg-gray-800/90 transition-all duration-300"
           >
-            <div className="flex items-center justify-between mb-6">
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-                  <FiClock className="w-5 h-5 mr-2 text-indigo-600" />
+            <div className="flex items-center justify-between mb-4 sm:mb-6 gap-2 flex-col sm:flex-row">
+              <div className="flex-1">
+                <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white flex items-center">
+                  <FiClock className="w-4 sm:w-5 h-4 sm:h-5 mr-2 text-indigo-600" />
                   Recent Activity
                 </h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Your latest practice sessions and exams
+                <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mt-1">
+                  Latest practice sessions
                 </p>
               </div>
               <button
                 onClick={() => navigate("/test/history")}
-                className="text-sm text-indigo-600 hover:text-indigo-700 font-medium flex items-center"
+                className="text-xs sm:text-sm text-indigo-600 hover:text-indigo-700 font-medium flex items-center flex-shrink-0"
               >
                 View All
-                <FiChevronRight className="w-4 h-4 ml-1" />
+                <FiChevronRight className="w-3 sm:w-4 h-3 sm:h-4 ml-1" />
               </button>
             </div>
 
@@ -2043,7 +2068,6 @@ const StudentDashboard = () => {
             )}
           </motion.div>
         </div>
-       
 
         {/* Flask Models Status */}
         {flaskModels && (
@@ -2051,31 +2075,31 @@ const StudentDashboard = () => {
             variants={fadeInUp}
             initial="initial"
             animate="animate"
-            className="mt-8 bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-indigo-100 dark:border-indigo-900"
+            className="mt-6 sm:mt-8 bg-white/80 dark:bg-gray-800/70 backdrop-blur-xl rounded-xl sm:rounded-2xl shadow-lg p-4 sm:p-6 border border-white/40 dark:border-indigo-900/30 hover:shadow-2xl hover:bg-white/95 dark:hover:bg-gray-800/90 transition-all duration-300"
           >
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-              <FiCpu className="w-5 h-5 mr-2 text-purple-500" />
+            <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-3 sm:mb-4 flex items-center">
+              <FiCpu className="w-4 sm:w-5 h-4 sm:h-5 mr-2 text-purple-500" />
               AI Model Status
             </h3>
 
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2 sm:gap-3 md:gap-4">
               {Object.entries(flaskModels).map(([key, value]) => (
                 <div
                   key={key}
-                  className="p-4 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl text-center"
+                  className="p-2.5 sm:p-3 md:p-4 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg sm:rounded-xl text-center hover:shadow-md transition-all transform hover:-translate-y-0.5"
                 >
-                  <div className="text-2xl font-bold text-indigo-600 mb-1">
+                  <div className="text-lg sm:text-2xl font-bold mb-1 flex justify-center">
                     {value?.trained ? (
-                      <FiCheckCircle className="w-6 h-6 mx-auto text-green-500" />
+                      <FiCheckCircle className="w-5 sm:w-6 h-5 sm:h-6 text-green-500" />
                     ) : (
-                      <FiClock className="w-6 h-6 mx-auto text-yellow-500" />
+                      <FiClock className="w-5 sm:w-6 h-5 sm:h-6 text-yellow-500" />
                     )}
                   </div>
-                  <p className="text-xs font-medium text-gray-700 dark:text-gray-300 capitalize">
+                  <p className="text-[10px] sm:text-xs font-medium text-gray-700 dark:text-gray-300 capitalize">
                     {key.replace(/_/g, " ")}
                   </p>
                   {value?.last_trained && (
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                    <p className="text-[9px] sm:text-xs text-gray-500 dark:text-gray-400 mt-1">
                       {new Date(value.last_trained).toLocaleDateString()}
                     </p>
                   )}
@@ -2087,15 +2111,17 @@ const StudentDashboard = () => {
       </main>
 
       {/* Floating Action Buttons */}
-      <div className="fixed bottom-8 right-8 flex flex-col space-y-3">
+      <div className="fixed bottom-4 sm:bottom-8 right-4 sm:right-8 flex flex-col gap-2 sm:gap-3 z-40">
         <motion.button
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
           onClick={goToPractice}
-          className="p-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full shadow-2xl hover:shadow-xl transition-all"
+          className="p-3 sm:p-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full shadow-2xl hover:shadow-3xl transition-all backdrop-blur-xl border border-white/20"
+          title="Start Practice"
         >
-          <FiZap className="w-6 h-6" />
+          <FiZap className="w-5 sm:w-6 h-5 sm:h-6" />
         </motion.button>
 
         <motion.button
@@ -2103,10 +2129,12 @@ const StudentDashboard = () => {
           animate={{ scale: 1 }}
           transition={{ delay: 0.1 }}
           whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => window.open("/help", "_blank")}
-          className="p-4 bg-gray-600 text-white rounded-full shadow-2xl hover:shadow-xl transition-all"
+          className="p-3 sm:p-4 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-full shadow-2xl hover:shadow-3xl transition-all backdrop-blur-xl border border-white/20"
+          title="Help & Support"
         >
-          <FiHelpCircle className="w-6 h-6" />
+          <FiHelpCircle className="w-5 sm:w-6 h-5 sm:h-6" />
         </motion.button>
       </div>
     </div>

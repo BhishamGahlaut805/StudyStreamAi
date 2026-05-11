@@ -1,7 +1,7 @@
 import axios from "axios";
 import Cookies from "js-cookie";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+const API_URL = import.meta.env.VITE_API_URL;
 
 // Create axios instance with default config
 const axiosInstance = axios.create({
@@ -66,11 +66,8 @@ class AuthService {
         this.setSession(response.data.token, response.data.user);
       }
 
-      return {
-        success: true,
-        user: response.data.user,
-        message: response.data.message || "Registration successful",
-      };
+      // Return raw response data so callers can inspect token and verification
+      return response.data;
     } catch (error) {
       throw this.handleError(error);
     }
@@ -87,10 +84,7 @@ class AuthService {
         this.setSession(response.data.token, response.data.user);
       }
 
-      return {
-        success: true,
-        user: response.data.user,
-      };
+      return response.data;
     } catch (error) {
       throw this.handleError(error);
     }
@@ -107,10 +101,7 @@ class AuthService {
         this.setSession(response.data.token, response.data.user);
       }
 
-      return {
-        success: true,
-        user: response.data.user,
-      };
+      return response.data;
     } catch (error) {
       throw this.handleError(error);
     }

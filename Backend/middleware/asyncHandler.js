@@ -1,47 +1,36 @@
-// middleWare/asyncHandler.js
 const asyncHandler = (fn) => {
-  return (req, res, next) => {
-    // Ensure next is always a function
-    const safeNext =
-      typeof next === "function"
-        ? next
-        : (err) => {
-            console.error(
-              "[asyncHandler] next is not a function, cannot forward error:",
-              err?.message,
-            );
-          };
+  return async (req, res, next) => {
+    try {
+      await fn(req, res, next);
+    } catch (error) {
+      console.error("[asyncHandler] Caught error:", error);
 
-    Promise.resolve(fn(req, res, safeNext)).catch((error) => {
-      console.error("[asyncHandler] Caught error:", error?.message || error);
-
-      // If headers already sent, don't try to send again
+      // Prevent multiple responses
       if (res.headersSent) {
-        console.error(
-          "[asyncHandler] Headers already sent, cannot send error response",
-        );
-        return;
+        return next(error);
       }
 
-      // Handle mongoose validation errors
+      // Mongoose Validation Error
       if (error.name === "ValidationError") {
         const messages = Object.values(error.errors).map((err) => err.message);
+
         return res.status(400).json({
           success: false,
           error: messages.join(", "),
         });
       }
 
-      // Handle mongoose duplicate key errors
+      // Duplicate Key Error
       if (error.code === 11000) {
-        const field = Object.keys(error.keyValue || {})[0] || "field";
+        const field = Object.keys(error.keyValue || {})[0];
+
         return res.status(400).json({
           success: false,
-          error: `Duplicate value for ${field}. This ${field} already exists.`,
+          error: `${field} already exists`,
         });
       }
 
-      // Handle cast errors (invalid ObjectId)
+      // Invalid ObjectId
       if (error.name === "CastError") {
         return res.status(404).json({
           success: false,
@@ -49,7 +38,7 @@ const asyncHandler = (fn) => {
         });
       }
 
-      // Handle ErrorResponse custom errors
+      // Custom ErrorResponse
       if (error.statusCode) {
         return res.status(error.statusCode).json({
           success: false,
@@ -57,31 +46,27 @@ const asyncHandler = (fn) => {
         });
       }
 
-      // Handle "next is not a function" error gracefully
-      if (
-        error.message === "next is not a function" ||
-        error.message?.includes("next is not a function")
-      ) {
-        return res.status(500).json({
+      // JWT Errors
+      if (error.name === "JsonWebTokenError") {
+        return res.status(401).json({
           success: false,
-          error: "Internal server error - middleware chain issue",
+          error: "Invalid token",
         });
       }
 
-      // Default error response
-      const statusCode = error.statusCode || error.status || 500;
-      const message = error.message || "Server Error";
+      if (error.name === "TokenExpiredError") {
+        return res.status(401).json({
+          success: false,
+          error: "Token expired",
+        });
+      }
 
-      console.error("[asyncHandler] Sending error response:", {
-        statusCode,
-        message,
-      });
-
-      return res.status(statusCode).json({
+      // Default Server Error
+      return res.status(500).json({
         success: false,
-        error: message,
+        error: error.message || "Server Error",
       });
-    });
+    }
   };
 };
 

@@ -61,6 +61,77 @@ const teacherService = {
     return await api.get("/dashboard");
   },
 
+  // Advanced analytics overview operations
+  getStudentsForAnalytics: async () => {
+    return await api.get("/dashboard/students");
+  },
+
+  getStudentPerformanceAnalytics: async (studentId) => {
+    return await api.get(`/analytics/student-performance/${studentId}`);
+  },
+
+  getLearningVelocityAnalytics: async (studentId) => {
+    return await api.get(`/analytics/learning-velocity/${studentId}`);
+  },
+
+  getRetentionAnalytics: async (studentId) => {
+    return await api.get(`/analytics/retention/${studentId}`);
+  },
+
+  getBurnoutRiskAnalytics: async (studentId) => {
+    return await api.get(`/analytics/burnout-risk/${studentId}`);
+  },
+
+  getTopicMasteryAnalytics: async (studentId) => {
+    return await api.get(`/analytics/topic-mastery/${studentId}`);
+  },
+
+  getClassComparativeAnalytics: async (courseId) => {
+    return await api.get(`/analytics/class-comparative/${courseId}`);
+  },
+
+  getPerformanceTrendsAnalytics: async (studentId, timeframe = "monthly") => {
+    return await api.get(
+      `/analytics/performance-trends/${studentId}?timeframe=${timeframe}`,
+    );
+  },
+
+  getErrorPatternAnalytics: async (studentId) => {
+    return await api.get(`/analytics/error-patterns/${studentId}`);
+  },
+
+  getTimeSpentAnalytics: async (studentId) => {
+    return await api.get(`/analytics/time-spent/${studentId}`);
+  },
+
+  getWeakStudentsAnalytics: async (courseId, threshold = 60) => {
+    return await api.get(
+      `/analytics/weak-students/${courseId}?threshold=${threshold}`,
+    );
+  },
+
+  getAdvancedStudentsAnalytics: async (courseId, threshold = 85) => {
+    return await api.get(
+      `/analytics/advanced-students/${courseId}?threshold=${threshold}`,
+    );
+  },
+
+  getInterventionAlerts: async (courseId) => {
+    return await api.get(`/analytics/intervention-alerts/${courseId}`);
+  },
+
+  getStudentDeepProfileAnalytics: async (studentId) => {
+    return await api.get(`/analytics/student-deep-profile/${studentId}`);
+  },
+
+  getClassDashboardAnalytics: async (courseId) => {
+    return await api.get(`/analytics/class-dashboard/${courseId}`);
+  },
+
+  getPredictiveRecommendations: async (studentId) => {
+    return await api.get(`/analytics/recommendations/${studentId}`);
+  },
+
   // Course operations
   getTeacherCourses: async () => {
     return await api.get("/courses");
@@ -69,10 +140,6 @@ const teacherService = {
   // Student operations
   getStudentsInMyCourses: async () => {
     return await api.get("/my-students");
-  },
-
-  getStudentsForAnalytics: async () => {
-    return await api.get("/dashboard/students");
   },
 
   getStudentsByCourse: async (courseId) => {

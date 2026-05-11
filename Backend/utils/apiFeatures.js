@@ -6,9 +6,53 @@ class APIFeatures {
 
   filter() {
     const queryObj = { ...this.queryString };
-    const removeFields = ["page", "sort", "limit", "fields", "q", "search"];
+    const removeFields = [
+      "page",
+      "sort",
+      "sortBy",
+      "limit",
+      "fields",
+      "q",
+      "search",
+    ];
 
     removeFields.forEach((field) => delete queryObj[field]);
+
+    Object.keys(queryObj).forEach((key) => {
+      const value = queryObj[key];
+
+      if (
+        value === undefined ||
+        value === null ||
+        value === "" ||
+        value === "all"
+      ) {
+        delete queryObj[key];
+      }
+    });
+
+    if (queryObj.price !== undefined) {
+      if (queryObj.price === "free") {
+        queryObj.price = 0;
+      } else if (queryObj.price === "paid") {
+        queryObj.price = { gt: 0 };
+      } else {
+        const price = Number(queryObj.price);
+        if (Number.isNaN(price)) {
+          delete queryObj.price;
+        } else {
+          queryObj.price = price;
+        }
+      }
+    }
+
+    if (queryObj.level === "all") {
+      delete queryObj.level;
+    }
+
+    if (queryObj.category === "all") {
+      delete queryObj.category;
+    }
 
     let queryStr = JSON.stringify(queryObj);
     queryStr = queryStr.replace(
@@ -33,8 +77,10 @@ class APIFeatures {
   }
 
   sort() {
-    if (this.queryString.sort) {
-      const sortBy = this.queryString.sort.split(",").join(" ");
+    const sortValue = this.queryString.sort || this.queryString.sortBy;
+
+    if (sortValue) {
+      const sortBy = sortValue.split(",").join(" ");
       this.query = this.query.sort(sortBy);
     } else {
       this.query = this.query.sort("-createdAt");

@@ -66,9 +66,19 @@ export const AuthProvider = ({ children }) => {
   const register = async (userData) => {
     try {
       const response = await authService.register(userData);
-      setUser(response.user);
-      setIsAuthenticated(true);
-      toast.success("Registration successful!");
+      // If backend returned token, user is authenticated
+      if (response?.token) {
+        setUser(response.user);
+        setIsAuthenticated(true);
+        toast.success("Registration successful!");
+      } else if (response?.user) {
+        // Created but not verified yet
+        setUser(response.user);
+        setIsAuthenticated(false);
+        toast.success(
+          response.message || "Registration successful. Awaiting verification.",
+        );
+      }
       return response;
     } catch (error) {
       toast.error(error.message);
@@ -79,9 +89,16 @@ export const AuthProvider = ({ children }) => {
   const login = async (credentials) => {
     try {
       const response = await authService.login(credentials);
-      setUser(response.user);
-      setIsAuthenticated(true);
-      toast.success("Login successful!");
+      if (response?.token) {
+        setUser(response.user);
+        setIsAuthenticated(true);
+        toast.success("Login successful!");
+      } else {
+        // No token => login not allowed (e.g., pending verification)
+        setUser(response.user || null);
+        setIsAuthenticated(false);
+        toast.error(response.message || "Login not allowed");
+      }
       return response;
     } catch (error) {
       toast.error(error.message);
@@ -92,9 +109,17 @@ export const AuthProvider = ({ children }) => {
   const googleLogin = async (googleData) => {
     try {
       const response = await authService.googleLogin(googleData);
-      setUser(response.user);
-      setIsAuthenticated(true);
-      toast.success("Google login successful!");
+      if (response?.token) {
+        setUser(response.user);
+        setIsAuthenticated(true);
+        toast.success("Google login successful!");
+      } else if (response?.user) {
+        setUser(response.user);
+        setIsAuthenticated(false);
+        toast.success(
+          response.message || "Account created. Awaiting verification.",
+        );
+      }
       return response;
     } catch (error) {
       toast.error(error.message);

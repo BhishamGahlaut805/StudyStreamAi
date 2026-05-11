@@ -20,18 +20,191 @@ const toArray = (value) => (Array.isArray(value) ? value : []);
 const pickFirst = (...values) =>
   values.find((value) => value !== undefined && value !== null && value !== "");
 
-const normalizeStudent = (student = {}) => {
-  const nestedStudent =
-    student && typeof student.student === "object" ? student.student : {};
+const isPlainObject = (value) =>
+  value !== null && typeof value === "object" && !Array.isArray(value);
 
-  const enrolledCourses = [
+const deepPick = (source, keys = [], maxDepth = 4) => {
+  const visited = new Set();
+  const queue = [{ value: source, depth: 0 }];
+
+  while (queue.length > 0) {
+    const { value, depth } = queue.shift();
+
+    if (!isPlainObject(value) || visited.has(value) || depth > maxDepth) {
+      continue;
+    }
+
+    visited.add(value);
+
+    for (const key of keys) {
+      if (
+        value[key] !== undefined &&
+        value[key] !== null &&
+        value[key] !== ""
+      ) {
+        return value[key];
+      }
+    }
+
+    Object.values(value).forEach((child) => {
+      if (isPlainObject(child)) {
+        queue.push({ value: child, depth: depth + 1 });
+      } else if (Array.isArray(child)) {
+        child.forEach((item) => {
+          if (isPlainObject(item)) {
+            queue.push({ value: item, depth: depth + 1 });
+          }
+        });
+      }
+    });
+  }
+
+  return "";
+};
+
+const normalizeCourse = (course = {}) => ({
+  ...course,
+  _id:
+    toId(course._id) ||
+    toId(course.id) ||
+    toId(course.courseId) ||
+    toId(course.course?._id),
+  title: pickFirst(
+    course.title,
+    course.courseTitle,
+    course.name,
+    course.courseName,
+    course.subject,
+    "Unknown Course",
+  ),
+});
+
+const resolveStudentName = (student = {}) =>
+  pickFirst(
+    student.name,
+    student.studentName,
+    student.fullName,
+    student.displayName,
+    student.username,
+    student.userName,
+    student.profile?.fullName,
+    student.profile?.name,
+    student.profile?.displayName,
+    student.user?.name,
+    student.user?.fullName,
+    student.account?.name,
+    student.account?.fullName,
+    student.enrollment?.student?.name,
+    student.enrollment?.student?.fullName,
+    deepPick(student, ["name", "studentName", "fullName", "displayName"], 3),
+    deepPick(student, ["name", "studentName", "fullName", "displayName"], 3),
+    "Unknown Student",
+  );
+
+const resolveStudentEmail = (student = {}) =>
+  pickFirst(
+    student.email,
+    student.studentEmail,
+    student.additionalEmail,
+    student.contactEmail,
+    student.profile?.email,
+    student.profile?.additionalEmail,
+    student.user?.email,
+    student.account?.email,
+    student.enrollment?.student?.email,
+    deepPick(
+      student,
+      ["email", "studentEmail", "additionalEmail", "contactEmail"],
+      3,
+    ),
+    "",
+  );
+
+const resolveStudentDisplayCourses = (
+  student = {},
+  courseLookup = new Map(),
+) => {
+  const rawCourseIds = [
     ...toArray(student.enrolledInCourses),
     ...toArray(student.enrolledCourses),
-    ...toArray(nestedStudent.enrolledInCourses),
-    ...toArray(nestedStudent.enrolledCourses),
+    ...toArray(student.courseIds),
+    ...toArray(student.courseId ? [student.courseId] : []),
+    ...toArray(student.courses),
+    ...toArray(student.enrollment?.courseIds),
+    ...toArray(
+      student.enrollment?.courseId ? [student.enrollment.courseId] : [],
+    ),
+    ...toArray(student.student?.enrolledCourses),
+    ...toArray(student.student?.enrolledInCourses),
   ]
     .map((courseId) => toId(courseId))
     .filter(Boolean);
+
+  const rawTitles = [
+    ...toArray(student.enrolledCourseTitles),
+    ...toArray(student.courseTitles),
+    ...toArray(student.enrollment?.courseTitles),
+    ...toArray(student.courseDisplayNames),
+    ...toArray(student.student?.courseTitles),
+  ]
+    .map((value) => {
+      if (typeof value === "string") {
+        return value.trim();
+      }
+      return (
+        pickFirst(
+          value?.title,
+          value?.courseTitle,
+          value?.name,
+          value?.courseName,
+          value?.subject,
+          "",
+        )?.trim?.() || ""
+      );
+    })
+    .filter(Boolean);
+
+  const resolvedTitles = rawCourseIds
+    .map((courseId) => courseLookup.get(courseId)?.title || courseId)
+    .filter(Boolean);
+
+  return Array.from(new Set([...resolvedTitles, ...rawTitles]));
+};
+
+const buildCourseLookup = (courses = []) =>
+  new Map(courses.map((course) => [toId(course._id || course.id), course]));
+
+const normalizeStudent = (student = {}, courseLookup = new Map()) => {
+  const nestedStudent =
+    student && typeof student.student === "object" ? student.student : {};
+  const enrolledCourses = [
+    ...toArray(student.enrolledInCourses),
+    ...toArray(student.enrolledCourses),
+    ...toArray(student.courseIds),
+    ...toArray(student.courseId ? [student.courseId] : []),
+    ...toArray(student.courses),
+    ...toArray(nestedStudent.enrolledInCourses),
+    ...toArray(nestedStudent.enrolledCourses),
+    ...toArray(nestedStudent.courseIds),
+    ...toArray(nestedStudent.courseId ? [nestedStudent.courseId] : []),
+    ...toArray(nestedStudent.courses),
+    ...toArray(student.enrollment?.courseIds),
+    ...toArray(
+      student.enrollment?.courseId ? [student.enrollment.courseId] : [],
+    ),
+  ]
+    .map((courseId) => toId(courseId))
+    .filter(Boolean);
+
+  const allCourseTitles = resolveStudentDisplayCourses(student, courseLookup);
+  const displayName = resolveStudentName({
+    ...student,
+    student: nestedStudent,
+  });
+  const displayEmail = resolveStudentEmail({
+    ...student,
+    student: nestedStudent,
+  });
 
   return {
     ...student,
@@ -40,30 +213,19 @@ const normalizeStudent = (student = {}) => {
       toId(nestedStudent._id) ||
       toId(student.studentId) ||
       toId(nestedStudent.studentId) ||
-      toId(student.email) ||
-      toId(nestedStudent.email),
-    name: pickFirst(
-      student.name,
-      nestedStudent.name,
-      student.studentName,
-      nestedStudent.studentName,
-      student.fullName,
-      nestedStudent.fullName,
-      student.profile?.fullName,
-      nestedStudent.profile?.fullName,
-      "Unknown Student",
-    ),
-    email: pickFirst(
-      student.email,
-      nestedStudent.email,
-      student.studentEmail,
-      nestedStudent.studentEmail,
-      student.profile?.email,
-      nestedStudent.profile?.email,
-      "",
-    ),
+      toId(displayEmail) ||
+      toId(displayName),
+    name: displayName,
+    studentName: displayName,
+    fullName: displayName,
+    email: displayEmail,
+    studentEmail: displayEmail,
     enrolledCourses,
     enrolledInCourses: enrolledCourses,
+    enrolledCourseTitles: allCourseTitles,
+    primaryCourseTitle: allCourseTitles[0] || "",
+    displayName,
+    displayEmail,
   };
 };
 
@@ -73,7 +235,107 @@ const unwrapResponseList = (response) => {
   if (Array.isArray(response?.data?.data)) return response.data.data;
   if (Array.isArray(response?.students)) return response.students;
   if (Array.isArray(response?.data?.students)) return response.data.students;
+  if (Array.isArray(response?.data?.courses)) return response.data.courses;
   return [];
+};
+
+const mergeStudentRecords = (records = [], courseLookup = new Map()) => {
+  const mergedStudents = new Map();
+
+  records.forEach((record) => {
+    const normalized = normalizeStudent(record, courseLookup);
+    const identity =
+      normalized._id ||
+      normalized.studentId ||
+      normalized.email ||
+      normalized.name ||
+      normalized.primaryCourseTitle ||
+      JSON.stringify(normalized.enrolledCourses || []);
+
+    const existing = mergedStudents.get(identity);
+
+    if (!existing) {
+      mergedStudents.set(identity, normalized);
+      return;
+    }
+
+    const mergedCourseIds = Array.from(
+      new Set([
+        ...toArray(existing.enrolledCourses),
+        ...toArray(normalized.enrolledCourses),
+      ]),
+    );
+    const mergedCourseTitles = Array.from(
+      new Set([
+        ...toArray(existing.enrolledCourseTitles),
+        ...toArray(normalized.enrolledCourseTitles),
+      ]),
+    );
+
+    mergedStudents.set(identity, {
+      ...existing,
+      ...normalized,
+      name: pickFirst(
+        existing.name,
+        normalized.name,
+        existing.displayName,
+        normalized.displayName,
+        "Unknown Student",
+      ),
+      studentName: pickFirst(
+        existing.studentName,
+        normalized.studentName,
+        existing.name,
+        normalized.name,
+        "Unknown Student",
+      ),
+      fullName: pickFirst(
+        existing.fullName,
+        normalized.fullName,
+        existing.name,
+        normalized.name,
+        "Unknown Student",
+      ),
+      email: pickFirst(
+        existing.email,
+        normalized.email,
+        existing.studentEmail,
+        normalized.studentEmail,
+        "",
+      ),
+      studentEmail: pickFirst(
+        existing.studentEmail,
+        normalized.studentEmail,
+        existing.email,
+        normalized.email,
+        "",
+      ),
+      displayName: pickFirst(
+        existing.displayName,
+        normalized.displayName,
+        existing.name,
+        normalized.name,
+        "Unknown Student",
+      ),
+      displayEmail: pickFirst(
+        existing.displayEmail,
+        normalized.displayEmail,
+        existing.email,
+        normalized.email,
+        "",
+      ),
+      enrolledCourses: mergedCourseIds,
+      enrolledInCourses: mergedCourseIds,
+      enrolledCourseTitles: mergedCourseTitles,
+      primaryCourseTitle:
+        mergedCourseTitles[0] ||
+        existing.primaryCourseTitle ||
+        normalized.primaryCourseTitle ||
+        "",
+    });
+  });
+
+  return Array.from(mergedStudents.values());
 };
 
 const MyEnrollments = () => {
@@ -96,15 +358,44 @@ const MyEnrollments = () => {
     try {
       setLoading(true);
       // Fetch students and courses
-      const [studentsRes, coursesRes] = await Promise.all([
+      const [analyticsRes, studentsRes, coursesRes] = await Promise.allSettled([
+        teacherService.getStudentsForAnalytics(),
         teacherService.getStudentsInMyCourses(),
         teacherService.getTeacherCourses(),
       ]);
 
-      const normalizedStudents =
-        unwrapResponseList(studentsRes).map(normalizeStudent);
+      const normalizedCourses = unwrapResponseList(
+        coursesRes.status === "fulfilled" ? coursesRes.value : null,
+      )
+        .map(normalizeCourse)
+        .filter((course) => course._id || course.title);
+
+      const courseLookup = buildCourseLookup(normalizedCourses);
+
+      const analyticsStudents = unwrapResponseList(
+        analyticsRes.status === "fulfilled" ? analyticsRes.value : null,
+      );
+      const fallbackStudents = unwrapResponseList(
+        studentsRes.status === "fulfilled" ? studentsRes.value : null,
+      );
+
+      const normalizedStudents = mergeStudentRecords(
+        [...analyticsStudents, ...fallbackStudents],
+        courseLookup,
+      ).map((student) => ({
+        ...student,
+        enrolledCourseTitles:
+          student.enrolledCourseTitles.length > 0
+            ? student.enrolledCourseTitles
+            : student.enrolledCourses
+                .map(
+                  (courseId) => courseLookup.get(courseId)?.title || courseId,
+                )
+                .filter(Boolean),
+      }));
+
       setStudents(normalizedStudents);
-      setCourses(unwrapResponseList(coursesRes));
+      setCourses(normalizedCourses);
     } catch (error) {
       console.error("Error fetching enrollment data:", error);
     } finally {
@@ -119,10 +410,10 @@ const MyEnrollments = () => {
     if (searchTerm) {
       filtered = filtered.filter(
         (student) =>
-          (student.name || "")
+          (student.displayName || student.name || student.studentName || "")
             .toLowerCase()
             .includes(searchTerm.toLowerCase()) ||
-          (student.email || "")
+          (student.displayEmail || student.email || student.studentEmail || "")
             .toLowerCase()
             .includes(searchTerm.toLowerCase()),
       );
@@ -225,7 +516,10 @@ const MyEnrollments = () => {
           >
             <option value="all">All Courses</option>
             {courses.map((course) => (
-              <option key={course._id} value={course._id}>
+              <option
+                key={course._id || course.id}
+                value={course._id || course.id}
+              >
                 {course.title}
               </option>
             ))}
@@ -275,35 +569,54 @@ const MyEnrollments = () => {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
                         <div className="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-500 flex items-center justify-center text-white font-bold text-sm">
-                          {(student.name || "S").charAt(0).toUpperCase()}
+                          {(
+                            student.displayName ||
+                            student.name ||
+                            student.studentName ||
+                            "S"
+                          )
+                            .charAt(0)
+                            .toUpperCase()}
                         </div>
                         <p className="font-medium text-gray-900 dark:text-white">
-                          {student.name || "Unknown"}
+                          {student.displayName ||
+                            student.name ||
+                            student.studentName ||
+                            student.fullName ||
+                            "Unknown Student"}
                         </p>
                       </div>
                     </td>
                     <td className="px-6 py-4 text-gray-600 dark:text-gray-400">
-                      {student.email || "N/A"}
+                      {student.displayEmail ||
+                        student.email ||
+                        student.studentEmail ||
+                        student.profile?.email ||
+                        "No email available"}
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex flex-wrap gap-2">
-                        {student.enrolledCourses?.length > 0 ? (
-                          student.enrolledCourses.map((courseId) => {
-                            const course = courses.find(
-                              (c) => toId(c._id) === toId(courseId),
-                            );
-                            return (
-                              <span
-                                key={courseId}
-                                className="px-3 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-300 rounded-full text-xs font-medium"
-                              >
-                                {course?.title || "Unknown"}
-                              </span>
-                            );
-                          })
+                        {student.enrolledCourseTitles?.length > 0 ||
+                        student.enrolledCourses?.length > 0 ? (
+                          (student.enrolledCourseTitles?.length > 0
+                            ? student.enrolledCourseTitles
+                            : student.enrolledCourses.map((courseId) => {
+                                const course = courses.find(
+                                  (c) => toId(c._id || c.id) === toId(courseId),
+                                );
+                                return course?.title || "Unknown Course";
+                              })
+                          ).map((courseTitle, index) => (
+                            <span
+                              key={`${student._id || student.email || student.name}-${courseTitle}-${index}`}
+                              className="px-3 py-1 bg-indigo-100 dark:bg-indigo-900/30 text-indigo-800 dark:text-indigo-300 rounded-full text-xs font-medium"
+                            >
+                              {courseTitle}
+                            </span>
+                          ))
                         ) : (
                           <span className="text-gray-500 dark:text-gray-400 text-sm">
-                            No courses
+                            No courses assigned
                           </span>
                         )}
                       </div>
@@ -312,7 +625,7 @@ const MyEnrollments = () => {
                       <button
                         onClick={() =>
                           handleRemoveStudent(
-                            student._id,
+                            student._id || student.studentId || student.email,
                             student.enrolledCourses?.[0],
                           )
                         }

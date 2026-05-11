@@ -1,28 +1,13 @@
 {
   "user_id": "STU000005",
   "created_at": "2026-03-06T13:12:22.956700",
-  "last_micro_train": "2026-05-03T09:43:08.286247",
-  "last_meso_train": "2026-05-03T09:43:51.670264",
-  "last_macro_train": "2026-05-03T09:44:00.859441",
-  "interactions_since_micro": 12,
+  "last_micro_train": "2026-05-11T14:18:48.703297",
+  "last_meso_train": "2026-05-11T14:19:37.588012",
+  "last_macro_train": "2026-05-11T14:19:46.251735",
+  "interactions_since_micro": 0,
   "interactions_since_meso": 0,
   "interactions_since_macro": 0,
   "meso_training_history": [
-    {
-      "date": "2026-04-27T13:02:35.740950",
-      "data_points": 2158,
-      "loss": 0.0
-    },
-    {
-      "date": "2026-04-27T13:02:38.155537",
-      "data_points": 2158,
-      "loss": 0.0
-    },
-    {
-      "date": "2026-05-02T15:18:14.728455",
-      "data_points": 2158,
-      "loss": 0.0
-    },
     {
       "date": "2026-05-02T15:57:37.858880",
       "data_points": 2171,
@@ -57,24 +42,24 @@
       "date": "2026-05-03T09:43:51.686824",
       "data_points": 2195,
       "loss": 0.0
+    },
+    {
+      "date": "2026-05-11T14:19:23.311992",
+      "data_points": 2201,
+      "loss": 0.0
+    },
+    {
+      "date": "2026-05-11T14:19:29.160624",
+      "data_points": 2201,
+      "loss": 0.0
+    },
+    {
+      "date": "2026-05-11T14:19:37.607072",
+      "data_points": 2201,
+      "loss": 0.0
     }
   ],
   "micro_training_history": [
-    {
-      "date": "2026-04-27T12:58:41.428986",
-      "data_points": 1654,
-      "loss": 0.0
-    },
-    {
-      "date": "2026-04-27T12:58:46.546701",
-      "data_points": 1654,
-      "loss": 0.0
-    },
-    {
-      "date": "2026-05-02T15:56:49.210754",
-      "data_points": 1667,
-      "loss": 0.0
-    },
     {
       "date": "2026-05-02T15:56:55.811758",
       "data_points": 1660,
@@ -109,24 +94,24 @@
       "date": "2026-05-03T09:43:08.296261",
       "data_points": 1685,
       "loss": 0.0
+    },
+    {
+      "date": "2026-05-11T14:18:26.598748",
+      "data_points": 1697,
+      "loss": 0.0
+    },
+    {
+      "date": "2026-05-11T14:18:33.134245",
+      "data_points": 1697,
+      "loss": 0.0
+    },
+    {
+      "date": "2026-05-11T14:18:48.724657",
+      "data_points": 1697,
+      "loss": 0.0
     }
   ],
   "macro_training_history": [
-    {
-      "date": "2026-04-20T13:34:26.203644",
-      "data_points": 171,
-      "loss": 0.0
-    },
-    {
-      "date": "2026-05-02T15:18:21.525716",
-      "data_points": 171,
-      "loss": 0.0
-    },
-    {
-      "date": "2026-05-02T15:57:48.750974",
-      "data_points": 173,
-      "loss": 0.0
-    },
     {
       "date": "2026-05-02T15:57:52.623404",
       "data_points": 173,
@@ -161,9 +146,24 @@
       "date": "2026-05-03T09:44:00.866448",
       "data_points": 180,
       "loss": 0.0
+    },
+    {
+      "date": "2026-05-11T14:19:37.296577",
+      "data_points": 180,
+      "loss": 0.0
+    },
+    {
+      "date": "2026-05-11T14:19:44.010874",
+      "data_points": 180,
+      "loss": 0.0
+    },
+    {
+      "date": "2026-05-11T14:19:46.254736",
+      "data_points": 180,
+      "loss": 0.0
     }
   ],
-  "last_micro_trained_rows": 1685,
+  "last_micro_trained_rows": 1697,
   "last_meso_trained_rows": 2201,
   "last_macro_trained_rows": 180,
   "last_sequence_update": "2026-05-03T09:43:41.205265"

@@ -478,4 +478,4 @@ RetentionMetricsSchema.methods.generateRecommendations = function (
   return recommendations;
 };
 
-module.exports = mongoose.model("RetentionMetrics", RetentionMetricsSchema);
+module.exports =mongoose.models.RetentionMetrics || mongoose.model("RetentionMetrics", RetentionMetricsSchema);

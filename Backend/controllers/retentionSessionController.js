@@ -44,10 +44,18 @@ const mapCourseToFlaskSubject = (courseId, courseName) => {
   // If it's a valid ObjectId, it's a course ID - Flask expects "english" or "gk"
   // Try to map based on course name
   const name = (courseName || "").toLowerCase();
-  if (name.includes("english") || name.includes("grammar") || name.includes("vocabulary")) {
+  if (
+    name.includes("english") ||
+    name.includes("grammar") ||
+    name.includes("vocabulary")
+  ) {
     return "english";
   }
-  if (name.includes("gk") || name.includes("general knowledge") || name.includes("current affairs")) {
+  if (
+    name.includes("gk") ||
+    name.includes("general knowledge") ||
+    name.includes("current affairs")
+  ) {
     return "gk";
   }
   // If it's already "english" or "gk", return as is
@@ -568,14 +576,15 @@ const addQuestionsToSessionQueue = (
     pendingQueuedIds.add(key);
 
     // Get topicCategory from question object
-    let topicCategory = q.topicCategory || q.topic || q.concept_area || "General";
+    let topicCategory =
+      q.topicCategory || q.topic || q.concept_area || "General";
     topicCategory = String(topicCategory);
 
     rows.push({
       questionId: key,
       topicId: topicCategory,
       topicCategory: topicCategory,
-      courseId: session.courseId,  // <-- ADD THIS
+      courseId: session.courseId, // <-- ADD THIS
       source: safeSource,
     });
   });
@@ -624,7 +633,7 @@ const injectDueQuestionIntoQueue = async (session) => {
 
   const dueCandidates = await QuestionRepetition.find({
     studentId: session.studentId,
-    courseId: session.courseId,  // <-- ADD THIS to filter by course
+    courseId: session.courseId, // <-- ADD THIS to filter by course
     isMastered: false,
     nextScheduledDate: { $lte: now },
     questionId: { $nin: Array.from(pendingIds) },
@@ -646,7 +655,7 @@ const injectDueQuestionIntoQueue = async (session) => {
         questionId: dueRepetition.questionId,
         topicId: dueRepetition.topicId,
         topicCategory: dueRepetition.topicCategory,
-        courseId: session.courseId,  // <-- ADD THIS
+        courseId: session.courseId, // <-- ADD THIS
       },
     ],
     "retention",
@@ -1043,13 +1052,27 @@ const buildRecoveredUiStateFromRepetition = async (session) => {
 exports.createSession = async (req, res) => {
   try {
     const { subject, topics, sessionType = "practice" } = req.body;
-    const { studentId, id: userId } = req.user;
+    const resolvedStudentId = String(
+      req.user?.studentId ||
+        req.body?.studentId ||
+        req.user?.id ||
+        req.body?.userId ||
+        "",
+    ).trim();
+    const userId = req.user?.id || req.body?.userId;
 
     // subject is now courseId
     if (!subject) {
       return res.status(400).json({
         success: false,
         error: "Course ID is required to start retention session",
+      });
+    }
+
+    if (!resolvedStudentId) {
+      return res.status(400).json({
+        success: false,
+        error: "studentId is required to start retention session",
       });
     }
 
@@ -1076,7 +1099,7 @@ exports.createSession = async (req, res) => {
     try {
       const flaskSubject = mapCourseToFlaskSubject(subject, course.title);
       const flaskResponse = await retentionFlaskService.startRetentionSession(
-        studentId,
+        resolvedStudentId,
         flaskSubject, // Use mapped subject instead of courseId
         topics,
         sessionType,
@@ -1102,7 +1125,7 @@ exports.createSession = async (req, res) => {
       sessionId,
       flaskSessionId,
       userId,
-      studentId,
+      studentId: resolvedStudentId,
       courseId: subject,
       courseName: course.title,
       subject: "general",
@@ -1166,7 +1189,6 @@ exports.createSession = async (req, res) => {
     });
   }
 };
-
 
 // Get session by ID
 exports.getSession = async (req, res) => {
@@ -2533,9 +2555,9 @@ const getInitialQuestions = async (
         nextScheduledDate: { $lte: new Date() },
         createdAt: { $gte: sessionStartDate },
       }).sort({ nextScheduledDate: 1 })
-    : await (QuestionRepetition.findDueQuestions ?
-        QuestionRepetition.findDueQuestions(studentId, courseId) :
-        []);
+    : await (QuestionRepetition.findDueQuestions
+        ? QuestionRepetition.findDueQuestions(studentId, courseId)
+        : []);
 
   if (dueQuestions && dueQuestions.length > 0) {
     // Use due questions first
@@ -2608,27 +2630,31 @@ const getLocalQuestions = async (studentId, subject, topics, batchType) => {
 
   // If no questions found, try to get from any available course
   if (!questions || questions.length === 0) {
-    console.warn(`No questions found for subject: ${subject}, trying fallback...`);
+    console.warn(
+      `No questions found for subject: ${subject}, trying fallback...`,
+    );
 
     // Try to get from any question bank
     const CourseQuestionBank = require("../models/Question/questionAdaptationSchema");
     const anyBank = await CourseQuestionBank.findOne({}).lean();
 
     if (anyBank && anyBank.questions && anyBank.questions.length > 0) {
-      console.log(`Found fallback question bank with ${anyBank.questions.length} questions`);
+      console.log(
+        `Found fallback question bank with ${anyBank.questions.length} questions`,
+      );
       const shuffled = [...anyBank.questions];
       for (let i = shuffled.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
       }
-      const fallbackQuestions = shuffled.slice(0, count).map(q => ({
+      const fallbackQuestions = shuffled.slice(0, count).map((q) => ({
         ...q,
         _id: q._id || q.questionId,
         questionId: q.questionId || q._id,
         id: q.questionId || q._id,
         text: q.text || "Question text unavailable",
         type: q.type || "MCQ",
-        difficulty: typeof q.difficulty === 'number' ? q.difficulty : 0.5,
+        difficulty: typeof q.difficulty === "number" ? q.difficulty : 0.5,
         difficultyLevel: q.difficulty_level || "medium",
         options: q.options || [],
         correctAnswer: q.correct_answer || q.correctAnswer,
@@ -2637,7 +2663,7 @@ const getLocalQuestions = async (studentId, subject, topics, batchType) => {
         hints: q.hints || [],
         topic: q.topic || q.concept_area || "General",
         topicCategory: q.topic || q.concept_area || "General",
-        marks: typeof q.marks === 'number' ? q.marks : 4,
+        marks: typeof q.marks === "number" ? q.marks : 4,
         expectedTime: q.expected_time || q.expectedTime || 90,
         tags: q.tags || [],
         fromCourseBank: true,
@@ -2675,12 +2701,20 @@ const getPracticeQuestionsByTopics = async (subject, topics, count) => {
     const CourseQuestionBank = require("../models/Question/questionAdaptationSchema");
 
     // If subject is "general" or empty, try to find any available question bank
-    if (!subject || subject === 'general' || subject === 'undefined') {
-      console.log('Subject is general/empty, looking for any available question bank');
+    if (!subject || subject === "general" || subject === "undefined") {
+      console.log(
+        "Subject is general/empty, looking for any available question bank",
+      );
       const anyBank = await CourseQuestionBank.findOne({}).lean();
       if (anyBank && anyBank.questions && anyBank.questions.length > 0) {
-        console.log(`Found fallback bank with ${anyBank.questions.length} questions`);
-        const filtered = filterQuestionsByTopics(anyBank.questions, topics, count);
+        console.log(
+          `Found fallback bank with ${anyBank.questions.length} questions`,
+        );
+        const filtered = filterQuestionsByTopics(
+          anyBank.questions,
+          topics,
+          count,
+        );
         if (filtered.length > 0) return filtered;
       }
       return [];
@@ -2694,7 +2728,10 @@ const getPracticeQuestionsByTopics = async (subject, topics, count) => {
     if (isValidObjectId) {
       // Subject is a course ID - query by course
       const courseId = subject;
-      const course = await mongoose.model("Course").findById(courseId).catch(() => null);
+      const course = await mongoose
+        .model("Course")
+        .findById(courseId)
+        .catch(() => null);
       if (!course) {
         console.warn(`Course not found: ${courseId}`);
         // Try to find by subject string instead
@@ -2712,7 +2749,9 @@ const getPracticeQuestionsByTopics = async (subject, topics, count) => {
 
     // If not found and we have a valid ObjectId, try to find by course ID as string
     if (!questionBank && isValidObjectId) {
-      questionBank = await CourseQuestionBank.findOne({ course: subject }).lean();
+      questionBank = await CourseQuestionBank.findOne({
+        course: subject,
+      }).lean();
     }
 
     // If still not found, try to find by subject field
@@ -2722,10 +2761,12 @@ const getPracticeQuestionsByTopics = async (subject, topics, count) => {
 
     // If still not found, try to find any question bank
     if (!questionBank) {
-      console.warn(`No question bank found for: ${subject}, looking for any bank`);
+      console.warn(
+        `No question bank found for: ${subject}, looking for any bank`,
+      );
       questionBank = await CourseQuestionBank.findOne({}).lean();
       if (!questionBank) {
-        console.error('No question banks found in database');
+        console.error("No question banks found in database");
         return [];
       }
     }
@@ -2739,15 +2780,26 @@ const getPracticeQuestionsByTopics = async (subject, topics, count) => {
     let filteredQuestions = [...questionBank.questions];
 
     // Filter by topics if provided and not "General"
-    if (topics && topics.length > 0 && !(topics.length === 1 && topics[0] === 'General')) {
+    if (
+      topics &&
+      topics.length > 0 &&
+      !(topics.length === 1 && topics[0] === "General")
+    ) {
       filteredQuestions = filteredQuestions.filter((q) => {
-        const questionTopic = (q.topic || q.concept_area || "General").toLowerCase();
-        return topics.some(t =>
-          questionTopic.includes(t.toLowerCase()) ||
-          t.toLowerCase().includes(questionTopic)
+        const questionTopic = (
+          q.topic ||
+          q.concept_area ||
+          "General"
+        ).toLowerCase();
+        return topics.some(
+          (t) =>
+            questionTopic.includes(t.toLowerCase()) ||
+            t.toLowerCase().includes(questionTopic),
         );
       });
-      console.log(`After topic filter: ${filteredQuestions.length} questions remain`);
+      console.log(
+        `After topic filter: ${filteredQuestions.length} questions remain`,
+      );
     }
 
     // Filter active questions
@@ -2756,20 +2808,27 @@ const getPracticeQuestionsByTopics = async (subject, topics, count) => {
     if (filteredQuestions.length === 0) {
       console.warn(`No active questions after filtering for: ${subject}`);
       // Return unfiltered questions as fallback
-      filteredQuestions = [...questionBank.questions].filter((q) => q.isActive !== false);
+      filteredQuestions = [...questionBank.questions].filter(
+        (q) => q.isActive !== false,
+      );
       if (filteredQuestions.length === 0) return [];
     }
 
     // Shuffle and return requested count
     for (let i = filteredQuestions.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
-      [filteredQuestions[i], filteredQuestions[j]] = [filteredQuestions[j], filteredQuestions[i]];
+      [filteredQuestions[i], filteredQuestions[j]] = [
+        filteredQuestions[j],
+        filteredQuestions[i],
+      ];
     }
 
     const resultCount = Math.min(count, filteredQuestions.length);
     const selectedQuestions = filteredQuestions.slice(0, resultCount);
 
-    console.log(`Returning ${selectedQuestions.length} questions for subject: ${subject}`);
+    console.log(
+      `Returning ${selectedQuestions.length} questions for subject: ${subject}`,
+    );
 
     const normalizedQuestions = selectedQuestions.map((q) => ({
       ...q,
@@ -2778,7 +2837,7 @@ const getPracticeQuestionsByTopics = async (subject, topics, count) => {
       id: q.questionId || q._id,
       text: q.text || "Question text unavailable",
       type: q.type || "MCQ",
-      difficulty: typeof q.difficulty === 'number' ? q.difficulty : 0.5,
+      difficulty: typeof q.difficulty === "number" ? q.difficulty : 0.5,
       difficultyLevel: q.difficulty_level || "medium",
       options: q.options || [],
       correctAnswer: q.correct_answer || q.correctAnswer,
@@ -2787,7 +2846,7 @@ const getPracticeQuestionsByTopics = async (subject, topics, count) => {
       hints: q.hints || [],
       topic: q.topic || q.concept_area || "General",
       topicCategory: q.topic || q.concept_area || "General",
-      marks: typeof q.marks === 'number' ? q.marks : 4,
+      marks: typeof q.marks === "number" ? q.marks : 4,
       expectedTime: q.expected_time || q.expectedTime || 90,
       tags: q.tags || [],
       fromCourseBank: true,
@@ -2806,12 +2865,21 @@ const filterQuestionsByTopics = (questions, topics, count) => {
 
   let filtered = [...questions];
 
-  if (topics && topics.length > 0 && !(topics.length === 1 && topics[0] === 'General')) {
+  if (
+    topics &&
+    topics.length > 0 &&
+    !(topics.length === 1 && topics[0] === "General")
+  ) {
     filtered = filtered.filter((q) => {
-      const questionTopic = (q.topic || q.concept_area || "General").toLowerCase();
-      return topics.some(t =>
-        questionTopic.includes(t.toLowerCase()) ||
-        t.toLowerCase().includes(questionTopic)
+      const questionTopic = (
+        q.topic ||
+        q.concept_area ||
+        "General"
+      ).toLowerCase();
+      return topics.some(
+        (t) =>
+          questionTopic.includes(t.toLowerCase()) ||
+          t.toLowerCase().includes(questionTopic),
       );
     });
   }
@@ -2834,7 +2902,7 @@ const filterQuestionsByTopics = (questions, topics, count) => {
     id: q.questionId || q._id,
     text: q.text || "Question text unavailable",
     type: q.type || "MCQ",
-    difficulty: typeof q.difficulty === 'number' ? q.difficulty : 0.5,
+    difficulty: typeof q.difficulty === "number" ? q.difficulty : 0.5,
     difficultyLevel: q.difficulty_level || "medium",
     options: q.options || [],
     correctAnswer: q.correct_answer || q.correctAnswer,
@@ -2843,13 +2911,12 @@ const filterQuestionsByTopics = (questions, topics, count) => {
     hints: q.hints || [],
     topic: q.topic || q.concept_area || "General",
     topicCategory: q.topic || q.concept_area || "General",
-    marks: typeof q.marks === 'number' ? q.marks : 4,
+    marks: typeof q.marks === "number" ? q.marks : 4,
     expectedTime: q.expected_time || q.expectedTime || 90,
     tags: q.tags || [],
     fromCourseBank: true,
   }));
 };
-
 
 const getQuestionBySourceId = async (sourceId) => {
   if (!sourceId) return null;
@@ -2887,8 +2954,9 @@ const getQuestionById = async (questionId, courseId = null) => {
 
     if (questionBank && questionBank.questions) {
       const found = questionBank.questions.find(
-        (q) => String(q.questionId) === String(questionId) ||
-               String(q._id) === String(questionId)
+        (q) =>
+          String(q.questionId) === String(questionId) ||
+          String(q._id) === String(questionId),
       );
       if (found) {
         return {
@@ -2907,8 +2975,9 @@ const getQuestionById = async (questionId, courseId = null) => {
     for (const bank of allBanks) {
       if (bank.questions) {
         const found = bank.questions.find(
-          (q) => String(q.questionId) === String(questionId) ||
-                 String(q._id) === String(questionId)
+          (q) =>
+            String(q.questionId) === String(questionId) ||
+            String(q._id) === String(questionId),
         );
         if (found) {
           return {
@@ -2941,7 +3010,7 @@ const getQuestionsByIds = async (questionIds, courseId = null) => {
     // Build query for specific course if provided
     if (courseId) {
       const questionBank = await CourseQuestionBank.findOne({
-        course: courseId
+        course: courseId,
       }).lean();
 
       if (questionBank && questionBank.questions) {
@@ -2965,7 +3034,7 @@ const getQuestionsByIds = async (questionIds, courseId = null) => {
     // If not all found, search across all banks
     if (foundIds.size < questionIds.length) {
       const allBanks = await CourseQuestionBank.find({}).lean();
-      const remainingIds = questionIds.filter(id => !foundIds.has(id));
+      const remainingIds = questionIds.filter((id) => !foundIds.has(id));
 
       for (const bank of allBanks) {
         if (!bank.questions) continue;
@@ -3043,7 +3112,8 @@ const updateQuestionRepetition = async (
   let question = context.question || null;
 
   // Get courseId from session context
-  const session = context.session || await RetentionSession.findOne({ sessionId });
+  const session =
+    context.session || (await RetentionSession.findOne({ sessionId }));
   const courseId = session?.courseId || context.courseId;
   const courseName = session?.courseName || context.courseName || "";
 
@@ -3064,11 +3134,12 @@ const updateQuestionRepetition = async (
       return null;
     }
 
-    const topicCategory = context.topicCategory ||
-                         question.topicCategory ||
-                         question.topic ||
-                         question.concept_area ||
-                         "General";
+    const topicCategory =
+      context.topicCategory ||
+      question.topicCategory ||
+      question.topic ||
+      question.concept_area ||
+      "General";
 
     repetition = new QuestionRepetition({
       studentId,
@@ -3079,7 +3150,8 @@ const updateQuestionRepetition = async (
       topicId: context.topicId || topicCategory,
       subject: "general", // Set default subject
       topicCategory: topicCategory,
-      difficulty: typeof question.difficulty === 'number' ? question.difficulty : 0.5,
+      difficulty:
+        typeof question.difficulty === "number" ? question.difficulty : 0.5,
       currentBatchType: batchType || "immediate",
       metadata: {
         sourceQuestionId: questionId,
@@ -3097,16 +3169,26 @@ const updateQuestionRepetition = async (
     repetition.latestQuestionSnapshot = {
       text: questionRef.text || "Question text unavailable",
       type: questionRef.type || "MCQ",
-      difficulty: typeof questionRef.difficulty === 'number' ? questionRef.difficulty : 0.5,
+      difficulty:
+        typeof questionRef.difficulty === "number"
+          ? questionRef.difficulty
+          : 0.5,
       topic: questionRef.topic || questionRef.concept_area || "General",
-      topicCategory: context.topicCategory || questionRef.topicCategory || questionRef.topic || "General",
+      topicCategory:
+        context.topicCategory ||
+        questionRef.topicCategory ||
+        questionRef.topic ||
+        "General",
       subject: questionRef.subject || courseId,
       options: Array.isArray(questionRef.options)
         ? questionRef.options.map((opt) =>
             String(opt?.label || opt?.text || opt?.value || opt),
           )
         : [],
-      expectedTime: typeof questionRef.expectedTime === 'number' ? questionRef.expectedTime : 90,
+      expectedTime:
+        typeof questionRef.expectedTime === "number"
+          ? questionRef.expectedTime
+          : 90,
       savedAt: new Date(),
     };
   }

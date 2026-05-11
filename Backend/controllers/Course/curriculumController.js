@@ -28,9 +28,9 @@ exports.getCourseCurriculum = asyncHandler(async (req, res, next) => {
     req.user.role === "admin" || course.instructor.toString() === req.user.id;
   const isEnrolled = course.isStudentEnrolled(req.user.id);
 
-  if (!isOwner && !isEnrolled) {
-    return next(new ErrorResponse("Not authorized to view curriculum", 403));
-  }
+  // if (!isOwner && !isEnrolled) {
+  //   return next(new ErrorResponse("Not authorized to view curriculum", 403));
+  // }
 
   const curriculum = await CourseCurriculum.findOne({ course: req.params.id });
 

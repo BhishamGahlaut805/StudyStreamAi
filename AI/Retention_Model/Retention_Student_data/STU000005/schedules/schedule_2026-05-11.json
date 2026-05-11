@@ -1,0 +1,57 @@
+{
+  "user_id": "STU000005",
+  "subject": "english",
+  "date": "2026-05-11",
+  "generated_at": "2026-05-11T14:19:37.437662",
+  "immediate_batch": {
+    "questions": [
+      {
+        "topic_id": "unknown_topic",
+        "subject": "english",
+        "question_number": 1,
+        "priority": 0.74,
+        "repeat_in_seconds": 30,
+        "timer_frame_label": "30_seconds",
+        "next_repeat_at": "2026-05-11T14:20:07.437662"
+      },
+      {
+        "topic_id": "unknown_topic",
+        "subject": "english",
+        "question_number": 2,
+        "priority": 0.74,
+        "repeat_in_seconds": 30,
+        "timer_frame_label": "30_seconds",
+        "next_repeat_at": "2026-05-11T14:20:07.437662"
+      },
+      {
+        "topic_id": "unknown_topic",
+        "subject": "english",
+        "question_number": 3,
+        "priority": 0.74,
+        "repeat_in_seconds": 30,
+        "timer_frame_label": "30_seconds",
+        "next_repeat_at": "2026-05-11T14:20:07.437662"
+      }
+    ],
+    "total_questions": 3,
+    "focus_topics": [
+      "unknown_topic",
+      "unknown_topic",
+      "unknown_topic"
+    ]
+  },
+  "session_batch": {
+    "batches": [],
+    "batch_count": 0,
+    "total_questions": 0
+  },
+  "chapter_reviews": [],
+  "long_term_plan": {
+    "review_topics": [],
+    "mastered_topics": []
+  },
+  "summary": {
+    "total_topics": 1,
+    "estimated_total_questions": 3
+  }
+}

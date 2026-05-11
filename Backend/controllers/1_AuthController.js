@@ -25,21 +25,15 @@ const getGoogleAudiences = () => {
 
 // Helper function to send token in cookie
 const sendTokenResponse = (user, statusCode, res) => {
-  const token = jwt.sign(
-    { id: user._id, role: user.role },
-    process.env.JWT_SECRET,
-    {
-      expiresIn: process.env.JWT_EXPIRE || "7d",
-    },
-  );
+  const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRE || "7d",
+  });
 
   const options = {
     httpOnly: true,
-    expires: new Date(
-      Date.now() + (process.env.JWT_COOKIE_EXPIRE || 7) * 24 * 60 * 60 * 1000,
-    ),
+    expires: new Date(Date.now() + 24 * 60 * 60 * 1000), // 1 day
     secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    sameSite: "Lax",
   };
 
   res.status(statusCode).cookie("token", token, options).json({
@@ -231,7 +225,9 @@ exports.googleLogin = async (req, res) => {
     }
 
     // Check if user exists
-    let user = await User.findOne({ $or: [{ email }, { googleId }] });
+    let user = await User.findOne({ $or: [{ email }, { googleId }] }).select(
+      "+password",
+    );
 
     if (user) {
       // Update Google ID if not present
@@ -239,14 +235,24 @@ exports.googleLogin = async (req, res) => {
         user.googleId = googleId;
         await user.save();
       }
+
+      // Prevent teacher/admin from logging in before verification
+      if (!user.isVerified && user.role !== "student") {
+        return res.status(403).json({
+          success: false,
+          message:
+            "Account pending verification. Please wait for admin approval.",
+        });
+      }
     } else {
-      // Create new user
+      // Create new user. For teachers/admins created via Google, keep them unverified
+      const finalRole = role.toLowerCase();
       user = await User.create({
         name,
         email,
         googleId,
-        role: role.toLowerCase(),
-        isVerified: true, // Google accounts are pre-verified
+        role: finalRole,
+        isVerified: finalRole === "student",
         password: Math.random().toString(36).slice(-12),
       });
     }

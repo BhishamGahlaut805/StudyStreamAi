@@ -53,7 +53,9 @@ const Authentication = () => {
   } = useAuth();
 
   const getDashboardPath = (role) => {
-    return role === "teacher" ? "/teacher-dashboard" : "/dashboard";
+    if (role === "teacher") return "/teacher-dashboard";
+    if (role === "admin") return "/admin/dashboard";
+    return "/dashboard";
   };
 
   // Redirect if already authenticated
@@ -81,15 +83,20 @@ const Authentication = () => {
     setError("");
 
     try {
-      const response = await contextLogin({
+      const data = await contextLogin({
         email: formData.email,
         password: formData.password,
       });
-      const targetPath = getDashboardPath(
-        response?.user?.role || formData.role,
-      );
-      setSuccess("Login successful! Redirecting...");
-      setTimeout(() => navigate(targetPath, { replace: true }), 800);
+
+      // If backend returned a token, session already set — redirect
+      if (data?.token) {
+        const targetPath = getDashboardPath(data.user?.role || formData.role);
+        setSuccess("Login successful! Redirecting...");
+        setTimeout(() => navigate(targetPath, { replace: true }), 800);
+      } else {
+        // No token indicates login not allowed (e.g., pending verification)
+        setError(data.message || "Login not allowed. Please contact admin.");
+      }
     } catch (err) {
       setError(err.message || "Login failed. Please check your credentials.");
     } finally {
@@ -124,17 +131,23 @@ const Authentication = () => {
         return;
       }
 
-      const response = await contextRegister({
+      const data = await contextRegister({
         name: formData.name,
         email: formData.email,
         password: formData.password,
         role: formData.role,
       });
-      const targetPath = getDashboardPath(
-        response?.user?.role || formData.role,
-      );
-      setSuccess("Registration successful! Redirecting...");
-      setTimeout(() => navigate(targetPath, { replace: true }), 800);
+
+      if (data?.token) {
+        const targetPath = getDashboardPath(data.user?.role || formData.role);
+        setSuccess("Registration successful! Redirecting...");
+        setTimeout(() => navigate(targetPath, { replace: true }), 800);
+      } else {
+        // No token means account was created but requires admin verification
+        setSuccess(
+          data.message || "Registration successful. Awaiting verification.",
+        );
+      }
     } catch (err) {
       setError(err.message || "Registration failed. Please try again.");
     } finally {
@@ -148,13 +161,21 @@ const Authentication = () => {
     setError("");
 
     try {
-      const response = await contextGoogleLogin({
+      const data = await contextGoogleLogin({
         tokenId: credential,
         role: "student",
       });
-      const targetPath = getDashboardPath(response?.user?.role || "student");
-      setSuccess("Google login successful! Redirecting...");
-      setTimeout(() => navigate(targetPath, { replace: true }), 800);
+
+      if (data?.token) {
+        const targetPath = getDashboardPath(data.user?.role || "student");
+        setSuccess("Google login successful! Redirecting...");
+        setTimeout(() => navigate(targetPath, { replace: true }), 800);
+      } else {
+        // Account created but pending verification (teachers/admins)
+        setSuccess(
+          data.message || "Account created. Awaiting admin verification.",
+        );
+      }
     } catch (err) {
       setError(err.message || "Google login failed. Please try again.");
     } finally {
@@ -334,7 +355,7 @@ const Authentication = () => {
                   <FiCpu className="h-8 w-8 text-white" />
                 </div>
                 <span className="text-2xl font-bold text-gray-900 dark:text-white">
-                  LearnSmart AI
+                  StudyStream AI
                 </span>
               </div>
             </div>
@@ -668,42 +689,40 @@ const Authentication = () => {
                         I am a
                       </label>
                       <div className="grid grid-cols-2 gap-3">
-                        <label
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              role: "student",
+                            }))
+                          }
                           className={`flex items-center justify-center p-3 border-2 rounded-xl cursor-pointer transition-all ${
                             formData.role === "student"
                               ? "border-indigo-600 bg-indigo-50 dark:bg-indigo-900/30"
                               : "border-gray-200 dark:border-gray-700 hover:border-indigo-300"
                           }`}
                         >
-                          <input
-                            type="radio"
-                            name="role"
-                            value="student"
-                            checked={formData.role === "student"}
-                            onChange={handleChange}
-                            className="sr-only"
-                          />
                           <FiUser className="w-4 h-4 mr-2" />
                           <span className="text-sm">Student</span>
-                        </label>
-                        <label
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              role: "teacher",
+                            }))
+                          }
                           className={`flex items-center justify-center p-3 border-2 rounded-xl cursor-pointer transition-all ${
                             formData.role === "teacher"
                               ? "border-indigo-600 bg-indigo-50 dark:bg-indigo-900/30"
                               : "border-gray-200 dark:border-gray-700 hover:border-indigo-300"
                           }`}
                         >
-                          <input
-                            type="radio"
-                            name="role"
-                            value="teacher"
-                            checked={formData.role === "teacher"}
-                            onChange={handleChange}
-                            className="sr-only"
-                          />
                           <FiBookOpen className="w-4 h-4 mr-2" />
                           <span className="text-sm">Teacher</span>
-                        </label>
+                        </button>
                       </div>
                     </div>
 

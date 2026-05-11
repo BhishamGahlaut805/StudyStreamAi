@@ -5,7 +5,7 @@ class WebSocketService {
   constructor() {
     this.socket = null;
     this.socketUrl =
-      import.meta.env.VITE_BACKEND_URL || "http://localhost:5000";
+      import.meta.env.VITE_BACKEND_URL ;
     this.eventListeners = new Map();
     this.reconnectAttempts = 0;
     this.maxReconnectAttempts = 5;

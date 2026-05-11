@@ -27,6 +27,9 @@ import DesignAdaptiveLearning from "./Pages/Design/DesignAdaptiveLearning";
 import DesignRetention from "./Pages/Design/DesignRetention";
 
 import LearningView from "./Pages/Dashboard/LearningView";
+import AdminDashboard from "./Pages/Dashboard/adminDashboard";
+import CourseCardPage from "./Pages/Course/courseCardsPage";
+import CourseDetailPage from "./Pages/Course/CourseOverviewDetail";
 
 // Protected Route Component
 const ProtectedRoute = ({ children }) => {
@@ -60,6 +63,10 @@ const DashboardRoute = () => {
 
   if (user?.role === "teacher") {
     return <Navigate to="/teacher-dashboard" replace />;
+  }
+
+  if (user?.role === "admin") {
+    return <Navigate to="/admin/dashboard" replace />;
   }
 
   return <StudentDashboard />;
@@ -99,6 +106,20 @@ function AppContent() {
               </ProtectedRoute>
             }
           />
+          <Route
+            path="/admin/dashboard"
+            element={
+              <ProtectedRoute>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route path="/courses" element={<CourseCardPage />} />
+          <Route path="/courses/:id" element={<CourseDetailPage />} />
+
+          {/* Default redirect */}
+          <Route path="/" element={<Navigate to="/courses" replace />} />
+          <Route path="*" element={<Navigate to="/courses" replace />} />
 
           <Route path="/test/practice" element={<TestPage />} />
           <Route path="/test/interface" element={<PracticePage />} />

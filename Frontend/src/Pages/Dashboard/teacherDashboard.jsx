@@ -15,7 +15,6 @@ import {
 
 import AlertMessage from "../../components/AlertMessage";
 import { useAuth } from "../../context/authContext";
-import DashboardOverview from "./components/DashboardOverview";
 import ManageProfile from "./components/ManageProfile";
 import ManageCourses from "./components/ManageCourses";
 import MyEnrollments from "./components/MyEnrollments";
@@ -24,6 +23,7 @@ import SettingsPanel from "./components/SettingsPanel";
 import QuestionBankManager from "./components/questionBankManager";
 import { FiBarChart2 } from "react-icons/fi";
 import StudentAnalytics from "./components/StudentAnalytics";
+import TeacherAnalyticsHome from "./components/TeacherAnalyticsHome";
 
 const TeacherDashboard = () => {
   const navigate = useNavigate();
@@ -107,7 +107,13 @@ const TeacherDashboard = () => {
   const renderMainContent = () => {
     switch (activeTab) {
       case "dashboard":
-        return <DashboardOverview />;
+        return (
+          <TeacherAnalyticsHome
+            selectedCourseId={selectedCourseId}
+            setSelectedCourseId={setSelectedCourseId}
+            onNavigate={setActiveTab}
+          />
+        );
       case "profile":
         return <ManageProfile />;
       case "courses":
@@ -122,7 +128,7 @@ const TeacherDashboard = () => {
         return <QuestionBankManager courseId={selectedCourseId} />;
       case "student-analytics":
         return <StudentAnalytics />;
-        
+
       default:
         return (
           <div className="bg-white dark:bg-gray-800 rounded-lg p-8 flex items-center justify-center h-96">
@@ -281,32 +287,42 @@ const TeacherDashboard = () => {
 
         <div className="flex-1 overflow-y-auto p-4 md:p-8">
           {!isMobile && (
-            <div className="mb-8">
-              <div className="flex items-center justify-between">
+            <div className="mb-8 overflow-hidden rounded-3xl border border-pink-100 bg-gradient-to-r from-pink-100 via-rose-50 to-purple-100 p-6 shadow-lg shadow-pink-100/50">
+              <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+                {/* Left Content */}
                 <div>
-                  <h2 className="text-3xl font-bold text-gray-900 dark:text-white">
-                    Welcome back, {user?.name?.split(" ")[0] || "Teacher"}!
+                  <div className="inline-flex items-center gap-2 rounded-full bg-white/70 px-4 py-1 text-sm font-medium text-pink-600 shadow-sm backdrop-blur-sm">
+                    ✨ Teacher Dashboard
+                  </div>
+
+                  <h2 className="mt-4 text-3xl font-extrabold tracking-tight text-gray-800 md:text-4xl">
+                    Welcome back,{" "}
+                    <span className="bg-gradient-to-r from-pink-500 via-rose-500 to-purple-500 bg-clip-text text-transparent">
+                      {user?.name?.split(" ")[0] || "Teacher"}
+                    </span>
+                    👋
                   </h2>
-                  <p className="text-gray-600 dark:text-gray-400 mt-2">
+
+                  <p className="mt-3 max-w-2xl text-base leading-relaxed text-gray-600">
                     {activeTab === "question-bank" && selectedCourseId
-                      ? "Manage questions and topics for your course"
+                      ? "Manage questions, organize topics, and create engaging assessments for your students."
                       : activeTab === "question-bank"
-                        ? "Select a course to manage its question bank"
-                        : "Manage your courses, profile, and track your teaching performance"}
+                        ? "Select a course to start managing its question bank and learning resources."
+                        : "See the average performance of all enrolled students, then manage your courses and profile from one clear workspace."}
                   </p>
                 </div>
-                {/* {activeTab === "question-bank" && selectedCourseId && (
-                  <button
-                    onClick={() => {
-                      setSelectedCourseId(null);
-                      setActiveTab("my-courses");
-                    }}
-                    className="px-4 py-2 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-xl hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors flex items-center gap-2"
-                  >
-                    <FiBook className="w-4 h-4" />
-                    Change Course
-                  </button>
-                )} */}
+
+                {/* Right Decorative Card */}
+                <div className="hidden md:flex">
+                  <div className="rounded-2xl bg-white/70 px-6 py-4 shadow-md backdrop-blur-md border border-white/40">
+                    <div className="text-sm font-medium text-gray-500">
+                      Class-wide view
+                    </div>
+                    <div className="mt-2 text-lg font-bold text-gray-800">
+                      Average performance at a glance
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           )}

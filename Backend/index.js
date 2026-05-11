@@ -16,7 +16,7 @@ const testRoutes = require("./routes/testRoutes");
 const studentRoutes = require("./routes/studentRoutes");
 const questionRoutes = require("./Services/questionRoutes");
 const courseRoutes = require("./routes/Course/courseRoutes");
-const profileRoutes = require("./routes/profileRoutes");
+// const profileRoutes = require("./routes/profileRoutes");
 const teacherRoutes = require("./routes/teacherRoutes");
 const retentionSessionRoutes = require("./routes/retentionSessionRoutes");
 const retentionScheduleRoutes = require("./routes/retentionScheduleRoutes");
@@ -27,6 +27,9 @@ const retentionFlaskBridgeRoutes = require("./routes/retentionFlaskBridgeRoutes"
 
 const questionBankRoutes = require("./routes/Course/questionBankRoutes");
 const practiceRoutes = require("./routes/Student/GetPracticeRoutes");
+
+const adminRoutes = require("./routes/adminRoutes");
+const profileRoutes = require("./routes/profileRoutes");
 
 const {
   initializeRetentionSocket,
@@ -49,6 +52,7 @@ const allowedOrigins = [
   process.env.CORS_ORIGIN,
   process.env.CLIENT_URL,
   process.env.FRONTEND_URL,
+  "https://klg2zcrt-5173.inc1.devtunnels.ms",
   "http://localhost:5173",
   "http://localhost:3000",
 ].filter(Boolean);
@@ -86,6 +90,9 @@ app.use(express.json({ limit: "10mb" }));
 app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 app.use(cookieParser());
 app.use(cors(corsOptions));
+
+// Trust proxy for accurate IP detection (required for express-rate-limit with X-Forwarded-For)
+app.set("trust proxy", 1);
 
 // Rate limiting
 const isRetentionSessionPath = (req) => {
@@ -176,7 +183,7 @@ app.use("/api/tests", testRoutes);
 app.use("/api/students", studentRoutes);
 app.use("/api/questions", questionRoutes);
 app.use("/api/courses", courseRoutes);
-app.use("/api/profile", profileRoutes);
+// app.use("/api/profile", profileRoutes);
 app.use("/api/teachers", teacherRoutes);
 
 app.use("/api/retention/sessions", retentionSessionRoutes);
@@ -188,6 +195,8 @@ app.use("/api/ml", retentionFlaskBridgeRoutes);
 app.use("/api/studentLearn", StudentRoutes1);
 app.use("/api/courses/:courseId/question-bank", questionBankRoutes);
 app.use("/api/practice", practiceRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api/profile", profileRoutes);
 
 // Health check endpoints
 app.get("/health", (req, res) => {

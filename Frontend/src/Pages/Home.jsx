@@ -2,225 +2,493 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import {
-  FiActivity,
   FiArrowRight,
-  FiBarChart2,
+  FiActivity,
   FiBookOpen,
   FiAirplay as FiBrain,
-  FiCalendar,
-  FiCheckCircle,
-  FiClock,
-  FiDatabase,
-  FiGitBranch,
-  FiLayers,
-  FiShield,
-  FiZap,
-  FiTrendingUp,
+  FiBarChart2,
+  FiCpu,
   FiTarget,
+  FiTrendingUp,
   FiUsers,
+  FiGrid,
+  FiClock,
+  FiShield,
+  FiCommand,
+  FiRefreshCw,
+  FiMonitor,
 } from "react-icons/fi";
 
 const Home = () => {
-  const studentFeatures = [
+  const coreFeatures = [
     {
-      icon: FiZap,
-      title: "Adaptive Difficulty",
+      icon: FiBrain,
+      title: "Adaptive Learning Intelligence",
       description:
-        "Questions adjust instantly to match your skill level, keeping you challenged but never overwhelmed.",
-      accent: "from-cyan-500 to-sky-600",
+        "AI dynamically adjusts learning difficulty, pacing, and question selection based on student performance patterns.",
+      gradient: "from-fuchsia-500 via-purple-500 to-violet-600",
     },
     {
-      icon: FiTarget,
-      title: "Real Exam Simulations",
+      icon: FiRefreshCw,
+      title: "Retention Learning System",
       description:
-        "Practice under real exam conditions with timed tests, detailed scoring, and performance insights.",
-      accent: "from-orange-500 to-amber-600",
-    },
-    {
-      icon: FiCalendar,
-      title: "Smart Revision Scheduling",
-      description:
-        "Automatically tells you when to review topics for maximum retention and lasting memory.",
-      accent: "from-emerald-500 to-lime-600",
+        "Spaced repetition and revision scheduling ensure concepts remain in long-term memory.",
+      gradient: "from-cyan-500 via-sky-500 to-indigo-600",
     },
     {
       icon: FiBarChart2,
-      title: "Deep Analytics & Insights",
+      title: "Deep Analytics Dashboard",
       description:
-        "Understand your strengths, weaknesses, and progress with crystal-clear charts and recommendations.",
-      accent: "from-violet-500 to-purple-600",
-    },
-  ];
-
-  const studentBenefits = [
-    {
-      title: "Study Smarter, Not Harder",
-      text: "AI adapts to your pace and learning style, removing guesswork and wasted time on topics you already know.",
-    },
-    {
-      title: "Never Forget What You Learn",
-      text: "Our intelligent revision scheduler reminds you exactly when to review for perfect memory retention.",
-    },
-    {
-      title: "Beat Burnout & Stay Healthy",
-      text: "We monitor your focus and stress levels, automatically adjusting intensity to keep study sustainable and enjoyable.",
-    },
-  ];
-
-  const functionalRoutes = [
-    {
-      icon: FiBookOpen,
-      title: "Practice Setup",
-      subtitle: "Start adaptive practice journey",
-      to: "/test/practice",
-      style:
-        "from-cyan-500/20 via-sky-500/15 to-transparent border-cyan-300/60",
-      buttonClass: "bg-cyan-600 hover:bg-cyan-700",
-    },
-    {
-      icon: FiActivity,
-      title: "Practice Interface",
-      subtitle: "Live question flow and tracking",
-      to: "/test/interface",
-      style:
-        "from-indigo-500/20 via-blue-500/15 to-transparent border-indigo-300/60",
-      buttonClass: "bg-indigo-600 hover:bg-indigo-700",
-    },
-    {
-      icon: FiTarget,
-      title: "Real Exam Interface",
-      subtitle: "Serious timed exam simulation",
-      to: "/test/real/interface",
-      style:
-        "from-orange-500/20 via-amber-500/15 to-transparent border-orange-300/60",
-      buttonClass: "bg-orange-600 hover:bg-orange-700",
-    },
-    {
-      icon: FiCalendar,
-      title: "Retention Start",
-      subtitle: "Begin spaced-learning session",
-      to: "/retention/start",
-      style:
-        "from-emerald-500/20 via-teal-500/15 to-transparent border-emerald-300/60",
-      buttonClass: "bg-emerald-600 hover:bg-emerald-700",
-    },
-    {
-      icon: FiBarChart2,
-      title: "Retention Analytics",
-      subtitle: "Inspect deep retention insights",
-      to: "/retention/analytics",
-      style:
-        "from-fuchsia-500/20 via-violet-500/15 to-transparent border-fuchsia-300/60",
-      buttonClass: "bg-violet-600 hover:bg-violet-700",
+        "Track focus, weak topics, confidence levels, retention quality, and learning consistency visually.",
+      gradient: "from-indigo-500 via-purple-500 to-pink-500",
     },
     {
       icon: FiUsers,
-      title: "Student Dashboard",
-      subtitle: "View progress and learning status",
-      to: "/dashboard",
-      style:
-        "from-rose-500/20 via-pink-500/15 to-transparent border-rose-300/60",
-      buttonClass: "bg-rose-600 hover:bg-rose-700",
+      title: "Teacher Course Ecosystem",
+      description:
+        "Teachers can create courses, manage learning paths, monitor students, and assign adaptive practice modules.",
+      gradient: "from-emerald-500 via-teal-500 to-cyan-600",
     },
   ];
 
-  const howItWorks = [
-    "📝 You answer practice questions and take real exams.",
-    "⚡ Our AI analyzes your answers, speed, and confidence in real time.",
-    "🎯 We instantly adjust difficulty to keep you in the learning sweet spot.",
-    "📊 Your dashboard shows clear insights about what to focus on next.",
-    "🔄 Smart reminders tell you exactly when to review for lasting memory.",
+  const architectureLinks = [
+    {
+      title: "Adaptive Learning Design",
+      subtitle:
+        "See how StudyStream AI personalizes practice sessions dynamically.",
+      to: "/design/adaptive",
+      icon: FiBrain,
+      gradient: "from-fuchsia-500 via-purple-500 to-violet-600",
+    },
+    {
+      title: "Retention Learning Design",
+      subtitle:
+        "Understand the spaced repetition and retention intelligence system.",
+      to: "/design/retention",
+      icon: FiRefreshCw,
+      gradient: "from-cyan-500 via-blue-500 to-indigo-600",
+    },
+  ];
+
+  const platformPulse = [
+    {
+      label: "Daily Active Learners",
+      value: "1.2K+",
+      icon: FiActivity,
+      accent: "from-fuchsia-500 to-violet-500",
+    },
+    {
+      label: "Goals Tracked Per Week",
+      value: "24K+",
+      icon: FiTarget,
+      accent: "from-cyan-500 to-indigo-500",
+    },
+    {
+      label: "Adaptive Sessions Completed",
+      value: "58K+",
+      icon: FiClock,
+      accent: "from-indigo-500 to-purple-500",
+    },
+    {
+      label: "Secure Learning Workflows",
+      value: "99.9%",
+      icon: FiShield,
+      accent: "from-emerald-500 to-teal-500",
+    },
+  ];
+
+  const workspaceLinks = [
+    {
+      title: "Dashboard",
+      desc: "Go to Dashboard and view your AI-powered workspace.",
+      cta: "Go to Dashboard",
+      icon: FiGrid,
+      to: "/dashboard",
+      gradient: "from-violet-500 via-fuchsia-500 to-pink-500",
+    },
+    {
+      title: "Practice",
+      desc: "Start adaptive practice sessions with smart question flow.",
+      cta: "Start Practice",
+      icon: FiBookOpen,
+      to: "/test/practice",
+      gradient: "from-indigo-500 via-purple-500 to-fuchsia-500",
+    },
+    {
+      title: "Retention Learning",
+      desc: "Try retention learning with spaced repetition scheduling.",
+      cta: "Try Retention Learning",
+      icon: FiRefreshCw,
+      to: "/retention/start",
+      gradient: "from-cyan-500 via-sky-500 to-indigo-600",
+    },
+    {
+      title: "Create A Course",
+      desc: "Create and manage courses from the teacher workspace.",
+      cta: "Open Teacher Dashboard",
+      icon: FiMonitor,
+      to: "/teacher/dashboard",
+      gradient: "from-emerald-500 via-teal-500 to-cyan-600",
+    },
+    {
+      title: "Architecture",
+      desc: "Check our architecture and explore adaptive system design.",
+      cta: "Check Architecture",
+      icon: FiBrain,
+      to: "/design/adaptive",
+      gradient: "from-fuchsia-500 via-purple-500 to-violet-600",
+    },
+    {
+      title: "course Overview",
+      desc: "Check our course overview and explore course details.",
+      cta: "Go to Course Overview",
+      icon: FiShield,
+      to: "/courses",
+      gradient: "from-slate-600 via-slate-700 to-slate-900",
+    },
   ];
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-dark-100 dark:text-gray-100">
-      <section className="relative overflow-hidden bg-[radial-gradient(circle_at_20%_20%,#cffafe_0%,transparent_36%),radial-gradient(circle_at_80%_0%,#fef3c7_0%,transparent_34%)] dark:bg-[radial-gradient(circle_at_20%_20%,#083344_0%,transparent_34%),radial-gradient(circle_at_80%_0%,#3f1d0a_0%,transparent_34%)]">
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute -top-20 left-1/2 h-80 w-80 -translate-x-1/2 rounded-full bg-cyan-500/30 blur-3xl"></div>
-          <div className="absolute right-0 top-12 h-64 w-64 rounded-full bg-amber-500/20 blur-3xl"></div>
-          <div className="absolute bottom-0 left-12 h-64 w-64 rounded-full bg-violet-500/20 blur-3xl"></div>
-        </div>
-        <div className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center"
-          >
-            <span className="mb-6 inline-flex rounded-full border border-cyan-400/40 bg-cyan-500/10 px-4 py-1 text-sm font-semibold text-cyan-700 dark:border-cyan-400/30 dark:text-cyan-200">
-              Smart Learning Powered by AI
-            </span>
-            <h1 className="mb-5 text-4xl font-black leading-tight text-slate-900 sm:text-5xl md:text-6xl dark:text-white">
-              StudyStream AI
-              <span className="block bg-gradient-to-r from-cyan-600 via-indigo-600 to-emerald-600 bg-clip-text text-transparent">
-                Adaptive Practice, Real Exams, Retention Intelligence
-              </span>
-            </h1>
-            <p className="mx-auto mb-8 max-w-4xl text-base text-slate-700 sm:text-lg dark:text-slate-200">
-              Master any subject with AI-powered adaptive tests, real exam
-              simulations, and intelligent revision scheduling. Get personalized
-              insights, prevent burnout, and actually remember what you learn.
-              Study smarter, perform better, succeed faster.
-            </p>
-            <div className="flex flex-wrap justify-center gap-3">
-              <Link
-                to="/dashboard"
-                className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-cyan-600 to-indigo-600 px-7 py-3 font-semibold text-white shadow-lg shadow-cyan-900/30 transition hover:scale-[1.03]"
-              >
-                Open Dashboard <FiArrowRight className="h-4 w-4" />
-              </Link>
-              <Link
-                to="/auth"
-                className="rounded-xl border border-slate-300 bg-white px-7 py-3 font-semibold text-slate-700 transition hover:scale-[1.03] hover:border-cyan-400/60 dark:border-slate-600 dark:bg-dark-200 dark:text-slate-100"
-              >
-                Sign In / Register
-              </Link>
-              <Link
-                to="/retention/start"
-                className="rounded-xl border border-emerald-400/50 bg-emerald-500/10 px-7 py-3 font-semibold text-emerald-700 transition hover:scale-[1.03] dark:text-emerald-200"
-              >
-                Start Retention Flow
-              </Link>
-            </div>
-          </motion.div>
+    <div className="min-h-screen overflow-hidden bg-[#f7f7ff] text-slate-900 dark:bg-[#050816] dark:text-white">
+      {/* BACKGROUND */}
+      <div className="fixed inset-0 -z-10 overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(168,85,247,0.18),transparent_35%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,_rgba(6,182,212,0.14),transparent_35%)]" />
+        <div className="absolute left-1/2 top-0 h-[600px] w-[600px] -translate-x-1/2 rounded-full bg-purple-500/10 blur-3xl" />
+        <div className="absolute bottom-0 left-0 h-[500px] w-[500px] rounded-full bg-cyan-500/10 blur-3xl" />
+      </div>
+
+      {/* HERO SECTION */}
+      <section className="relative">
+        <div className="mx-auto max-w-7xl px-6 py-24 lg:px-8 lg:py-32">
+          <div className="grid items-center gap-20 lg:grid-cols-2">
+            {/* LEFT SIDE */}
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7 }}
+              className="text-center lg:text-left"
+            >
+              <div className="inline-flex items-center gap-2 rounded-full border border-purple-200/60 bg-white/70 px-5 py-2 text-sm font-semibold text-purple-700 shadow-lg backdrop-blur-xl dark:border-purple-900/50 dark:bg-slate-900/70 dark:text-purple-300">
+                <FiCpu className="h-4 w-4" />
+                Intelligent Learning Ecosystem
+              </div>
+
+              <h1 className="mt-8 text-5xl font-black tracking-tight text-slate-900 sm:text-6xl lg:text-7xl dark:text-white">
+                AI-Powered
+                <span className="mt-3 block bg-gradient-to-r from-fuchsia-500 via-purple-500 to-cyan-500 bg-clip-text text-transparent">
+                  Adaptive Learning
+                </span>
+                For Modern Education
+              </h1>
+
+              <p className="mx-auto mt-8 max-w-2xl text-lg leading-relaxed text-slate-600 dark:text-slate-300 lg:mx-0">
+                StudyStream AI combines adaptive intelligence, retention-focused
+                revision systems, student dashboards, teacher course management,
+                and real-time analytics into one deeply connected smart learning
+                platform.
+              </p>
+
+              {/* BUTTONS */}
+              <div className="mt-10 flex flex-col gap-4 sm:flex-row sm:justify-center lg:justify-start">
+                <Link
+                  to="/dashboard"
+                  className="group inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-fuchsia-500 via-purple-500 to-cyan-500 px-7 py-4 text-sm font-semibold text-white shadow-xl shadow-purple-500/20 transition-all duration-300 hover:scale-[1.03]"
+                >
+                  Open Dashboard
+                  <FiArrowRight className="transition-transform duration-300 group-hover:translate-x-1" />
+                </Link>
+
+                <Link
+                  to="/test/practice"
+                  className="inline-flex items-center justify-center rounded-2xl border border-slate-200/70 bg-white/70 px-7 py-4 text-sm font-semibold text-slate-700 shadow-lg backdrop-blur-xl transition-all duration-300 hover:border-purple-300 hover:shadow-xl dark:border-slate-800 dark:bg-slate-900/70 dark:text-slate-200"
+                >
+                  Start Adaptive Practice
+                </Link>
+              </div>
+
+              {/* FEATURE TAGS */}
+              <div className="mt-10 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
+                {[
+                  "Adaptive Questioning",
+                  "Retention Intelligence",
+                  "Teacher Course System",
+                  "Student Analytics",
+                ].map((item) => (
+                  <div
+                    key={item}
+                    className="rounded-full border border-white/30 bg-white/60 px-4 py-2 text-sm font-medium text-slate-700 shadow-sm backdrop-blur-xl dark:border-slate-800 dark:bg-slate-900/60 dark:text-slate-300"
+                  >
+                    {item}
+                  </div>
+                ))}
+              </div>
+            </motion.div>
+
+            {/* RIGHT SIDE DASHBOARD */}
+            {/* ================= HERO RIGHT SIDE - REPLACE WHOLE OLD DASHBOARD PREVIEW ================= */}
+
+            <motion.div
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.7 }}
+              className="relative"
+            >
+              {/* OUTER GLOW */}
+              <div className="absolute -inset-8 rounded-[3rem] bg-gradient-to-r from-fuchsia-500/20 via-violet-500/20 to-cyan-500/20 blur-3xl dark:from-fuchsia-500/10 dark:via-violet-500/10 dark:to-cyan-500/10" />
+
+              {/* MAIN CONTAINER */}
+              <div className="relative overflow-hidden rounded-[2.5rem] border border-white/10 bg-white/70 p-6 shadow-[0_25px_80px_rgba(88,28,135,0.15)] backdrop-blur-2xl dark:border-white/5 dark:bg-[#0b1120]/80 dark:shadow-[0_25px_80px_rgba(168,85,247,0.15)]">
+                {/* TOP BAR */}
+                <div className="flex items-center justify-between border-b border-slate-200/70 pb-5 dark:border-slate-800/80">
+                  <div>
+                    <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                      StudyStream AI Workspace
+                    </p>
+
+                    <h3 className="mt-1 text-2xl font-bold tracking-tight text-slate-900 dark:text-white">
+                      Intelligent Learning Platform
+                    </h3>
+                  </div>
+
+                  <div className="rounded-2xl border border-white/10 bg-gradient-to-r from-fuchsia-500 via-violet-500 to-cyan-500 p-3 text-white shadow-xl shadow-purple-500/20">
+                    <FiCommand className="h-5 w-5" />
+                  </div>
+                </div>
+
+                {/* FEATURE GRID */}
+                <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                  {/* CARD 1 */}
+                  <div className="group rounded-[1.8rem] border border-white/10 bg-gradient-to-br from-fuchsia-500/10 via-violet-500/10 to-transparent p-5 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-fuchsia-500/20 hover:shadow-[0_15px_40px_rgba(168,85,247,0.15)] dark:border-slate-800 dark:from-fuchsia-500/5 dark:via-violet-500/5">
+                    <div className="flex items-start justify-between">
+                      <div className="rounded-2xl bg-gradient-to-r from-fuchsia-500 to-violet-500 p-3 text-white shadow-lg">
+                        <FiBrain className="h-5 w-5" />
+                      </div>
+
+                      <div className="rounded-full border border-fuchsia-500/20 bg-fuchsia-500/10 px-3 py-1 text-xs font-semibold text-fuchsia-600 dark:text-fuchsia-300">
+                        AI Adaptive
+                      </div>
+                    </div>
+
+                    <h4 className="mt-6 text-lg font-bold text-slate-900 dark:text-white">
+                      Adaptive Learning
+                    </h4>
+
+                    <p className="mt-3 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+                      AI dynamically personalizes question flow, learning pace,
+                      and topic progression according to student performance.
+                    </p>
+                  </div>
+
+                  {/* CARD 2 */}
+                  <div className="group rounded-[1.8rem] border border-white/10 bg-gradient-to-br from-cyan-500/10 via-blue-500/10 to-transparent p-5 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-cyan-500/20 hover:shadow-[0_15px_40px_rgba(6,182,212,0.15)] dark:border-slate-800 dark:from-cyan-500/5 dark:via-blue-500/5">
+                    <div className="flex items-start justify-between">
+                      <div className="rounded-2xl bg-gradient-to-r from-cyan-500 to-indigo-500 p-3 text-white shadow-lg">
+                        <FiRefreshCw className="h-5 w-5" />
+                      </div>
+
+                      <div className="rounded-full border border-cyan-500/20 bg-cyan-500/10 px-3 py-1 text-xs font-semibold text-cyan-600 dark:text-cyan-300">
+                        Retention AI
+                      </div>
+                    </div>
+
+                    <h4 className="mt-6 text-lg font-bold text-slate-900 dark:text-white">
+                      Retention Learning
+                    </h4>
+
+                    <p className="mt-3 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+                      Smart revision scheduling and spaced repetition workflows
+                      improve long-term memory retention naturally.
+                    </p>
+                  </div>
+
+                  {/* CARD 3 */}
+                  <div className="group rounded-[1.8rem] border border-white/10 bg-gradient-to-br from-violet-500/10 via-purple-500/10 to-transparent p-5 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-violet-500/20 hover:shadow-[0_15px_40px_rgba(139,92,246,0.15)] dark:border-slate-800 dark:from-violet-500/5 dark:via-purple-500/5">
+                    <div className="flex items-start justify-between">
+                      <div className="rounded-2xl bg-gradient-to-r from-violet-500 to-purple-500 p-3 text-white shadow-lg">
+                        <FiUsers className="h-5 w-5" />
+                      </div>
+
+                      <div className="rounded-full border border-violet-500/20 bg-violet-500/10 px-3 py-1 text-xs font-semibold text-violet-600 dark:text-violet-300">
+                        Course System
+                      </div>
+                    </div>
+
+                    <h4 className="mt-6 text-lg font-bold text-slate-900 dark:text-white">
+                      Teacher & Student Courses
+                    </h4>
+
+                    <p className="mt-3 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+                      Teachers create structured AI-powered learning spaces
+                      while students join and learn collaboratively.
+                    </p>
+                  </div>
+
+                  {/* CARD 4 */}
+                  <div className="group rounded-[1.8rem] border border-white/10 bg-gradient-to-br from-indigo-500/10 via-fuchsia-500/10 to-transparent p-5 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:border-indigo-500/20 hover:shadow-[0_15px_40px_rgba(99,102,241,0.15)] dark:border-slate-800 dark:from-indigo-500/5 dark:via-fuchsia-500/5">
+                    <div className="flex items-start justify-between">
+                      <div className="rounded-2xl bg-gradient-to-r from-indigo-500 to-fuchsia-500 p-3 text-white shadow-lg">
+                        <FiBarChart2 className="h-5 w-5" />
+                      </div>
+
+                      <div className="rounded-full border border-indigo-500/20 bg-indigo-500/10 px-3 py-1 text-xs font-semibold text-indigo-600 dark:text-indigo-300">
+                        Smart Analytics
+                      </div>
+                    </div>
+
+                    <h4 className="mt-6 text-lg font-bold text-slate-900 dark:text-white">
+                      Learning Dashboards
+                    </h4>
+
+                    <p className="mt-3 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+                      Clean visual dashboards help students and teachers monitor
+                      learning progress, focus flow, and retention activity.
+                    </p>
+                  </div>
+                </div>
+
+                {/* BOTTOM NAVIGATION LINKS */}
+                <div className="mt-6 grid gap-4 sm:grid-cols-2">
+                  <Link
+                    to="/dashboard"
+                    className="group rounded-[1.8rem] border border-white/10 bg-gradient-to-r from-fuchsia-500/10 via-violet-500/10 to-cyan-500/10 p-5 backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_15px_40px_rgba(168,85,247,0.15)] dark:border-slate-800"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">
+                          Unified Workspace
+                        </p>
+
+                        <h4 className="mt-2 text-xl font-bold text-slate-900 dark:text-white">
+                          Dashboard
+                        </h4>
+                      </div>
+
+                      <div className="rounded-2xl bg-gradient-to-r from-fuchsia-500 to-cyan-500 p-3 text-white shadow-lg">
+                        <FiGrid className="h-5 w-5" />
+                      </div>
+                    </div>
+
+                    <p className="mt-4 text-sm leading-relaxed text-slate-600 dark:text-slate-400">
+                      Access analytics, adaptive learning sessions, retention
+                      workflows, courses, and AI learning insights.
+                    </p>
+
+                    <div className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-purple-600 transition-all duration-300 group-hover:gap-3 dark:text-purple-400">
+                      Open Dashboard
+                      <FiArrowRight />
+                    </div>
+                  </Link>
+
+                  <div className="grid gap-4">
+                    <Link
+                      to="/design/adaptive"
+                      className="group flex items-center justify-between rounded-[1.5rem] border border-white/10 bg-white/60 p-4 shadow-sm backdrop-blur-xl transition-all duration-300 hover:border-fuchsia-500/20 hover:bg-white/80 dark:border-slate-800 dark:bg-slate-900/70 dark:hover:bg-slate-900"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="rounded-xl bg-gradient-to-r from-fuchsia-500 to-violet-500 p-2.5 text-white shadow-lg">
+                          <FiBrain className="h-4 w-4" />
+                        </div>
+
+                        <div>
+                          <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                            Adaptive Design
+                          </p>
+
+                          <p className="text-xs text-slate-500 dark:text-slate-400">
+                            Personalized learning flow
+                          </p>
+                        </div>
+                      </div>
+
+                      <FiArrowRight className="text-slate-400 transition-transform duration-300 group-hover:translate-x-1" />
+                    </Link>
+
+                    <Link
+                      to="/design/retention"
+                      className="group flex items-center justify-between rounded-[1.5rem] border border-white/10 bg-white/60 p-4 shadow-sm backdrop-blur-xl transition-all duration-300 hover:border-cyan-500/20 hover:bg-white/80 dark:border-slate-800 dark:bg-slate-900/70 dark:hover:bg-slate-900"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-500 p-2.5 text-white shadow-lg">
+                          <FiRefreshCw className="h-4 w-4" />
+                        </div>
+
+                        <div>
+                          <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                            Retention Design
+                          </p>
+
+                          <p className="text-xs text-slate-500 dark:text-slate-400">
+                            Memory & revision intelligence
+                          </p>
+                        </div>
+                      </div>
+
+                      <FiArrowRight className="text-slate-400 transition-transform duration-300 group-hover:translate-x-1" />
+                    </Link>
+
+                    <Link
+                      to="/test/practice"
+                      className="group flex items-center justify-between rounded-[1.5rem] border border-white/10 bg-white/60 p-4 shadow-sm backdrop-blur-xl transition-all duration-300 hover:border-violet-500/20 hover:bg-white/80 dark:border-slate-800 dark:bg-slate-900/70 dark:hover:bg-slate-900"
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="rounded-xl bg-gradient-to-r from-violet-500 to-fuchsia-500 p-2.5 text-white shadow-lg">
+                          <FiBookOpen className="h-4 w-4" />
+                        </div>
+
+                        <div>
+                          <p className="text-sm font-semibold text-slate-900 dark:text-white">
+                            Adaptive Practice
+                          </p>
+
+                          <p className="text-xs text-slate-500 dark:text-slate-400">
+                            Smart AI-driven sessions
+                          </p>
+                        </div>
+                      </div>
+
+                      <FiArrowRight className="text-slate-400 transition-transform duration-300 group-hover:translate-x-1" />
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          </div>
         </div>
       </section>
 
-      <section className="py-16">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            transition={{ duration: 0.6 }}
-            className="mb-10 text-center"
-          >
-            <h2 className="mb-3 text-3xl font-black text-slate-900 dark:text-white">
-              Features Built for You
+      {/* CORE FEATURES */}
+      <section className="py-24 lg:py-32">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="mx-auto max-w-3xl text-center">
+            <h2 className="text-4xl font-bold tracking-tight">
+              Smart AI Learning Features
             </h2>
-            <p className="text-slate-600 dark:text-slate-300">
-              Everything you need to study effectively, remember longer, and
-              achieve your best results.
-            </p>
-          </motion.div>
 
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
-            {studentFeatures.map((feature, index) => (
+            <p className="mt-5 text-lg leading-relaxed text-slate-600 dark:text-slate-400">
+              Built around adaptive intelligence, retention science, course
+              ecosystems, and deep analytics for both students and educators.
+            </p>
+          </div>
+
+          <div className="mt-16 grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
+            {coreFeatures.map((feature, index) => (
               <motion.div
                 key={feature.title}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 25 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="rounded-2xl border border-slate-200 bg-white p-6 shadow-md transition-all duration-300 hover:-translate-y-1 hover:shadow-lg dark:border-slate-700 dark:bg-slate-900"
+                transition={{ delay: index * 0.08 }}
+                className="group rounded-[2rem] border border-white/20 bg-white/70 p-7 shadow-[0_12px_40px_rgba(124,58,237,0.08)] backdrop-blur-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl dark:border-slate-800 dark:bg-slate-900/70"
               >
                 <div
-                  className={`mb-4 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-gradient-to-br ${feature.accent} text-white`}
+                  className={`flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-r ${feature.gradient} text-white shadow-xl`}
                 >
-                  <feature.icon className="h-6 w-6" />
+                  <feature.icon className="h-7 w-7" />
                 </div>
-                <h3 className="mb-2 text-lg font-bold text-slate-900 dark:text-white">
-                  {feature.title}
-                </h3>
-                <p className="text-slate-600 dark:text-slate-300">
+
+                <h3 className="mt-7 text-xl font-bold">{feature.title}</h3>
+
+                <p className="mt-4 leading-relaxed text-slate-600 dark:text-slate-400">
                   {feature.description}
                 </p>
               </motion.div>
@@ -229,97 +497,85 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="py-12">
-        <div className="mx-auto grid max-w-7xl gap-6 px-4 sm:px-6 lg:grid-cols-2 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6 }}
-            className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-700 dark:bg-slate-900"
-          >
-            <h2 className="text-2xl font-black text-slate-900 dark:text-white">
-              Why Students Love Us
-            </h2>
-            <div className="mt-4 space-y-3">
-              {studentBenefits.map((benefit) => (
+      {/* ARCHITECTURE LINKS */}
+      <section className="py-24 bg-white/40 dark:bg-slate-900/40">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="grid gap-8 lg:grid-cols-2">
+            {architectureLinks.map((item) => (
+              <Link
+                key={item.title}
+                to={item.to}
+                className="group relative overflow-hidden rounded-[2rem] border border-white/20 bg-white/70 p-8 shadow-[0_15px_60px_rgba(124,58,237,0.12)] backdrop-blur-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl dark:border-slate-800 dark:bg-slate-900/70"
+              >
                 <div
-                  key={benefit.title}
-                  className="rounded-xl bg-slate-50 p-4 dark:bg-slate-800"
-                >
-                  <p className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white">
-                    <FiCheckCircle className="h-5 w-5 text-emerald-500" />
-                    {benefit.title}
-                  </p>
-                  <p className="mt-2 text-sm text-slate-600 dark:text-slate-300">
-                    {benefit.text}
-                  </p>
-                </div>
-              ))}
-            </div>
-          </motion.div>
+                  className={`absolute inset-0 bg-gradient-to-br ${item.gradient} opacity-10`}
+                />
 
-          <motion.div
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.55 }}
-            className="rounded-3xl bg-gradient-to-br from-indigo-600 via-cyan-600 to-emerald-600 p-6 text-white shadow-xl"
-          >
-            <h2 className="text-2xl font-black">How It Works</h2>
-            <p className="mt-2 text-sm text-indigo-50">
-              A simple, powerful journey from each question to mastery.
-            </p>
-            <ol className="mt-4 space-y-3">
-              {howItWorks.map((step, idx) => (
-                <li
-                  key={step}
-                  className="rounded-lg border border-white/20 bg-white/10 px-3 py-2 text-sm font-medium"
+                <div
+                  className={`inline-flex rounded-2xl bg-gradient-to-r ${item.gradient} p-4 text-white shadow-lg`}
                 >
-                  <span className="mr-2 text-base">{step.charAt(0)}</span>
-                  {step.substring(2)}
-                </li>
-              ))}
-            </ol>
-          </motion.div>
+                  <item.icon className="h-6 w-6" />
+                </div>
+
+                <h3 className="mt-6 text-2xl font-bold">{item.title}</h3>
+
+                <p className="mt-4 leading-relaxed text-slate-600 dark:text-slate-400">
+                  {item.subtitle}
+                </p>
+
+                <div className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-purple-600 dark:text-purple-400">
+                  Explore Design
+                  <FiArrowRight className="transition-transform duration-300 group-hover:translate-x-1" />
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
       </section>
 
-      <section className="py-16">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mb-8 text-center">
-            <h2 className="text-3xl font-black text-slate-900 dark:text-white">
-              Navigate to Core Functionalities
+      {/* DASHBOARDS */}
+      <section className="py-24 lg:py-32">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="mx-auto max-w-3xl text-center">
+            <h2 className="text-4xl font-bold tracking-tight">
+              Smart Dashboards & Learning Spaces
             </h2>
-            <p className="mt-2 text-slate-600 dark:text-slate-300">
-              Jump directly into your learning workflow from setup to analytics.
+
+            <p className="mt-5 text-lg leading-relaxed text-slate-600 dark:text-slate-400">
+              Dedicated intelligent workspaces for students, teachers, and
+              retention-focused learning analysis.
             </p>
           </div>
-          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {functionalRoutes.map((item, index) => (
+
+          <div className="mt-16 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+            {workspaceLinks.map((item, index) => (
               <motion.div
                 key={item.title}
-                initial={{ opacity: 0, y: 16 }}
+                initial={{ opacity: 0, y: 25 }}
                 whileInView={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.45, delay: index * 0.05 }}
-                className={`rounded-2xl border bg-gradient-to-br p-5 ${item.style} dark:border-slate-700 dark:from-slate-800/70 dark:via-slate-900/70 dark:to-slate-900`}
+                transition={{ delay: index * 0.08 }}
+                className="group rounded-[1.8rem] border border-white/30 bg-white/75 p-6 shadow-[0_12px_40px_rgba(124,58,237,0.1)] backdrop-blur-2xl transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl dark:border-slate-800 dark:bg-slate-900/75"
               >
-                <div className="flex items-start justify-between gap-3">
-                  <div>
-                    <p className="text-lg font-bold text-slate-900 dark:text-white">
-                      {item.title}
-                    </p>
-                    <p className="mt-1 text-sm text-slate-600 dark:text-slate-300">
-                      {item.subtitle}
-                    </p>
-                  </div>
-                  <div className="rounded-xl bg-white/80 p-2 text-slate-800 dark:bg-slate-800 dark:text-slate-100">
-                    <item.icon className="h-5 w-5" />
-                  </div>
+                <div
+                  className={`inline-flex rounded-2xl bg-gradient-to-r ${item.gradient} p-3.5 text-white shadow-xl`}
+                >
+                  <item.icon className="h-6 w-6" />
                 </div>
+
+                <h3 className="mt-5 text-xl font-bold sm:text-2xl">
+                  {item.title}
+                </h3>
+
+                <p className="mt-4 leading-relaxed text-slate-600 dark:text-slate-400">
+                  {item.desc}
+                </p>
+
                 <Link
                   to={item.to}
-                  className={`mt-4 inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white transition ${item.buttonClass}`}
+                  className="mt-6 inline-flex items-center gap-2 rounded-xl border border-purple-200/70 bg-purple-50/80 px-4 py-2.5 text-sm font-semibold text-purple-700 transition-all duration-300 hover:gap-3 hover:border-purple-300 hover:bg-purple-100 dark:border-purple-900/60 dark:bg-purple-900/30 dark:text-purple-300 dark:hover:bg-purple-900/40"
                 >
-                  Open <FiArrowRight className="h-4 w-4" />
+                  {item.cta}
+                  <FiArrowRight />
                 </Link>
               </motion.div>
             ))}
@@ -327,37 +583,40 @@ const Home = () => {
         </div>
       </section>
 
-      <section className="pb-16">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, scale: 0.98 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6 }}
-            className="overflow-hidden rounded-3xl bg-gradient-to-r from-cyan-700 via-indigo-700 to-violet-700 px-8 py-12 text-white shadow-xl"
-          >
-            <h2 className="text-3xl font-black md:text-4xl">Our Mission</h2>
-            <p className="mt-3 max-w-3xl text-cyan-50">
-              Deliver equitable, adaptive, and retention-driven learning support
-              at scale so every student gets personalized guidance, healthier
-              study rhythm, and stronger long-term outcomes.
-            </p>
-            <div className="mt-6 flex flex-wrap gap-3">
-              <span className="rounded-full bg-white/20 px-4 py-1 text-sm font-medium">
-                <FiShield className="mr-1 inline h-4 w-4" /> Secure by design
-              </span>
-              <span className="rounded-full bg-white/20 px-4 py-1 text-sm font-medium">
-                <FiTrendingUp className="mr-1 inline h-4 w-4" /> Explainable
-                analytics
-              </span>
-              <span className="rounded-full bg-white/20 px-4 py-1 text-sm font-medium">
-                <FiClock className="mr-1 inline h-4 w-4" /> Smarter revision
-                timing
-              </span>
-              <span className="rounded-full bg-white/20 px-4 py-1 text-sm font-medium">
-                <FiZap className="mr-1 inline h-4 w-4" /> Real-time adaptation
-              </span>
+      {/* FINAL CTA */}
+      <section className="pb-24">
+        <div className="mx-auto max-w-7xl px-6 lg:px-8">
+          <div className="relative overflow-hidden rounded-[2.5rem] bg-gradient-to-r from-fuchsia-500 via-purple-600 to-cyan-500 px-8 py-16 shadow-[0_20px_80px_rgba(124,58,237,0.3)]">
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_left,_rgba(255,255,255,0.15),transparent_35%)]" />
+
+            <div className="relative mx-auto max-w-3xl text-center text-white">
+              <h2 className="text-4xl font-black tracking-tight sm:text-5xl">
+                Build The Future Of Intelligent Learning
+              </h2>
+
+              <p className="mt-6 text-lg leading-relaxed text-purple-100">
+                Adaptive intelligence, retention-focused learning, teacher
+                ecosystems, analytics dashboards, and AI-driven education —
+                unified inside one modern platform.
+              </p>
+
+              <div className="mt-10 flex flex-col justify-center gap-4 sm:flex-row">
+                <Link
+                  to="/dashboard"
+                  className="inline-flex items-center justify-center rounded-2xl bg-white px-7 py-4 text-sm font-semibold text-slate-900 shadow-lg transition-all duration-300 hover:scale-[1.03]"
+                >
+                  Launch Dashboard
+                </Link>
+
+                <Link
+                  to="/design/adaptive"
+                  className="inline-flex items-center justify-center rounded-2xl border border-white/20 bg-white/10 px-7 py-4 text-sm font-semibold text-white backdrop-blur-xl transition-all duration-300 hover:bg-white/20"
+                >
+                  Explore Design
+                </Link>
+              </div>
             </div>
-          </motion.div>
+          </div>
         </div>
       </section>
     </div>

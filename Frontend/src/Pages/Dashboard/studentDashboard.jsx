@@ -1020,7 +1020,7 @@ const StudentDashboardNew = () => {
 
       {/* Mobile Header */}
       <header className="lg:hidden sticky top-0 z-40 backdrop-blur-xl bg-white/70 dark:bg-gray-900/70 border-b border-indigo-100 dark:border-indigo-900/30">
-        <div className="flex items-center justify-between px-4 h-16">
+        <div className="flex items-center justify-between px-3 sm:px-4 h-14 sm:h-16">
           <button
             onClick={() => setMobileSidebarOpen(true)}
             className="p-2 rounded-xl hover:bg-indigo-50 dark:hover:bg-indigo-900/20"
@@ -1117,7 +1117,7 @@ const StudentDashboardNew = () => {
         </aside>
 
         {/* Main Content */}
-        <main className="flex-1 p-6 lg:p-8 max-w-7xl mx-auto">
+        <main className="flex-1 p-3 sm:p-4 md:p-6 lg:p-8 max-w-7xl mx-auto overflow-x-hidden">
           {/* Success/Error Messages */}
           <AnimatePresence>
             {success && (
@@ -1158,31 +1158,31 @@ const StudentDashboardNew = () => {
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                className="mb-8"
+                className="mb-6 sm:mb-8"
               >
-                <div className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-6 text-white shadow-xl relative overflow-hidden">
-                  <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -translate-y-32 translate-x-32" />
-                  <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/10 rounded-full translate-y-24 -translate-x-24" />
-                  <div className="relative z-10 flex items-start justify-between">
-                    <div>
-                      <h2 className="text-2xl font-bold mb-2">
+                <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 rounded-xl sm:rounded-3xl p-4 sm:p-6 md:p-8 text-white shadow-2xl relative overflow-hidden backdrop-blur-xl border border-white/10">
+                  <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-32 translate-x-32" />
+                  <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-24 -translate-x-24" />
+                  <div className="relative z-10 flex items-start justify-between flex-col sm:flex-row gap-4">
+                    <div className="flex-1">
+                      <h2 className="text-xl sm:text-2xl md:text-3xl font-bold mb-1 sm:mb-2 leading-tight">
                         Welcome back, {student?.name || "Student"}! 👋
                       </h2>
-                      <p className="text-indigo-100 mb-4">
+                      <p className="text-indigo-50 sm:text-indigo-100 mb-4 sm:mb-6 text-sm sm:text-base">
                         {performance?.overallStats?.lastActive
                           ? `Last active ${formatDate(performance.overallStats.lastActive)}`
                           : "Ready to continue your learning journey?"}
                       </p>
-                      <div className="flex space-x-3">
+                      <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                         <button
                           onClick={goToPractice}
-                          className="px-4 py-2 bg-white text-indigo-600 rounded-xl font-medium hover:bg-opacity-90 transition-colors"
+                          className="px-4 sm:px-5 py-2.5 sm:py-3 bg-white text-indigo-600 rounded-lg sm:rounded-xl font-semibold hover:bg-opacity-95 hover:shadow-lg transition-all duration-200 transform hover:-translate-y-0.5 text-sm sm:text-base"
                         >
                           Start Practice
                         </button>
                         <button
                           onClick={goToRealExam}
-                          className="px-4 py-2 bg-white/20 text-white rounded-xl font-medium hover:bg-white/30 transition-colors"
+                          className="px-4 sm:px-5 py-2.5 sm:py-3 bg-white/20 text-white rounded-lg sm:rounded-xl font-semibold hover:bg-white/30 backdrop-blur-md transition-all duration-200 transform hover:-translate-y-0.5 text-sm sm:text-base border border-white/20"
                         >
                           Take Exam
                         </button>
@@ -1190,9 +1190,9 @@ const StudentDashboardNew = () => {
                     </div>
                     <button
                       onClick={() => setShowWelcome(false)}
-                      className="p-2 hover:bg-white/20 rounded-lg transition-colors"
+                      className="p-2 sm:p-3 hover:bg-white/20 rounded-lg sm:rounded-xl transition-colors flex-shrink-0 backdrop-blur-sm border border-white/10"
                     >
-                      <FiX className="w-5 h-5" />
+                      <FiX className="w-5 h-5 sm:w-6 sm:h-6" />
                     </button>
                   </div>
                 </div>
@@ -1208,10 +1208,10 @@ const StudentDashboardNew = () => {
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                className="space-y-8"
+                className="space-y-6 sm:space-y-8"
               >
-                {/* Quick Stats Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                {/* Quick Stats Grid - Mobile First */}
+                <div className="order-2 sm:order-1 grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3 md:gap-4">
                   {[
                     {
                       icon: FiBook,
@@ -1242,17 +1242,17 @@ const StudentDashboardNew = () => {
                     return (
                       <div
                         key={idx}
-                        className="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-indigo-100 dark:border-indigo-900 shadow-sm"
+                        className="bg-white/80 dark:bg-gray-800/70 backdrop-blur-xl rounded-lg sm:rounded-2xl p-3 sm:p-5 md:p-6 border border-white/40 dark:border-indigo-900/30 shadow-lg hover:shadow-2xl hover:bg-white/95 dark:hover:bg-gray-800/90 transition-all duration-300 transform hover:-translate-y-1 hover:scale-105"
                       >
                         <div
-                          className={`p-2 rounded-xl bg-gradient-to-br ${stat.color} w-fit mb-3`}
+                          className={`p-2 sm:p-3 rounded-lg sm:rounded-xl bg-gradient-to-br ${stat.color} w-fit mb-3 sm:mb-4 shadow-lg`}
                         >
-                          <Icon className="w-4 h-4 text-white" />
+                          <Icon className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                         </div>
-                        <p className="text-2xl font-bold text-gray-900 dark:text-white">
+                        <p className="text-base sm:text-lg md:text-2xl font-bold text-gray-900 dark:text-white line-clamp-1 leading-tight">
                           {stat.value}
                         </p>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 line-clamp-2 mt-1 sm:mt-2 font-medium">
                           {stat.label}
                         </p>
                       </div>
@@ -1265,7 +1265,7 @@ const StudentDashboardNew = () => {
                   variants={stagger}
                   initial="initial"
                   animate="animate"
-                  className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4"
+                  className="order-4 sm:order-2 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 md:gap-5"
                 >
                   {performanceCards.map((card) => {
                     const IconComp = card.icon;
@@ -1273,25 +1273,25 @@ const StudentDashboardNew = () => {
                       <motion.div
                         key={card.key}
                         variants={fadeInUp}
-                        className="bg-white dark:bg-gray-800 rounded-2xl border border-indigo-100 dark:border-indigo-900 p-4 shadow-sm"
+                        className="bg-white/80 dark:bg-gray-800/70 backdrop-blur-xl rounded-lg sm:rounded-2xl border border-white/40 dark:border-indigo-900/30 p-4 sm:p-5 md:p-6 shadow-lg hover:shadow-2xl hover:bg-white/95 dark:hover:bg-gray-800/90 transition-all duration-300 transform hover:-translate-y-1"
                       >
-                        <div className="flex items-center justify-between mb-3">
+                        <div className="flex items-center justify-between mb-3 sm:mb-4">
                           <div
-                            className={`p-2.5 rounded-xl bg-gradient-to-br ${card.tone}`}
+                            className={`p-2 sm:p-3 rounded-lg sm:rounded-xl bg-gradient-to-br ${card.tone} shadow-lg transform group-hover:scale-110 transition-transform`}
                           >
-                            <IconComp className="w-4 h-4 text-white" />
+                            <IconComp className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                           </div>
-                          <span className="text-[11px] px-2 py-1 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300">
+                          <span className="text-[10px] sm:text-xs px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/50 dark:to-purple-900/50 text-indigo-600 dark:text-indigo-300 whitespace-nowrap font-semibold">
                             Metric
                           </span>
                         </div>
-                        <p className="text-xl font-bold text-gray-900 dark:text-white">
+                        <p className="text-base sm:text-lg md:text-2xl font-bold text-gray-900 dark:text-white line-clamp-1 leading-tight">
                           {card.value}
                         </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mt-2 sm:mt-3 line-clamp-1 font-medium">
                           {card.label}
                         </p>
-                        <p className="text-[11px] text-gray-400 dark:text-gray-500 mt-2">
+                        <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 mt-2 sm:mt-3 line-clamp-2">
                           {card.hint}
                         </p>
                       </motion.div>
@@ -1304,139 +1304,179 @@ const StudentDashboardNew = () => {
                   variants={fadeInUp}
                   initial="initial"
                   animate="animate"
-                  className="grid grid-cols-1 xl:grid-cols-3 gap-6"
+                  className="order-1 sm:order-3 grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6"
                 >
-                  <div className="xl:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-indigo-100 dark:border-indigo-900">
-                    <div className="flex items-start justify-between gap-3 mb-4">
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-                          <FiCalendar className="w-5 h-5 mr-2 text-indigo-600" />
+                  <div className="lg:col-span-2 bg-white/80 dark:bg-gray-800/70 backdrop-blur-xl rounded-xl sm:rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 border border-white/40 dark:border-indigo-900/30 hover:shadow-3xl transition-all duration-300">
+                    <div className="flex items-start justify-between gap-3 sm:gap-4 mb-4 sm:mb-6 flex-col sm:flex-row">
+                      <div className="flex-1">
+                        <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 dark:text-white flex items-center mb-1 sm:mb-2">
+                          <FiCalendar className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 text-indigo-600" />
                           Daily Streak Manager
                         </h3>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
                           Last 14 days activity, momentum, and consistency
                           tracking
                         </p>
                       </div>
                       <div
-                        className="text-right"
+                        className="text-right flex-shrink-0 p-3 sm:p-4 bg-gradient-to-br from-indigo-50 to-purple-50 dark:from-indigo-900/30 dark:to-purple-900/30 rounded-lg sm:rounded-xl"
                         title="Streak completion = (current streak / 14-day target) × 100"
                       >
-                        <p className="text-2xl font-bold text-indigo-600">
+                        <p className="text-2xl sm:text-3xl font-bold text-indigo-600 dark:text-indigo-400">
                           {streakCompletion}%
                         </p>
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          14-day streak target
+                        <p className="text-xs text-gray-600 dark:text-gray-400 mt-1">
+                          Target
                         </p>
                       </div>
                     </div>
-                    <div className="grid grid-cols-7 gap-2 mb-4">
+                    <div className="grid grid-cols-7 gap-1.5 sm:gap-2 md:gap-3 mb-4 sm:mb-6 overflow-x-auto pb-3 sm:pb-4">
                       {streakHeatmap.map((day) => (
                         <div
                           key={day.key}
-                          className="rounded-xl border border-indigo-100 dark:border-indigo-900/50 p-2 text-center"
+                          className="rounded-lg sm:rounded-xl border-2 border-indigo-100/50 dark:border-indigo-900/40 p-2 sm:p-3 md:p-4 text-center flex-shrink-0 w-full sm:w-auto transition-all duration-200 hover:border-indigo-400 dark:hover:border-indigo-600 hover:shadow-md"
                           style={{
                             backgroundColor:
                               day.attempts > 0
-                                ? `rgba(79, 70, 229, ${0.12 + day.intensity * 0.45})`
-                                : undefined,
+                                ? `rgba(79, 70, 229, ${0.08 + day.intensity * 0.35})`
+                                : "rgba(0,0,0,0.02)",
                           }}
                           title={`${day.label} ${day.day}: ${day.attempts} session(s), ${day.avgAccuracy}% avg accuracy`}
                         >
-                          <p className="text-[10px] text-gray-500 dark:text-gray-400">
+                          <p className="text-[9px] sm:text-[10px] md:text-xs text-gray-600 dark:text-gray-400 font-medium">
                             {day.label}
                           </p>
-                          <p className="text-sm font-semibold text-gray-800 dark:text-gray-100">
+                          <p className="text-xs sm:text-sm md:text-base font-bold text-gray-900 dark:text-white mt-0.5">
                             {day.day}
                           </p>
-                          <p className="text-[10px] text-gray-600 dark:text-gray-300">
-                            {day.attempts > 0 ? `${day.attempts}x` : "-"}
+                          <p className="text-[8px] sm:text-[10px] md:text-xs text-gray-700 dark:text-gray-300 font-semibold mt-0.5">
+                            {day.attempts > 0 ? `${day.attempts}x` : "—"}
                           </p>
                         </div>
                       ))}
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                    <div className="grid grid-cols-3 gap-3 sm:gap-4">
                       <div
-                        className="p-3 rounded-xl bg-indigo-50 dark:bg-indigo-900/30"
+                        className="p-3 sm:p-4 rounded-lg sm:rounded-xl bg-gradient-to-br from-indigo-50 to-indigo-100 dark:from-indigo-900/40 dark:to-indigo-900/20 border border-indigo-200/50 dark:border-indigo-800/30 hover:shadow-md transition-all"
                         title="Current streak computed from consecutive active days"
                       >
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          Current Streak
+                        <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 line-clamp-1 font-semibold">
+                          Current
                         </p>
-                        <p className="text-xl font-bold text-indigo-700 dark:text-indigo-300">
-                          {currentStreak} days
+                        <p className="text-lg sm:text-2xl md:text-3xl font-bold text-indigo-700 dark:text-indigo-300 mt-1">
+                          {currentStreak}d
                         </p>
                       </div>
                       <div
-                        className="p-3 rounded-xl bg-emerald-50 dark:bg-emerald-900/20"
+                        className="p-3 sm:p-4 rounded-lg sm:rounded-xl bg-gradient-to-br from-emerald-50 to-emerald-100 dark:from-emerald-900/40 dark:to-emerald-900/20 border border-emerald-200/50 dark:border-emerald-800/30 hover:shadow-md transition-all"
                         title="Longest streak observed from profile and timeline data"
                       >
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          Best Streak
+                        <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 line-clamp-1 font-semibold">
+                          Best
                         </p>
-                        <p className="text-xl font-bold text-emerald-700 dark:text-emerald-300">
-                          {longestStreak} days
+                        <p className="text-lg sm:text-2xl md:text-3xl font-bold text-emerald-700 dark:text-emerald-300 mt-1">
+                          {longestStreak}d
                         </p>
                       </div>
                       <div
-                        className="p-3 rounded-xl bg-amber-50 dark:bg-amber-900/20"
+                        className="p-3 sm:p-4 rounded-lg sm:rounded-xl bg-gradient-to-br from-amber-50 to-amber-100 dark:from-amber-900/40 dark:to-amber-900/20 border border-amber-200/50 dark:border-amber-800/30 hover:shadow-md transition-all"
                         title="Number of active days in the last 14 days"
                       >
-                        <p className="text-xs text-gray-500 dark:text-gray-400">
-                          Active Days (14d)
+                        <p className="text-[10px] sm:text-xs text-gray-600 dark:text-gray-400 line-clamp-1 font-semibold">
+                          Active
                         </p>
-                        <p className="text-xl font-bold text-amber-700 dark:text-amber-300">
-                          {streakHeatmap.filter((d) => d.attempts > 0).length}
+                        <p className="text-lg sm:text-2xl md:text-3xl font-bold text-amber-700 dark:text-amber-300 mt-1">
+                          {streakHeatmap.filter((d) => d.attempts > 0).length}d
                         </p>
                       </div>
                     </div>
                   </div>
-                  <div className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-indigo-100 dark:border-indigo-900">
-                    <h4 className="text-base font-semibold text-gray-900 dark:text-white flex items-center mb-4">
-                      <FiTrendingUp className="w-5 h-5 mr-2 text-indigo-600" />
+                  <div className="bg-white/80 dark:bg-gray-800/70 backdrop-blur-xl rounded-xl sm:rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 border border-white/40 dark:border-indigo-900/30 hover:shadow-3xl transition-all duration-300">
+                    <h4 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 dark:text-white flex items-center mb-4 sm:mb-6">
+                      <FiTrendingUp className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 text-indigo-600" />
                       Momentum Graphs
                     </h4>
                     <div
-                      className="mb-5"
+                      className="mb-5 sm:mb-6 overflow-x-auto pb-2"
                       title="Line trend of your last 10 session accuracy values"
                     >
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
-                        Accuracy Trend (last 10 sessions)
+                      <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mb-3 sm:mb-4 whitespace-nowrap font-semibold">
+                        Accuracy Trend (Last 10)
                       </p>
                       {recentAccuracyTrend.length > 1 ? (
-                        <svg viewBox="0 0 220 70" className="w-full h-20">
+                        <svg
+                          viewBox="0 0 220 70"
+                          className="w-full h-24 sm:h-28 md:h-32"
+                        >
+                          <defs>
+                            <linearGradient
+                              id="accuracyGrad"
+                              x1="0%"
+                              y1="0%"
+                              x2="0%"
+                              y2="100%"
+                            >
+                              <stop
+                                offset="0%"
+                                style={{
+                                  stopColor: "rgb(79, 70, 229)",
+                                  stopOpacity: 0.3,
+                                }}
+                              />
+                              <stop
+                                offset="100%"
+                                style={{
+                                  stopColor: "rgb(79, 70, 229)",
+                                  stopOpacity: 0,
+                                }}
+                              />
+                            </linearGradient>
+                          </defs>
+                          <path
+                            d={buildSparklinePath(recentAccuracyTrend, 220, 70)}
+                            fill="url(#accuracyGrad)"
+                            fillOpacity="0.3"
+                          />
                           <path
                             d={buildSparklinePath(recentAccuracyTrend, 220, 70)}
                             fill="none"
                             stroke="currentColor"
                             strokeWidth="3"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
                             className="text-indigo-600"
                           />
                         </svg>
                       ) : (
-                        <p className="text-xs text-gray-400 dark:text-gray-500">
-                          More sessions are needed to draw the trend graph.
+                        <p className="text-xs text-gray-500 dark:text-gray-400 py-8 text-center">
+                          More sessions needed
                         </p>
                       )}
                     </div>
-                    <div title="Fatigue readiness is derived from fatigue sensitivity model outputs">
-                      <p className="text-xs text-gray-500 dark:text-gray-400 mb-2">
+                    <div
+                      className="pt-4 sm:pt-6 border-t border-indigo-100/30 dark:border-indigo-900/30"
+                      title="Fatigue readiness is derived from fatigue sensitivity model outputs"
+                    >
+                      <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mb-3 sm:mb-4 font-semibold">
                         Readiness vs Fatigue
                       </p>
                       {fatigueTrendPoints.length > 0 ? (
-                        <div className="flex items-end gap-1 h-20">
+                        <div className="flex items-end gap-1.5 sm:gap-2 h-24 sm:h-28">
                           {fatigueTrendPoints.slice(-12).map((value, idx) => (
                             <div
                               key={`fatigue-${idx}`}
-                              className="flex-1 rounded-t-md bg-gradient-to-t from-purple-500 to-indigo-500"
-                              style={{ height: `${Math.max(6, value)}%` }}
+                              className="flex-1 rounded-t-md bg-gradient-to-t from-purple-500 via-purple-400 to-indigo-500 hover:shadow-lg transition-shadow"
+                              style={{
+                                height: `${Math.max(8, value)}%`,
+                                opacity: 0.8,
+                              }}
                               title={`Session ${idx + 1}: readiness ${value}%`}
                             />
                           ))}
                         </div>
                       ) : (
-                        <p className="text-xs text-gray-400 dark:text-gray-500">
-                          Fatigue graph will appear after more attempts.
+                        <p className="text-xs text-gray-500 dark:text-gray-400 py-6 text-center">
+                          Data loading...
                         </p>
                       )}
                     </div>
@@ -1448,35 +1488,35 @@ const StudentDashboardNew = () => {
                   variants={fadeInUp}
                   initial="initial"
                   animate="animate"
-                  className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-indigo-100 dark:border-indigo-900"
+                  className="order-5 sm:order-4 bg-white/80 dark:bg-gray-800/70 backdrop-blur-xl rounded-xl sm:rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 border border-white/40 dark:border-indigo-900/30 overflow-x-hidden hover:shadow-3xl transition-all duration-300"
                 >
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-                      <FiBarChart2 className="w-5 h-5 mr-2 text-indigo-600" />
-                      Subject-wise Performance Metrics
+                  <div className="flex items-center justify-between mb-4 sm:mb-6 flex-col sm:flex-row gap-2">
+                    <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 dark:text-white flex items-center">
+                      <FiBarChart2 className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 text-indigo-600" />
+                      Subject Performance
                     </h3>
-                    <span className="text-xs px-2 py-1 rounded-full bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-300">
+                    <span className="text-[10px] sm:text-xs px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-gradient-to-r from-indigo-50 to-purple-50 dark:from-indigo-900/50 dark:to-purple-900/50 text-indigo-600 dark:text-indigo-300 whitespace-nowrap font-semibold">
                       Deep View
                     </span>
                   </div>
                   {subjectRows.length > 0 ? (
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-sm">
+                    <div className="overflow-x-auto -mx-3 sm:mx-0 px-3 sm:px-0">
+                      <table className="w-full text-xs sm:text-sm">
                         <thead>
                           <tr className="text-left border-b border-indigo-100 dark:border-indigo-900/50">
-                            <th className="py-2 pr-3 text-gray-500 dark:text-gray-400">
+                            <th className="py-2 pr-2 sm:pr-3 text-gray-500 dark:text-gray-400 font-semibold">
                               Subject
                             </th>
-                            <th className="py-2 pr-3 text-gray-500 dark:text-gray-400">
-                              Questions
+                            <th className="py-2 px-1 sm:px-2 text-gray-500 dark:text-gray-400 font-semibold text-right">
+                              Qs
                             </th>
-                            <th className="py-2 pr-3 text-gray-500 dark:text-gray-400">
-                              Accuracy
+                            <th className="py-2 px-1 sm:px-2 text-gray-500 dark:text-gray-400 font-semibold text-right">
+                              Acc%
                             </th>
-                            <th className="py-2 pr-3 text-gray-500 dark:text-gray-400">
-                              Avg Difficulty
+                            <th className="py-2 px-1 sm:px-2 text-gray-500 dark:text-gray-400 font-semibold text-right">
+                              Diff%
                             </th>
-                            <th className="py-2 text-gray-500 dark:text-gray-400">
+                            <th className="py-2 pl-1 sm:pl-2 text-gray-500 dark:text-gray-400 font-semibold text-right">
                               Status
                             </th>
                           </tr>
@@ -1489,44 +1529,36 @@ const StudentDashboardNew = () => {
                             return (
                               <tr
                                 key={row.subject}
-                                className="border-b border-gray-100 dark:border-gray-700/40 last:border-0"
+                                className="border-b border-gray-100 dark:border-gray-700/40 last:border-0 hover:bg-gray-50 dark:hover:bg-gray-700/30"
                               >
-                                <td className="py-3 pr-3 font-medium text-gray-900 dark:text-gray-100 capitalize">
+                                <td className="py-2 pr-2 sm:pr-3 font-medium text-gray-900 dark:text-gray-100 capitalize text-[10px] sm:text-sm truncate">
                                   {row.subject.replace(/_/g, " ")}
                                 </td>
-                                <td className="py-3 pr-3 text-gray-700 dark:text-gray-300">
+                                <td className="py-2 px-1 sm:px-2 text-gray-700 dark:text-gray-300 text-right">
                                   {row.questions}
                                 </td>
-                                <td className="py-3 pr-3">
-                                  <div className="flex items-center gap-2">
-                                    <span className="font-semibold text-gray-800 dark:text-gray-200">
+                                <td className="py-2 px-1 sm:px-2">
+                                  <div className="flex items-center justify-end gap-1">
+                                    <span className="font-semibold text-gray-800 dark:text-gray-200 text-[10px] sm:text-sm">
                                       {accuracy}%
                                     </span>
-                                    <div className="w-24 bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
-                                      <div
-                                        className={`h-1.5 rounded-full ${getProgressColor(accuracy)}`}
-                                        style={{
-                                          width: `${Math.min(100, Math.max(0, accuracy))}%`,
-                                        }}
-                                      />
-                                    </div>
                                   </div>
                                 </td>
-                                <td className="py-3 pr-3 text-gray-700 dark:text-gray-300">
+                                <td className="py-2 px-1 sm:px-2 text-gray-700 dark:text-gray-300 text-right text-[10px] sm:text-sm">
                                   {Math.round(
                                     getSafeNumber(row.avgDifficulty, 0.5) * 100,
                                   )}
                                   %
                                 </td>
-                                <td className="py-3">
+                                <td className="py-2 pl-1 sm:pl-2 text-right">
                                   <span
-                                    className={`px-2 py-1 rounded-full text-xs font-medium ${accuracy >= 75 ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300" : accuracy >= 55 ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300" : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"}`}
+                                    className={`px-1.5 sm:px-2 py-0.5 rounded-full text-[9px] sm:text-xs font-medium inline-block ${accuracy >= 75 ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300" : accuracy >= 55 ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300" : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"}`}
                                   >
                                     {accuracy >= 75
                                       ? "Strong"
                                       : accuracy >= 55
-                                        ? "Improving"
-                                        : "Needs Focus"}
+                                        ? "Fair"
+                                        : "Need"}
                                   </span>
                                 </td>
                               </tr>
@@ -1548,112 +1580,114 @@ const StudentDashboardNew = () => {
                   variants={stagger}
                   initial="initial"
                   animate="animate"
-                  className="grid grid-cols-1 md:grid-cols-2 gap-6"
+                  className="order-3 sm:order-5 grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5 md:gap-6"
                 >
                   <motion.div
                     variants={fadeInUp}
-                    className="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl p-6 text-white shadow-xl"
+                    className="bg-gradient-to-br from-indigo-600 via-indigo-600 to-purple-600 rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 text-white shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:-translate-y-1 border border-indigo-500/20"
                   >
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="p-3 bg-white/20 rounded-xl">
-                        <FaBrain className="w-8 h-8" />
+                    <div className="flex items-start justify-between mb-4 sm:mb-6">
+                      <div className="p-3 sm:p-4 bg-white/20 rounded-lg sm:rounded-xl backdrop-blur-md border border-white/20">
+                        <FaBrain className="w-6 h-6 sm:w-8 sm:h-8" />
                       </div>
-                      <span className="px-3 py-1 bg-white/20 rounded-full text-sm">
-                        Practice Mode
+                      <span className="px-3 sm:px-4 py-1 sm:py-1.5 bg-white/20 rounded-full text-xs sm:text-sm font-semibold backdrop-blur-md border border-white/20">
+                        Practice
                       </span>
                     </div>
-                    <h3 className="text-xl font-bold mb-2">
+                    <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-2 sm:mb-3 leading-tight">
                       Adaptive Practice
                     </h3>
-                    <p className="text-indigo-100 mb-6">
-                      Questions adapt to your skill level in real-time. Get
-                      instant feedback and explanations.
+                    <p className="text-sm sm:text-base text-indigo-50 mb-5 sm:mb-8 line-clamp-3 leading-relaxed">
+                      Questions adapt to your skill level. Get instant feedback
+                      and explanations.
                     </p>
-                    <div className="grid grid-cols-2 gap-3 mb-6">
-                      <div className="bg-white/10 rounded-lg p-3">
-                        <FiZap className="w-5 h-5 mb-2" />
-                        <p className="text-sm font-semibold">Adaptive</p>
-                        <p className="text-xs opacity-80">
-                          Difficulty adjusts to you
+                    <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-5 sm:mb-8">
+                      <div className="bg-white/10 rounded-lg sm:rounded-xl p-3 sm:p-4 text-center backdrop-blur-sm border border-white/10">
+                        <FiZap className="w-5 h-5 sm:w-6 sm:h-6 mb-2 sm:mb-3 mx-auto" />
+                        <p className="text-xs sm:text-sm font-semibold">
+                          Adaptive
                         </p>
                       </div>
-                      <div className="bg-white/10 rounded-lg p-3">
-                        <FiActivity className="w-5 h-5 mb-2" />
-                        <p className="text-sm font-semibold">Real-time</p>
-                        <p className="text-xs opacity-80">Live analytics</p>
+                      <div className="bg-white/10 rounded-lg sm:rounded-xl p-3 sm:p-4 text-center backdrop-blur-sm border border-white/10">
+                        <FiActivity className="w-5 h-5 sm:w-6 sm:h-6 mb-2 sm:mb-3 mx-auto" />
+                        <p className="text-xs sm:text-sm font-semibold">
+                          Real-time
+                        </p>
                       </div>
                     </div>
                     <button
                       onClick={goToPractice}
-                      className="w-full py-3 bg-white text-indigo-600 rounded-xl font-semibold hover:bg-opacity-90 transition-all flex items-center justify-center space-x-2"
+                      className="w-full py-2.5 sm:py-3 md:py-4 bg-white text-indigo-600 rounded-lg sm:rounded-xl font-bold hover:bg-opacity-95 hover:shadow-lg transition-all flex items-center justify-center space-x-2 text-sm sm:text-base"
                     >
                       <span>Start Practice</span>
-                      <FiChevronRight className="w-5 h-5" />
+                      <FiChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
                     </button>
                   </motion.div>
                   <motion.div
                     variants={fadeInUp}
-                    className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-2xl p-6 text-white shadow-xl"
+                    className="bg-gradient-to-br from-purple-600 via-purple-600 to-pink-600 rounded-xl sm:rounded-2xl p-4 sm:p-6 md:p-8 text-white shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:-translate-y-1 border border-purple-500/20"
                   >
-                    <div className="flex items-start justify-between mb-4">
-                      <div className="p-3 bg-white/20 rounded-xl">
-                        <FaRocket className="w-8 h-8" />
+                    <div className="flex items-start justify-between mb-4 sm:mb-6">
+                      <div className="p-3 sm:p-4 bg-white/20 rounded-lg sm:rounded-xl backdrop-blur-md border border-white/20">
+                        <FaRocket className="w-6 h-6 sm:w-8 sm:h-8" />
                       </div>
-                      <span className="px-3 py-1 bg-white/20 rounded-full text-sm">
-                        Exam Mode
+                      <span className="px-3 sm:px-4 py-1 sm:py-1.5 bg-white/20 rounded-full text-xs sm:text-sm font-semibold backdrop-blur-md border border-white/20">
+                        Exam
                       </span>
                     </div>
-                    <h3 className="text-xl font-bold mb-2">
-                      Real Exam Simulation
+                    <h3 className="text-lg sm:text-xl md:text-2xl font-bold mb-2 sm:mb-3 leading-tight">
+                      Real Exam
                     </h3>
-                    <p className="text-purple-100 mb-6">
-                      Test your knowledge with timed exams. 100 questions, 60
-                      minutes, detailed analysis.
+                    <p className="text-sm sm:text-base text-purple-50 mb-5 sm:mb-8 line-clamp-3 leading-relaxed">
+                      Timed exams with detailed analysis. 100 questions, 60
+                      minutes.
                     </p>
-                    <div className="grid grid-cols-2 gap-3 mb-6">
-                      <div className="bg-white/10 rounded-lg p-3">
-                        <FiClock className="w-5 h-5 mb-2" />
-                        <p className="text-sm font-semibold">60 min</p>
-                        <p className="text-xs opacity-80">Timed exam</p>
+                    <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-5 sm:mb-8">
+                      <div className="bg-white/10 rounded-lg sm:rounded-xl p-3 sm:p-4 text-center backdrop-blur-sm border border-white/10">
+                        <FiClock className="w-5 h-5 sm:w-6 sm:h-6 mb-2 sm:mb-3 mx-auto" />
+                        <p className="text-xs sm:text-sm font-semibold">
+                          60min
+                        </p>
                       </div>
-                      <div className="bg-white/10 rounded-lg p-3">
-                        <FiBarChart2 className="w-5 h-5 mb-2" />
-                        <p className="text-sm font-semibold">100 Qs</p>
-                        <p className="text-xs opacity-80">25 per subject</p>
+                      <div className="bg-white/10 rounded-lg sm:rounded-xl p-3 sm:p-4 text-center backdrop-blur-sm border border-white/10">
+                        <FiBarChart2 className="w-5 h-5 sm:w-6 sm:h-6 mb-2 sm:mb-3 mx-auto" />
+                        <p className="text-xs sm:text-sm font-semibold">
+                          100Qs
+                        </p>
                       </div>
                     </div>
                     <button
                       onClick={goToRealExam}
-                      className="w-full py-3 bg-white text-purple-600 rounded-xl font-semibold hover:bg-opacity-90 transition-all flex items-center justify-center space-x-2"
+                      className="w-full py-2.5 sm:py-3 md:py-4 bg-white text-purple-600 rounded-lg sm:rounded-xl font-bold hover:bg-opacity-95 hover:shadow-lg transition-all flex items-center justify-center space-x-2 text-sm sm:text-base"
                     >
                       <span>Start Exam</span>
-                      <FiChevronRight className="w-5 h-5" />
+                      <FiChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
                     </button>
                   </motion.div>
                 </motion.div>
 
                 {/* Analytics Dashboard */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="order-6 sm:order-6 grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
                   <motion.div
                     variants={fadeInUp}
                     initial="initial"
                     animate="animate"
-                    className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-indigo-100 dark:border-indigo-900"
+                    className="lg:col-span-2 bg-white/80 dark:bg-gray-800/70 backdrop-blur-xl rounded-xl sm:rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 border border-white/40 dark:border-indigo-900/30 hover:shadow-3xl transition-all duration-300"
                   >
-                    <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center justify-between mb-5 sm:mb-6 flex-col sm:flex-row gap-3">
                       <div>
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-                          <FiPieChart className="w-5 h-5 mr-2 text-indigo-600" />
+                        <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 dark:text-white flex items-center">
+                          <FiPieChart className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 text-indigo-600" />
                           Concept Mastery
                         </h3>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          Your proficiency across different topics
+                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mt-1">
+                          Your proficiency across topics
                         </p>
                       </div>
                       <select
                         value={selectedPeriod}
                         onChange={(e) => setSelectedPeriod(e.target.value)}
-                        className="px-3 py-2 bg-indigo-50 dark:bg-indigo-900/30 border border-indigo-200 dark:border-indigo-800 rounded-lg text-sm text-gray-700 dark:text-gray-300"
+                        className="px-3 sm:px-4 py-2 bg-indigo-50/80 dark:bg-indigo-900/40 border border-indigo-200 dark:border-indigo-800 rounded-lg text-xs sm:text-sm text-gray-700 dark:text-gray-300 backdrop-blur-sm font-medium"
                       >
                         <option value="daily">Daily</option>
                         <option value="weekly">Weekly</option>
@@ -1662,24 +1696,27 @@ const StudentDashboardNew = () => {
                     </div>
                     {analytics?.charts?.conceptMastery &&
                     analytics.charts.conceptMastery.length > 0 ? (
-                      <div className="space-y-4">
+                      <div className="space-y-3 sm:space-y-4">
                         {analytics.charts.conceptMastery
                           .slice(0, 8)
                           .map((item, index) => (
-                            <div key={index} className="flex items-center">
-                              <div className="w-32 truncate text-sm text-gray-700 dark:text-gray-300">
+                            <div
+                              key={index}
+                              className="flex items-center gap-1 sm:gap-3"
+                            >
+                              <div className="w-20 sm:w-32 truncate text-xs sm:text-sm text-gray-700 dark:text-gray-300">
                                 {item.topic}
                               </div>
-                              <div className="flex-1 mx-4">
-                                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                              <div className="flex-1 min-w-0">
+                                <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5 sm:h-2">
                                   <div
-                                    className={`h-2 rounded-full ${getProgressColor(item.mastery * 100)}`}
+                                    className={`h-1.5 sm:h-2 rounded-full ${getProgressColor(item.mastery * 100)}`}
                                     style={{ width: `${item.mastery * 100}%` }}
                                   />
                                 </div>
                               </div>
                               <div
-                                className={`text-sm font-medium ${getMasteryColor(item.mastery)}`}
+                                className={`text-xs sm:text-sm font-medium ${getMasteryColor(item.mastery)} min-w-max`}
                               >
                                 {Math.round(item.mastery * 100)}%
                               </div>
@@ -1687,13 +1724,13 @@ const StudentDashboardNew = () => {
                           ))}
                       </div>
                     ) : (
-                      <div className="text-center py-12">
-                        <FiPieChart className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
-                        <p className="text-gray-500 dark:text-gray-400">
-                          No concept mastery data yet
+                      <div className="text-center py-8 sm:py-12">
+                        <FiPieChart className="w-10 h-10 sm:w-12 sm:h-12 text-gray-300 dark:text-gray-600 mx-auto mb-2 sm:mb-3" />
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          No mastery data
                         </p>
-                        <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
-                          Start practicing to see your progress
+                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                          Start practicing
                         </p>
                       </div>
                     )}
@@ -1702,90 +1739,78 @@ const StudentDashboardNew = () => {
                     variants={fadeInUp}
                     initial="initial"
                     animate="animate"
-                    className="bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-indigo-100 dark:border-indigo-900"
+                    className="bg-white/80 dark:bg-gray-800/70 backdrop-blur-xl rounded-xl sm:rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 border border-white/40 dark:border-indigo-900/30 hover:shadow-3xl transition-all duration-300"
                   >
-                    <div className="flex items-center justify-between mb-4">
-                      <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-                        <FiTarget className="w-5 h-5 mr-2 text-red-500" />
+                    <div className="flex items-center justify-between mb-4 sm:mb-6 flex-col sm:flex-row gap-2">
+                      <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 dark:text-white flex items-center">
+                        <FiTarget className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 text-red-500" />
                         Priority Areas
                       </h3>
                       <span
-                        className="text-xs px-2 py-1 rounded-full bg-red-50 dark:bg-red-900/30 text-red-600 dark:text-red-300"
+                        className="text-[10px] sm:text-xs px-2 sm:px-3 py-1 sm:py-1.5 rounded-full bg-red-50 dark:bg-red-900/40 text-red-600 dark:text-red-300 whitespace-nowrap font-semibold border border-red-200/50 dark:border-red-800/30"
                         title="Urgency is derived from weakness severity ranking and retention decay"
                       >
-                        Ranked by urgency
+                        Ranked
                       </span>
                     </div>
                     {weaknessPriorityDetailed.length > 0 ? (
-                      <div className="space-y-4">
+                      <div className="space-y-2 sm:space-y-4 max-h-96 overflow-y-auto">
                         {weaknessPriorityDetailed.slice(0, 5).map((area) => (
                           <div
                             key={`${area.topic}-${area.rank}`}
-                            className="p-4 bg-red-50 dark:bg-red-900/20 rounded-xl border border-red-200 dark:border-red-800"
+                            className="p-2 sm:p-4 bg-red-50 dark:bg-red-900/20 rounded-lg sm:rounded-xl border border-red-200 dark:border-red-800"
                           >
-                            <div className="flex items-start justify-between gap-3">
-                              <div className="flex items-start space-x-3">
-                                <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-lg">
-                                  <span className="text-xs font-bold text-red-600">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex items-start space-x-2 sm:space-x-3 min-w-0">
+                                <div className="p-1 sm:p-2 bg-red-100 dark:bg-red-900/30 rounded-lg flex-shrink-0">
+                                  <span className="text-[10px] sm:text-xs font-bold text-red-600">
                                     #{area.rank}
                                   </span>
                                 </div>
-                                <div>
-                                  <p className="text-sm font-semibold text-gray-900 dark:text-white">
+                                <div className="min-w-0">
+                                  <p className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white line-clamp-1">
                                     {area.topic}
                                   </p>
-                                  <p className="text-xs text-gray-500 dark:text-gray-400 capitalize">
-                                    {area.subject} • {area.minutes} mins planned
+                                  <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 capitalize line-clamp-1">
+                                    {area.subject} • {area.minutes}m
                                   </p>
                                 </div>
                               </div>
                               <div
-                                className="text-right"
+                                className="text-right flex-shrink-0"
                                 title="Formula: urgency = (1-mastery) × weight × errorRate × retentionDecay"
                               >
-                                <p className="text-sm font-bold text-red-600">
+                                <p className="text-xs sm:text-sm font-bold text-red-600">
                                   {area.urgency}%
-                                </p>
-                                <p className="text-[10px] text-gray-500 dark:text-gray-400">
-                                  urgency
                                 </p>
                               </div>
                             </div>
-                            <div className="mt-3 grid grid-cols-2 gap-2 text-xs">
-                              <div
-                                className="p-2 rounded-lg bg-white/70 dark:bg-gray-900/30"
-                                title="Current estimated mastery for this area"
-                              >
-                                <p className="text-gray-500 dark:text-gray-400">
+                            <div className="mt-2 grid grid-cols-2 gap-1.5 sm:gap-2 text-xs">
+                              <div className="p-1.5 sm:p-2 rounded-lg bg-white/70 dark:bg-gray-900/30">
+                                <p className="text-gray-500 dark:text-gray-400 text-[9px] sm:text-[10px]">
                                   Mastery
                                 </p>
-                                <p className="font-semibold text-gray-800 dark:text-gray-100">
+                                <p className="font-semibold text-gray-800 dark:text-gray-100 text-xs">
                                   {area.mastery}%
                                 </p>
                               </div>
-                              <div
-                                className="p-2 rounded-lg bg-white/70 dark:bg-gray-900/30"
-                                title="Days since topic was actively practiced"
-                              >
-                                <p className="text-gray-500 dark:text-gray-400">
-                                  Last Practice
+                              <div className="p-1.5 sm:p-2 rounded-lg bg-white/70 dark:bg-gray-900/30">
+                                <p className="text-gray-500 dark:text-gray-400 text-[9px] sm:text-[10px]">
+                                  Last
                                 </p>
-                                <p className="font-semibold text-gray-800 dark:text-gray-100">
-                                  {area.daysSince} days ago
+                                <p className="font-semibold text-gray-800 dark:text-gray-100 text-xs">
+                                  {area.daysSince}d
                                 </p>
                               </div>
                             </div>
-                            <div className="mt-3 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2">
+                            <div className="mt-2 w-full bg-gray-200 dark:bg-gray-700 rounded-full h-1.5">
                               <div
-                                className="h-2 rounded-full bg-gradient-to-r from-red-500 to-orange-500"
+                                className="h-1.5 rounded-full bg-gradient-to-r from-red-500 to-orange-500"
                                 style={{
                                   width: `${Math.max(8, area.urgency)}%`,
                                 }}
                               />
                             </div>
-                            <p className="text-xs text-gray-600 dark:text-gray-300 mt-2">
-                              {area.recommendation}
-                            </p>
                           </div>
                         ))}
                       </div>
@@ -1863,32 +1888,32 @@ const StudentDashboardNew = () => {
                 </div>
 
                 {/* Learning Path & Recent Tests */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="order-7 sm:order-7 grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-5 md:gap-6">
                   <motion.div
                     variants={fadeInUp}
                     initial="initial"
                     animate="animate"
-                    className="lg:col-span-1 bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-indigo-100 dark:border-indigo-900"
+                    className="lg:col-span-1 bg-white/80 dark:bg-gray-800/70 backdrop-blur-xl rounded-xl sm:rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 border border-white/40 dark:border-indigo-900/30 hover:shadow-3xl transition-all duration-300"
                   >
-                    <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center">
-                      <FiMap className="w-5 h-5 mr-2 text-green-500" />
-                      Your Learning Path
+                    <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 dark:text-white mb-4 sm:mb-6 flex items-center">
+                      <FiMap className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 text-green-500" />
+                      Learning Path
                     </h3>
                     {learningPath ? (
-                      <div className="space-y-6">
+                      <div className="space-y-4 sm:space-y-6">
                         <div className="text-center">
-                          <div className="inline-block p-4 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-2xl mb-3">
-                            <FaGraduationCap className="w-8 h-8 text-white" />
+                          <div className="inline-block p-2 sm:p-4 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg sm:rounded-2xl mb-2 sm:mb-3">
+                            <FaGraduationCap className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
                           </div>
-                          <h4 className="text-xl font-bold text-gray-900 dark:text-white mb-1 capitalize">
+                          <h4 className="text-lg sm:text-xl font-bold text-gray-900 dark:text-white mb-0.5 sm:mb-1 capitalize line-clamp-1">
                             {learningPath.currentLevel}
                           </h4>
-                          <p className="text-sm text-gray-500 dark:text-gray-400">
+                          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
                             Current Level
                           </p>
                         </div>
                         <div>
-                          <div className="flex justify-between text-sm mb-2">
+                          <div className="flex justify-between text-xs sm:text-sm mb-2">
                             <span className="text-gray-600 dark:text-gray-400">
                               Progress
                             </span>
@@ -1896,24 +1921,23 @@ const StudentDashboardNew = () => {
                               {Math.round(learningPath.levelProgress || 0)}%
                             </span>
                           </div>
-                          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-3">
+                          <div className="w-full bg-gray-200 dark:bg-gray-700 rounded-full h-2 sm:h-3">
                             <div
-                              className="h-3 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600"
+                              className="h-2 sm:h-3 rounded-full bg-gradient-to-r from-indigo-600 to-purple-600"
                               style={{
                                 width: `${learningPath.levelProgress || 0}%`,
                               }}
                             />
                           </div>
                         </div>
-                        <div className="p-4 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl">
-                          <p className="text-xs text-indigo-600 dark:text-indigo-400 mb-1">
+                        <div className="p-3 sm:p-4 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg sm:rounded-xl">
+                          <p className="text-[11px] sm:text-xs text-indigo-600 dark:text-indigo-400 mb-1">
                             Next Level
                           </p>
-                          <p className="text-lg font-semibold text-gray-900 dark:text-white mb-2 capitalize">
+                          <p className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-1 sm:mb-2 capitalize line-clamp-1">
                             {learningPath.nextLevel}
                           </p>
-                          <p className="text-xs text-gray-500 dark:text-gray-400">
-                            Requirements:{" "}
+                          <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 line-clamp-1">
                             {learningPath.requirementsForNext?.accuracy},{" "}
                             {learningPath.requirementsForNext?.questions}
                           </p>
@@ -1921,15 +1945,15 @@ const StudentDashboardNew = () => {
                         {learningPath.focusTopics &&
                           learningPath.focusTopics.length > 0 && (
                             <div>
-                              <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                              <p className="text-xs sm:text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
                                 Focus on:
                               </p>
-                              <div className="flex flex-wrap gap-2">
+                              <div className="flex flex-wrap gap-1 sm:gap-2">
                                 {learningPath.focusTopics.map(
                                   (topic, index) => (
                                     <span
                                       key={index}
-                                      className="px-3 py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 rounded-full text-xs"
+                                      className="px-2 sm:px-3 py-0.5 sm:py-1 bg-yellow-100 dark:bg-yellow-900/30 text-yellow-700 dark:text-yellow-300 rounded-full text-[10px] sm:text-xs"
                                     >
                                       {topic}
                                     </span>
@@ -1940,13 +1964,13 @@ const StudentDashboardNew = () => {
                           )}
                       </div>
                     ) : (
-                      <div className="text-center py-12">
-                        <FiMap className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
-                        <p className="text-gray-500 dark:text-gray-400">
-                          No learning path yet
+                      <div className="text-center py-8 sm:py-12">
+                        <FiMap className="w-10 h-10 sm:w-12 sm:h-12 text-gray-300 dark:text-gray-600 mx-auto mb-2 sm:mb-3" />
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          No path yet
                         </p>
-                        <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
-                          Take more tests to generate your path
+                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                          Take more tests
                         </p>
                       </div>
                     )}
@@ -1955,64 +1979,64 @@ const StudentDashboardNew = () => {
                     variants={fadeInUp}
                     initial="initial"
                     animate="animate"
-                    className="lg:col-span-2 bg-white dark:bg-gray-800 rounded-2xl shadow-lg p-6 border border-indigo-100 dark:border-indigo-900"
+                    className="lg:col-span-2 bg-white/80 dark:bg-gray-800/70 backdrop-blur-xl rounded-xl sm:rounded-2xl shadow-2xl p-4 sm:p-6 md:p-8 border border-white/40 dark:border-indigo-900/30 hover:shadow-3xl transition-all duration-300"
                   >
-                    <div className="flex items-center justify-between mb-6">
+                    <div className="flex items-center justify-between mb-4 sm:mb-6 flex-col sm:flex-row gap-3">
                       <div>
-                        <h3 className="text-lg font-semibold text-gray-900 dark:text-white flex items-center">
-                          <FiClock className="w-5 h-5 mr-2 text-indigo-600" />
+                        <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-900 dark:text-white flex items-center">
+                          <FiClock className="w-5 h-5 sm:w-6 sm:h-6 mr-2 sm:mr-3 text-indigo-600" />
                           Recent Activity
                         </h3>
-                        <p className="text-sm text-gray-500 dark:text-gray-400">
-                          Your latest practice sessions and exams
+                        <p className="text-xs sm:text-sm text-gray-600 dark:text-gray-300 mt-1">
+                          Your latest sessions
                         </p>
                       </div>
                       <button
                         onClick={() => navigate("/test/history")}
-                        className="text-sm text-indigo-600 hover:text-indigo-700 font-medium flex items-center"
+                        className="text-xs sm:text-sm text-indigo-600 hover:text-indigo-700 dark:hover:text-indigo-400 font-bold flex items-center whitespace-nowrap bg-indigo-50 dark:bg-indigo-900/40 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg transition-all"
                       >
                         View All
-                        <FiChevronRight className="w-4 h-4 ml-1" />
+                        <FiChevronRight className="w-4 h-4 sm:w-5 sm:h-5 ml-1 sm:ml-2" />
                       </button>
                     </div>
                     {recentTests.length > 0 ? (
-                      <div className="space-y-4">
+                      <div className="space-y-2 sm:space-y-4 max-h-96 overflow-y-auto">
                         {recentTests.map((test, index) => (
                           <motion.div
                             key={test.sessionId}
                             initial={{ opacity: 0, x: -20 }}
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: index * 0.05 }}
-                            className="flex items-center justify-between p-4 bg-indigo-50 dark:bg-indigo-900/30 rounded-xl hover:shadow-md transition-all cursor-pointer"
+                            className="flex items-center justify-between p-2 sm:p-4 bg-indigo-50 dark:bg-indigo-900/30 rounded-lg sm:rounded-xl hover:shadow-md transition-all cursor-pointer gap-2"
                             onClick={() => goToTestDetails(test.sessionId)}
                           >
-                            <div className="flex items-center space-x-4">
+                            <div className="flex items-center space-x-2 sm:space-x-4 min-w-0">
                               <div
-                                className={`p-3 rounded-xl ${test.testType === "practice" ? "bg-blue-100 dark:bg-blue-900/30" : "bg-purple-100 dark:bg-purple-900/30"}`}
+                                className={`p-1.5 sm:p-3 rounded-lg flex-shrink-0 ${test.testType === "practice" ? "bg-blue-100 dark:bg-blue-900/30" : "bg-purple-100 dark:bg-purple-900/30"}`}
                               >
                                 {test.testType === "practice" ? (
-                                  <FaBrain className="w-5 h-5 text-blue-600" />
+                                  <FaBrain className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
                                 ) : (
-                                  <FaRocket className="w-5 h-5 text-purple-600" />
+                                  <FaRocket className="w-4 h-4 sm:w-5 sm:h-5 text-purple-600" />
                                 )}
                               </div>
-                              <div>
-                                <p className="font-medium text-gray-900 dark:text-white">
+                              <div className="min-w-0">
+                                <p className="font-medium text-gray-900 dark:text-white text-xs sm:text-base line-clamp-1">
                                   {test.testConfig?.title || "Practice Session"}
                                 </p>
-                                <div className="flex items-center space-x-3 mt-1">
-                                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                                <div className="flex items-center space-x-1 sm:space-x-3 mt-0.5 sm:mt-1 flex-wrap">
+                                  <span className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">
                                     {formatDate(test.endTime || test.startTime)}
                                   </span>
-                                  <span className="text-xs px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 rounded-full">
+                                  <span className="text-[9px] sm:text-xs px-1.5 sm:px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 rounded-full">
                                     {test.summary?.totalQuestions ||
                                       test.totalQuestions ||
-                                      0}{" "}
+                                      0}
                                     Qs
                                   </span>
                                   {test.trend && (
                                     <span
-                                      className={`text-xs flex items-center ${test.trend === "up" ? "text-green-600" : test.trend === "down" ? "text-red-600" : "text-gray-500"}`}
+                                      className={`text-[10px] sm:text-xs flex items-center whitespace-nowrap ${test.trend === "up" ? "text-green-600" : test.trend === "down" ? "text-red-600" : "text-gray-500"}`}
                                     >
                                       {test.trend === "up" && "↑"}
                                       {test.trend === "down" && "↓"}
@@ -2023,32 +2047,32 @@ const StudentDashboardNew = () => {
                                 </div>
                               </div>
                             </div>
-                            <div className="text-right">
-                              <div className="text-xl font-bold text-indigo-600">
+                            <div className="text-right flex-shrink-0">
+                              <div className="text-base sm:text-xl font-bold text-indigo-600">
                                 {Math.round(
                                   test.summary?.accuracy || test.accuracy || 0,
                                 )}
                                 %
                               </div>
-                              <p className="text-xs text-gray-500 dark:text-gray-400">
-                                Accuracy
+                              <p className="text-[10px] sm:text-xs text-gray-500 dark:text-gray-400">
+                                Acc
                               </p>
                             </div>
                           </motion.div>
                         ))}
                       </div>
                     ) : (
-                      <div className="text-center py-12">
-                        <FiClock className="w-12 h-12 text-gray-300 dark:text-gray-600 mx-auto mb-3" />
-                        <p className="text-gray-500 dark:text-gray-400">
-                          No recent activity
+                      <div className="text-center py-8 sm:py-12">
+                        <FiClock className="w-10 h-10 sm:w-12 sm:h-12 text-gray-300 dark:text-gray-600 mx-auto mb-2 sm:mb-3" />
+                        <p className="text-sm text-gray-500 dark:text-gray-400">
+                          No activity yet
                         </p>
-                        <p className="text-sm text-gray-400 dark:text-gray-500 mt-1">
-                          Start practicing to see your activity
+                        <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                          Start practicing
                         </p>
                         <button
                           onClick={goToPractice}
-                          className="mt-4 px-6 py-2 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-xl font-medium"
+                          className="mt-3 px-4 py-2 text-xs sm:text-sm bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-lg sm:rounded-xl font-medium"
                         >
                           Start Now
                         </button>
@@ -2160,25 +2184,29 @@ const StudentDashboardNew = () => {
       </div>
 
       {/* Floating Action Buttons */}
-      <div className="fixed bottom-8 right-8 flex flex-col space-y-3">
+      <div className="fixed bottom-4 sm:bottom-8 right-4 sm:right-8 flex flex-col gap-3 sm:gap-4">
         <motion.button
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
           onClick={goToPractice}
-          className="p-4 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full shadow-2xl hover:shadow-xl transition-all"
+          className="p-3.5 sm:p-4 md:p-5 bg-gradient-to-r from-indigo-600 to-purple-600 text-white rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:-translate-y-1 border border-indigo-500/30 backdrop-blur-sm"
+          title="Start practicing now"
         >
-          <FiZap className="w-6 h-6" />
+          <FiZap className="w-5 h-5 sm:w-6 sm:h-6" />
         </motion.button>
         <motion.button
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ delay: 0.1 }}
           whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.95 }}
           onClick={() => window.open("/help", "_blank")}
-          className="p-4 bg-gray-600 text-white rounded-full shadow-2xl hover:shadow-xl transition-all"
+          className="p-3.5 sm:p-4 md:p-5 bg-gradient-to-r from-gray-600 to-gray-700 text-white rounded-full shadow-2xl hover:shadow-3xl transition-all duration-300 transform hover:-translate-y-1 border border-gray-500/30 backdrop-blur-sm"
+          title="Get help"
         >
-          <FiHelpCircle className="w-6 h-6" />
+          <FiHelpCircle className="w-5 h-5 sm:w-6 sm:h-6" />
         </motion.button>
       </div>
     </div>
@@ -2201,15 +2229,15 @@ const SidebarContent = ({
   onToggleCollapse,
 }) => {
   return (
-    <div className="h-full bg-white dark:bg-gray-800 border-r border-indigo-100 dark:border-indigo-900/30 flex flex-col">
-      <div className="p-6 border-b border-indigo-100 dark:border-indigo-900/30">
+    <div className="h-full bg-white dark:bg-gray-800 border-r border-indigo-100 dark:border-indigo-900/30 flex flex-col overflow-y-auto">
+      <div className="p-3 sm:p-4 md:p-6 border-b border-indigo-100 dark:border-indigo-900/30">
         <div className="flex items-center justify-between">
           {!collapsed && (
-            <div className="flex items-center space-x-3">
-              <div className="p-2 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-xl">
-                <FaBrain className="w-5 h-5 text-white" />
+            <div className="flex items-center space-x-2 sm:space-x-3">
+              <div className="p-1.5 sm:p-2 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg sm:rounded-xl">
+                <FaBrain className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
               </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+              <span className="text-base sm:text-lg md:text-xl font-bold bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent line-clamp-1">
                 StudyStream
               </span>
             </div>
@@ -2217,35 +2245,35 @@ const SidebarContent = ({
           {onToggleCollapse && (
             <button
               onClick={onToggleCollapse}
-              className="p-2 rounded-xl hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hidden lg:block"
+              className="p-1.5 sm:p-2 rounded-lg sm:rounded-xl hover:bg-indigo-50 dark:hover:bg-indigo-900/20 hidden lg:block"
             >
               {collapsed ? (
-                <FiChevronRight className="w-5 h-5" />
+                <FiChevronRight className="w-4 h-4 sm:w-5 sm:h-5" />
               ) : (
-                <FiChevronLeft className="w-5 h-5" />
+                <FiChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
               )}
             </button>
           )}
         </div>
       </div>
       {!collapsed && (
-        <div className="p-4 border-b border-indigo-100 dark:border-indigo-900/30">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 flex items-center justify-center text-white font-bold">
+        <div className="p-3 sm:p-4 border-b border-indigo-100 dark:border-indigo-900/30">
+          <div className="flex items-center space-x-2 sm:space-x-3">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-gradient-to-r from-indigo-600 to-purple-600 flex items-center justify-center text-white font-bold text-sm sm:text-base flex-shrink-0">
               {user?.name?.charAt(0) || "S"}
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
+              <p className="text-xs sm:text-sm font-semibold text-gray-900 dark:text-white truncate">
                 {user?.name || "Student"}
               </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+              <p className="text-[11px] sm:text-xs text-gray-500 dark:text-gray-400 truncate">
                 {user?.email || "student@email.com"}
               </p>
             </div>
           </div>
         </div>
       )}
-      <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
+      <nav className="flex-1 p-2 sm:p-3 md:p-4 space-y-0.5 sm:space-y-1 overflow-y-auto">
         {sidebarItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;
@@ -2255,17 +2283,17 @@ const SidebarContent = ({
               key={item.id}
               onClick={() => !isDisabled && setActiveTab(item.id)}
               disabled={isDisabled}
-              className={`w-full flex items-center space-x-3 px-3 py-3 rounded-xl transition-all ${isActive ? "bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 shadow-sm" : isDisabled ? "text-gray-300 dark:text-gray-600 cursor-not-allowed" : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50"}`}
+              className={`w-full flex items-center space-x-2 sm:space-x-3 px-2 sm:px-3 py-2 sm:py-3 rounded-lg sm:rounded-xl transition-all text-xs sm:text-sm ${isActive ? "bg-indigo-50 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400 shadow-sm" : isDisabled ? "text-gray-300 dark:text-gray-600 cursor-not-allowed" : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50"}`}
               title={collapsed ? item.label : undefined}
             >
-              <Icon className="w-5 h-5 flex-shrink-0" />
+              <Icon className="w-4 h-4 sm:w-5 sm:h-5 flex-shrink-0" />
               {!collapsed && (
                 <>
-                  <span className="flex-1 text-left text-sm font-medium">
+                  <span className="flex-1 text-left font-medium">
                     {item.label}
                   </span>
                   {item.badge !== null && item.badge > 0 && (
-                    <span className="px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full text-xs font-medium">
+                    <span className="px-1.5 sm:px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-600 dark:text-indigo-400 rounded-full text-[10px] sm:text-xs font-medium flex-shrink-0">
                       {item.badge}
                     </span>
                   )}
@@ -2275,39 +2303,37 @@ const SidebarContent = ({
           );
         })}
       </nav>
-      <div className="p-4 border-t border-indigo-100 dark:border-indigo-900/30 space-y-2">
+      <div className="p-2 sm:p-3 md:p-4 border-t border-indigo-100 dark:border-indigo-900/30 space-y-1 sm:space-y-2">
         {!collapsed && (
           <>
             <button
               onClick={toggleTheme}
-              className="w-full flex items-center space-x-3 px-3 py-2 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+              className="w-full flex items-center space-x-2 sm:space-x-3 px-2 sm:px-3 py-2 rounded-lg sm:rounded-xl text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors text-xs sm:text-sm"
             >
               {isDark ? (
-                <FiSun className="w-5 h-5" />
+                <FiSun className="w-4 h-4 sm:w-5 sm:h-5" />
               ) : (
-                <FiMoon className="w-5 h-5" />
+                <FiMoon className="w-4 h-4 sm:w-5 sm:h-5" />
               )}
-              <span className="text-sm">
-                {isDark ? "Light Mode" : "Dark Mode"}
-              </span>
+              <span>{isDark ? "Light" : "Dark"}</span>
             </button>
             <button
               onClick={handleRefresh}
-              className="w-full flex items-center space-x-3 px-3 py-2 rounded-xl text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+              className="w-full flex items-center space-x-2 sm:space-x-3 px-2 sm:px-3 py-2 rounded-lg sm:rounded-xl text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors text-xs sm:text-sm"
             >
               <FiRefreshCw
-                className={`w-5 h-5 ${refreshing ? "animate-spin" : ""}`}
+                className={`w-4 h-4 sm:w-5 sm:h-5 ${refreshing ? "animate-spin" : ""}`}
               />
-              <span className="text-sm">Refresh</span>
+              <span>Refresh</span>
             </button>
           </>
         )}
         <button
           onClick={handleLogout}
-          className="w-full flex items-center space-x-3 px-3 py-2 rounded-xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+          className="w-full flex items-center space-x-2 sm:space-x-3 px-2 sm:px-3 py-2 rounded-lg sm:rounded-xl text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors text-xs sm:text-sm"
         >
-          <FiLogOut className="w-5 h-5" />
-          {!collapsed && <span className="text-sm">Logout</span>}
+          <FiLogOut className="w-4 h-4 sm:w-5 sm:h-5" />
+          {!collapsed && <span>Logout</span>}
         </button>
       </div>
     </div>
@@ -2331,26 +2357,26 @@ const MyCoursesView = ({
         My Courses
       </h2>
       {enrolledCourses.length === 0 ? (
-        <div className="bg-white dark:bg-gray-800 rounded-2xl p-12 text-center border border-indigo-100 dark:border-indigo-900">
-          <FiBook className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
-            No enrolled courses yet
+        <div className="bg-white dark:bg-gray-800 rounded-lg sm:rounded-2xl p-8 sm:p-12 text-center border border-indigo-100 dark:border-indigo-900">
+          <FiBook className="w-12 h-12 sm:w-16 sm:h-16 text-gray-300 dark:text-gray-600 mx-auto mb-3 sm:mb-4" />
+          <h3 className="text-base sm:text-lg font-semibold text-gray-900 dark:text-white mb-1 sm:mb-2">
+            No courses yet
           </h3>
-          <p className="text-gray-500 dark:text-gray-400">
-            Explore available courses and start learning today!
+          <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+            Explore courses
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6">
           {enrolledCourses.map((enrollment) => {
             const course = enrollment.course || enrollment;
             const progress = enrollment.progress?.overallProgress || 0;
             return (
               <div
                 key={enrollment._id}
-                className="bg-white dark:bg-gray-800 rounded-2xl border border-indigo-100 dark:border-indigo-900 shadow-sm overflow-hidden hover:shadow-lg transition-shadow"
+                className="bg-white dark:bg-gray-800 rounded-lg sm:rounded-2xl border border-indigo-100 dark:border-indigo-900 shadow-sm overflow-hidden hover:shadow-lg transition-shadow"
               >
-                <div className="h-32 bg-gradient-to-br from-indigo-500 to-purple-600 relative">
+                <div className="h-28 sm:h-32 bg-gradient-to-br from-indigo-500 to-purple-600 relative">
                   {course.coverImage?.url && (
                     <img
                       src={course.coverImage.url}
@@ -2358,35 +2384,40 @@ const MyCoursesView = ({
                       className="w-full h-full object-cover"
                     />
                   )}
-                  <div className="absolute top-3 right-3">
+                  <div className="absolute top-2 sm:top-3 right-2 sm:right-3">
                     <span
-                      className={`px-2 py-1 rounded-full text-xs font-medium ${enrollment.enrollmentStatus === "active" ? "bg-green-500 text-white" : "bg-blue-500 text-white"}`}
+                      className={`px-1.5 sm:px-2 py-0.5 sm:py-1 rounded-full text-[10px] sm:text-xs font-medium ${enrollment.enrollmentStatus === "active" ? "bg-green-500 text-white" : "bg-blue-500 text-white"}`}
                     >
-                      {enrollment.enrollmentStatus}
+                      {enrollment.enrollmentStatus === "active"
+                        ? "Active"
+                        : "Enrolled"}
                     </span>
                   </div>
                 </div>
-                <div className="p-4">
-                  <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
+                <div className="p-2 sm:p-4">
+                  <h3 className="font-medium sm:font-semibold text-gray-900 dark:text-white mb-2 text-sm line-clamp-2">
                     {course.title}
                   </h3>
-                  <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-2 mb-2">
+                  <div className="w-full bg-gray-200 dark:bg-gray-600 rounded-full h-1.5 sm:h-2 mb-2">
                     <div
-                      className={`h-2 rounded-full ${getProgressColor(progress)}`}
+                      className={`h-1.5 sm:h-2 rounded-full ${getProgressColor(progress)}`}
                       style={{ width: `${progress}%` }}
                     />
                   </div>
-                  <div className="flex justify-between text-sm text-gray-500 dark:text-gray-400 mb-3">
-                    <span>{progress}% complete</span>
-                    <span>Enrolled {formatDate(enrollment.enrolledAt)}</span>
+                  <div className="flex justify-between text-xs sm:text-sm text-gray-500 dark:text-gray-400 mb-2 sm:mb-3">
+                    <span>{progress}%</span>
+                    <span className="hidden sm:inline">
+                      {formatDate(enrollment.enrolledAt)}
+                    </span>
                   </div>
 
                   <button
                     onClick={() => handleStartLearning(course._id)}
-                    className="w-full py-2 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition-colors flex items-center justify-center gap-2"
+                    className="w-full py-1.5 sm:py-2 bg-indigo-600 text-white rounded-lg sm:rounded-xl font-medium hover:bg-indigo-700 transition-colors flex items-center justify-center gap-1.5 sm:gap-2 text-xs sm:text-sm"
                   >
-                    <FiPlay className="w-4 h-4" />
-                    Continue Learning
+                    <FiPlay className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    <span className="hidden sm:inline">Continue</span>
+                    <span className="sm:hidden">Go</span>
                   </button>
                 </div>
               </div>
@@ -2419,46 +2450,50 @@ const ExploreCoursesView = ({
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="space-y-6"
+      className="space-y-3 sm:space-y-6"
     >
-      <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-        Explore Courses
+      <h2 className="text-xl sm:text-2xl font-bold text-gray-900 dark:text-white">
+        Explore
       </h2>
-      <div className="bg-white dark:bg-gray-800 rounded-2xl p-4 border border-indigo-100 dark:border-indigo-900">
-        <div className="flex flex-col md:flex-row gap-4">
-          <div className="flex-1 relative">
-            <FiSearch className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
-            <input
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search courses..."
-              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent"
-            />
-          </div>
-          <select
-            value={filterLevel}
-            onChange={(e) => setFilterLevel(e.target.value)}
-            className="px-4 py-2.5 rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-          >
-            <option value="all">All Levels</option>
-            <option value="beginner">Beginner</option>
-            <option value="intermediate">Intermediate</option>
-            <option value="advanced">Advanced</option>
-          </select>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setViewMode("grid")}
-              className={`p-2.5 rounded-xl ${viewMode === "grid" ? "bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400" : "text-gray-400"}`}
+      <div className="bg-white dark:bg-gray-800 rounded-lg sm:rounded-2xl p-3 sm:p-4 border border-indigo-100 dark:border-indigo-900">
+        <div className="flex flex-col gap-3 sm:gap-4">
+          <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+            <div className="flex-1 relative">
+              <FiSearch className="absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4 sm:w-5 sm:h-5" />
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                placeholder="Search..."
+                className="w-full pl-9 sm:pl-10 pr-3 sm:pr-4 py-2 rounded-lg sm:rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-xs sm:text-sm"
+              />
+            </div>
+            <select
+              value={filterLevel}
+              onChange={(e) => setFilterLevel(e.target.value)}
+              className="px-2.5 sm:px-4 py-2 rounded-lg sm:rounded-xl border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-xs sm:text-sm"
             >
-              <FiGrid className="w-5 h-5" />
-            </button>
-            <button
-              onClick={() => setViewMode("list")}
-              className={`p-2.5 rounded-xl ${viewMode === "list" ? "bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400" : "text-gray-400"}`}
-            >
-              <FiList className="w-5 h-5" />
-            </button>
+              <option value="all">All Levels</option>
+              <option value="beginner">Beginner</option>
+              <option value="intermediate">Intermediate</option>
+              <option value="advanced">Advanced</option>
+            </select>
+            <div className="flex gap-1.5 sm:gap-2 self-start">
+              <button
+                onClick={() => setViewMode("grid")}
+                className={`p-2 rounded-lg sm:rounded-xl transition-colors ${viewMode === "grid" ? "bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400" : "text-gray-400 hover:text-gray-600"}`}
+                title="Grid view"
+              >
+                <FiGrid className="w-4 h-4 sm:w-5 sm:h-5" />
+              </button>
+              <button
+                onClick={() => setViewMode("list")}
+                className={`p-2 rounded-lg sm:rounded-xl transition-colors ${viewMode === "list" ? "bg-indigo-100 text-indigo-600 dark:bg-indigo-900/30 dark:text-indigo-400" : "text-gray-400 hover:text-gray-600"}`}
+                title="List view"
+              >
+                <FiList className="w-4 h-4 sm:w-5 sm:h-5" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -2473,8 +2508,8 @@ const ExploreCoursesView = ({
         <div
           className={
             viewMode === "grid"
-              ? "grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-              : "space-y-4"
+              ? "grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 md:gap-6"
+              : "space-y-2 sm:space-y-4"
           }
         >
           {allCourses.map((course) => {
@@ -2482,9 +2517,9 @@ const ExploreCoursesView = ({
             return viewMode === "grid" ? (
               <div
                 key={course._id}
-                className="bg-white dark:bg-gray-800 rounded-2xl border border-indigo-100 dark:border-indigo-900 shadow-sm overflow-hidden hover:shadow-lg transition-shadow"
+                className="bg-white dark:bg-gray-800 rounded-lg sm:rounded-2xl border border-indigo-100 dark:border-indigo-900 shadow-sm overflow-hidden hover:shadow-lg transition-shadow"
               >
-                <div className="h-40 bg-gradient-to-br from-indigo-500 to-purple-600 relative">
+                <div className="h-32 sm:h-40 bg-gradient-to-br from-indigo-500 to-purple-600 relative">
                   {course.coverImage?.url && (
                     <img
                       src={course.coverImage.url}
@@ -2492,50 +2527,52 @@ const ExploreCoursesView = ({
                       className="w-full h-full object-cover"
                     />
                   )}
-                  <div className="absolute top-3 left-3 flex gap-2">
-                    <span className="px-2 py-1 bg-white/20 rounded-full text-xs text-white backdrop-blur-sm">
-                      {course.level}
+                  <div className="absolute top-2 sm:top-3 left-2 sm:left-3 flex gap-1 sm:gap-2">
+                    <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-white/20 rounded-full text-[10px] sm:text-xs text-white backdrop-blur-sm font-medium">
+                      {course.level || "N/A"}
                     </span>
-                    <span className="px-2 py-1 bg-white/20 rounded-full text-xs text-white backdrop-blur-sm">
-                      {course.language}
+                    <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-white/20 rounded-full text-[10px] sm:text-xs text-white backdrop-blur-sm font-medium hidden sm:inline">
+                      {course.language || "EN"}
                     </span>
                   </div>
                 </div>
-                <div className="p-4">
-                  <h3 className="font-semibold text-gray-900 dark:text-white mb-2">
+                <div className="p-2.5 sm:p-4">
+                  <h3 className="font-medium sm:font-semibold text-gray-900 dark:text-white mb-1.5 sm:mb-2 text-sm line-clamp-2">
                     {course.title}
                   </h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-3 line-clamp-2">
+                  <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400 mb-3 line-clamp-2">
                     {course.shortDescription || course.description}
                   </p>
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-lg font-bold text-indigo-600">
+                  <div className="flex items-center justify-between mb-2 sm:mb-3">
+                    <span className="text-base sm:text-lg font-bold text-indigo-600">
                       ${course.discountPrice || course.price}
                     </span>
-                    <span className="text-sm text-gray-500">
-                      {course.totalStudents || 0} students
+                    <span className="text-xs sm:text-sm text-gray-500">
+                      {course.totalStudents || 0}
                     </span>
                   </div>
                   {enrolled ? (
                     <button
                       onClick={() => handleStartLearning(course._id)}
-                      className="w-full py-2 bg-green-600 text-white rounded-xl font-medium hover:bg-green-700 transition-colors flex items-center justify-center gap-2"
+                      className="w-full py-1.5 sm:py-2 bg-green-600 text-white rounded-lg sm:rounded-xl font-medium hover:bg-green-700 transition-colors flex items-center justify-center gap-1.5 sm:gap-2 text-xs sm:text-sm"
                     >
-                      <FiPlay className="w-4 h-4" />
-                      Continue Learning
+                      <FiPlay className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                      <span className="hidden sm:inline">Continue</span>
+                      <span className="sm:hidden">Go</span>
                     </button>
                   ) : (
                     <button
                       onClick={() => handleEnroll(course._id)}
                       disabled={enrollingCourseId === course._id}
-                      className="w-full py-2 bg-indigo-600 text-white rounded-xl font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+                      className="w-full py-1.5 sm:py-2 bg-indigo-600 text-white rounded-lg sm:rounded-xl font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-1.5 sm:gap-2 text-xs sm:text-sm"
                     >
                       {enrollingCourseId === course._id ? (
-                        <FiLoader className="w-4 h-4 animate-spin" />
+                        <FiLoader className="w-3.5 h-3.5 sm:w-4 sm:h-4 animate-spin" />
                       ) : (
-                        <FiPlusCircle className="w-4 h-4" />
+                        <FiPlusCircle className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                       )}
-                      Enroll Now
+                      <span className="hidden sm:inline">Enroll</span>
+                      <span className="sm:hidden">Add</span>
                     </button>
                   )}
                 </div>
@@ -2543,36 +2580,37 @@ const ExploreCoursesView = ({
             ) : (
               <div
                 key={course._id}
-                className="bg-white dark:bg-gray-800 rounded-xl p-4 border border-indigo-100 dark:border-indigo-900 flex items-center gap-4"
+                className="bg-white dark:bg-gray-800 rounded-lg sm:rounded-xl p-2.5 sm:p-4 border border-indigo-100 dark:border-indigo-900 flex items-center gap-2 sm:gap-4"
               >
-                <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex-shrink-0 flex items-center justify-center">
-                  <FaGraduationCap className="w-6 h-6 text-white" />
+                <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-lg sm:rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex-shrink-0 flex items-center justify-center">
+                  <FaGraduationCap className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
                 </div>
-                <div className="flex-1">
-                  <h3 className="font-semibold text-gray-900 dark:text-white">
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-medium sm:font-semibold text-gray-900 dark:text-white text-sm line-clamp-1">
                     {course.title}
                   </h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400">
-                    {course.level} • {course.language}
+                  <p className="text-xs sm:text-sm text-gray-500 dark:text-gray-400">
+                    {course.level || "N/A"}
                   </p>
                 </div>
-                <div className="text-right">
-                  <p className="font-bold text-indigo-600">
+                <div className="text-right flex-shrink-0">
+                  <p className="font-bold text-indigo-600 text-sm">
                     ${course.discountPrice || course.price}
                   </p>
                   {enrolled ? (
                     <button
                       onClick={() => handleStartLearning(course._id)}
-                      className="mt-1 px-3 py-1 bg-green-600 text-white rounded-lg text-sm"
+                      className="mt-1 px-2.5 py-1 bg-green-600 text-white rounded-lg text-xs font-medium hover:bg-green-700 transition-colors"
                     >
-                      Continue
+                      Go
                     </button>
                   ) : (
                     <button
                       onClick={() => handleEnroll(course._id)}
-                      className="mt-1 px-3 py-1 bg-indigo-600 text-white rounded-lg text-sm"
+                      disabled={enrollingCourseId === course._id}
+                      className="mt-1 px-2.5 py-1 bg-indigo-600 text-white rounded-lg text-xs font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50"
                     >
-                      Enroll
+                      {enrollingCourseId === course._id ? "..." : "Add"}
                     </button>
                   )}
                 </div>
@@ -2584,7 +2622,6 @@ const ExploreCoursesView = ({
     </motion.div>
   );
 };
-
 
 // Performance View Component
 const PerformanceView = ({
@@ -3116,8 +3153,9 @@ const LearningModesView = () => {
           Choose Your Learning Mode
         </h2>
         <p className="text-gray-500 dark:text-gray-400 max-w-2xl mx-auto">
-          Select from our intelligent learning modes designed to optimize your study experience
-          through adaptive algorithms and scientifically-proven retention techniques.
+          Select from our intelligent learning modes designed to optimize your
+          study experience through adaptive algorithms and scientifically-proven
+          retention techniques.
         </p>
       </div>
 
@@ -3145,8 +3183,8 @@ const LearningModesView = () => {
               </div>
               <h3 className="text-2xl font-bold mb-2">Adaptive Practice</h3>
               <p className="text-indigo-100 text-sm leading-relaxed">
-                Questions dynamically adjust to your skill level in real-time using
-                advanced ML models for optimal learning progression.
+                Questions dynamically adjust to your skill level in real-time
+                using advanced ML models for optimal learning progression.
               </p>
             </div>
           </div>
@@ -3277,7 +3315,8 @@ const LearningModesView = () => {
                     Scheduled Reviews
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    Automated daily review sessions based on your learning patterns
+                    Automated daily review sessions based on your learning
+                    patterns
                   </p>
                 </div>
               </div>
@@ -3342,11 +3381,19 @@ const LearningModesView = () => {
               How These Modes Work Together
             </h4>
             <p className="text-sm text-gray-600 dark:text-gray-400 leading-relaxed">
-              <strong className="text-indigo-600 dark:text-indigo-400">Adaptive Practice</strong> helps you
-              learn new concepts by dynamically adjusting question difficulty based on your performance.
-              <strong className="text-emerald-600 dark:text-emerald-400"> Retention Learning</strong> ensures
-              you never forget what you have learned by scheduling reviews at scientifically optimal intervals.
-              Use both modes together for a complete learning experience that builds and preserves knowledge.
+              <strong className="text-indigo-600 dark:text-indigo-400">
+                Adaptive Practice
+              </strong>{" "}
+              helps you learn new concepts by dynamically adjusting question
+              difficulty based on your performance.
+              <strong className="text-emerald-600 dark:text-emerald-400">
+                {" "}
+                Retention Learning
+              </strong>{" "}
+              ensures you never forget what you have learned by scheduling
+              reviews at scientifically optimal intervals. Use both modes
+              together for a complete learning experience that builds and
+              preserves knowledge.
             </p>
           </div>
         </div>
