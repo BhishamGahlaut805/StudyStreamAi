@@ -540,4 +540,3 @@ const getQuestionsWithDetails = async (questionIds) => {
     expectedTime: q.expectedTime,
   }));
 };
-

@@ -538,8 +538,9 @@ const getQuestionById = async (questionId) => {
   for (const bank of allBanks) {
     if (bank.questions) {
       const found = bank.questions.find(
-        (q) => String(q.questionId) === String(questionId) ||
-               String(q._id) === String(questionId)
+        (q) =>
+          String(q.questionId) === String(questionId) ||
+          String(q._id) === String(questionId),
       );
       if (found) {
         return {
