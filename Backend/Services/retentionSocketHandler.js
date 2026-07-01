@@ -1,6 +1,6 @@
 const { SOCKET_EVENTS } = require("../utils/constants");
 const RetentionSession = require("../models/RetentionSession");
-const QuestionRepetition = require("../models/QuestionRepetition");
+const QuestionRepetition = require("../models/questionRepetition");
 const retentionFlaskService = require("./retentionFlaskService");
 
 const initializeRetentionSocket = (io) => {

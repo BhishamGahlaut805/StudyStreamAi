@@ -1,8 +1,8 @@
-const User = require("../models/user");
-const UserProfile = require("../models/profile");
-const asyncHandler = require("express-async-handler");
 const fs = require("fs");
 const path = require("path");
+const asyncHandler = require("../../middleware/asyncHandler");
+const User = require("../../models/user");
+const UserProfile = require("../../models/profile");
 
 // @desc    Get user profile
 // @route   GET /api/profile/me

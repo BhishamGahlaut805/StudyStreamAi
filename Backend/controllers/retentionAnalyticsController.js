@@ -1,5 +1,5 @@
+const QuestionRepetition = require("../models/questionRepetition");
 const RetentionSession = require("../models/RetentionSession");
-const QuestionRepetition = require("../models/QuestionRepetition");
 const RetentionSessionAnalytics = require("../models/RetentionSessionAnalytics");
 
 const clamp01 = (value, fallback = 0) => {

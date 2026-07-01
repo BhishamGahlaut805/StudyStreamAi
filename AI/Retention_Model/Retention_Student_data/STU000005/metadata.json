@@ -1,18 +1,13 @@
 {
   "user_id": "STU000005",
   "created_at": "2026-03-06T13:12:22.956700",
-  "last_micro_train": "2026-05-11T14:18:48.703297",
-  "last_meso_train": "2026-05-11T14:19:37.588012",
+  "last_micro_train": "2026-05-20T16:24:03.679077",
+  "last_meso_train": "2026-05-20T16:25:16.515226",
   "last_macro_train": "2026-05-11T14:19:46.251735",
   "interactions_since_micro": 0,
   "interactions_since_meso": 0,
   "interactions_since_macro": 0,
   "meso_training_history": [
-    {
-      "date": "2026-05-02T15:57:37.858880",
-      "data_points": 2171,
-      "loss": 0.0
-    },
     {
       "date": "2026-05-02T15:57:45.125780",
       "data_points": 2171,
@@ -57,29 +52,14 @@
       "date": "2026-05-11T14:19:37.607072",
       "data_points": 2201,
       "loss": 0.0
+    },
+    {
+      "date": "2026-05-20T16:25:16.586882",
+      "data_points": 2201,
+      "loss": 0.0
     }
   ],
   "micro_training_history": [
-    {
-      "date": "2026-05-02T15:56:55.811758",
-      "data_points": 1660,
-      "loss": 0.0
-    },
-    {
-      "date": "2026-05-02T16:11:32.866991",
-      "data_points": 1670,
-      "loss": 0.0
-    },
-    {
-      "date": "2026-05-02T16:19:40.292995",
-      "data_points": 1679,
-      "loss": 0.0
-    },
-    {
-      "date": "2026-05-02T16:19:43.275561",
-      "data_points": 1679,
-      "loss": 0.0
-    },
     {
       "date": "2026-05-02T16:19:52.692726",
       "data_points": 1679,
@@ -107,6 +87,26 @@
     },
     {
       "date": "2026-05-11T14:18:48.724657",
+      "data_points": 1697,
+      "loss": 0.0
+    },
+    {
+      "date": "2026-05-20T16:23:18.935083",
+      "data_points": 1697,
+      "loss": 0.0
+    },
+    {
+      "date": "2026-05-20T16:23:31.367218",
+      "data_points": 1697,
+      "loss": 0.0
+    },
+    {
+      "date": "2026-05-20T16:23:46.676094",
+      "data_points": 1697,
+      "loss": 0.0
+    },
+    {
+      "date": "2026-05-20T16:24:04.064600",
       "data_points": 1697,
       "loss": 0.0
     }

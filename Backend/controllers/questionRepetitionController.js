@@ -1,4 +1,4 @@
-const QuestionRepetition = require("../models/QuestionRepetition");
+const QuestionRepetition = require("../models/questionRepetition");
 const RetentionSession = require("../models/RetentionSession");
 const retentionFlaskService = require("../Services/retentionFlaskService");
 

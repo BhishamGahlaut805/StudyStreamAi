@@ -1,6 +1,6 @@
-const RetentionMetrics = require("../models/RetentionMetrics");
-const RetentionSession = require("../models/RetentionSession");
 const retentionFlaskService = require("../Services/retentionFlaskService");
+const RetentionMetrics = require("../models/retentionMetrics");
+const RetentionSession = require("../models/RetentionSession");
 
 const FLASK_PREDICTIONS_WAIT_BUDGET_MS = Number(
   process.env.RETENTION_FLASK_PREDICTIONS_WAIT_BUDGET_MS || 650,

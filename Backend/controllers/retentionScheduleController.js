@@ -1,7 +1,7 @@
-const RetentionSchedule = require("../models/RetentionSchedule");
-const RetentionSession = require("../models/RetentionSession");
-const QuestionRepetition = require("../models/QuestionRepetition");
 const retentionFlaskService = require("../Services/retentionFlaskService");
+const QuestionRepetition = require("../models/questionRepetition");
+const RetentionSchedule = require("../models/retentionSchedule");
+const RetentionSession = require("../models/RetentionSession");
 
 // Generate schedule from Flask predictions
 exports.generateSchedule = async (req, res) => {

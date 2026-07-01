@@ -1,6 +1,6 @@
-const RetentionMetrics = require("../models/RetentionMetrics");
-const RetentionSchedule = require("../models/RetentionSchedule");
-const QuestionRepetition = require("../models/QuestionRepetition");
+const QuestionRepetition = require("../models/questionRepetition");
+const RetentionMetrics = require("../models/retentionMetrics");
+const RetentionSchedule = require("../models/retentionSchedule");
 
 const latestBridgePayloads = {
   initial_predictions: null,
