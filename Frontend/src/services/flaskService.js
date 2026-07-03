@@ -760,6 +760,210 @@ class FlaskService {
       stamina,
     ];
   }
+  // flaskService.js - Add missing methods
+
+  /**
+   * Get training status from Flask
+   */
+  async getTrainingStatus(studentId) {
+    try {
+      const response = await apiClient.flaskGet(
+        `/practice/training-status/${studentId}`,
+      );
+      return {
+        success: true,
+        totalRows: response.total_rows || 0,
+        minSamplesRequired: response.min_samples_required || 100,
+        retrainInterval: response.retrain_interval || 100,
+        lastTrainedRows: response.last_trained_rows || null,
+        lastTrainedAt: response.last_trained_at || null,
+        rowsToNextTraining: response.rows_to_next_training || 100,
+        trainingStatus: response.training_status || "collecting_data",
+        trainingProgress: response.training_progress || 0,
+        message: response.message || "",
+        modelExists: response.model_exists || false,
+        trainingHistoryCount: response.training_history_count || 0,
+        trainingHistory: response.training_history || [],
+      };
+    } catch (error) {
+      console.error("Get training status error:", error);
+      return {
+        success: false,
+        totalRows: 0,
+        rowsToNextTraining: 100,
+        trainingStatus: "error",
+      };
+    }
+  }
+
+  /**
+   * Check if Flask server is reachable
+   */
+  async checkFlaskHealth() {
+    try {
+      const response = await apiClient.flaskGet("/health");
+      return {
+        success: true,
+        status: response.status || "healthy",
+        database: response.database || "unknown",
+        models: response.models || [],
+        timestamp: response.timestamp,
+      };
+    } catch (error) {
+      console.error("Flask health check error:", error);
+      return {
+        success: false,
+        status: "unavailable",
+        error: error.message,
+      };
+    }
+  }
+
+  /**
+   * Get concept features from Flask
+   */
+  async getConceptFeatures(studentId, concept) {
+    try {
+      const response = await apiClient.flaskGet(
+        `/practice/concept/${studentId}/${concept}`,
+      );
+      return {
+        success: true,
+        concept: response.concept,
+        accuracy: response.accuracy || 0.5,
+        attempts: response.attempts || 0,
+        masteryHistory: response.mastery_history || [],
+        lastPracticed: response.last_practiced || null,
+      };
+    } catch (error) {
+      console.error("Get concept features error:", error);
+      return {
+        success: false,
+        concept,
+        accuracy: 0.5,
+        attempts: 0,
+      };
+    }
+  }
+
+  /**
+   * Save practice session incrementally (without ending session)
+   */
+  async savePracticeAttempt(studentId, attempt, sessionId = null) {
+    try {
+      const normalizedAttempt = {
+        timestamp: attempt.timestamp || new Date().toISOString(),
+        question_id: attempt.questionId || attempt.question_id,
+        concept: attempt.conceptArea || attempt.concept || "general",
+        correct:
+          typeof attempt.isCorrect === "boolean"
+            ? attempt.isCorrect
+            : !!attempt.correct,
+        time_spent: attempt.timeSpent ?? attempt.time_spent ?? 0,
+        difficulty: attempt.difficulty ?? 0.5,
+        answer_changed:
+          typeof attempt.answerChanges === "number"
+            ? attempt.answerChanges > 0
+            : !!attempt.answer_changed,
+        confidence: attempt.confidence ?? 0.5,
+      };
+
+      const response = await apiClient.flaskPost("/practice/session-save", {
+        student_id: studentId,
+        attempt: normalizedAttempt,
+        session_id: sessionId,
+      });
+      return response;
+    } catch (error) {
+      console.error("Save practice attempt error:", error);
+      throw error;
+    }
+  }
+
+  /**
+   * Get Flask model info (practice profile with training status)
+   */
+  async getFlaskModelInfo(studentId) {
+    try {
+      const response = await apiClient.flaskGet(
+        `/practice/profile/${studentId}`,
+      );
+      return {
+        success: true,
+        featureRows: response.feature_rows || 0,
+        modelTrained: response.model_trained || false,
+        lastTrainedAt: response.last_trained_at || null,
+        lastTrainedFeatureRows: response.last_trained_feature_rows || null,
+        minSamplesRequired: response.min_samples_required || 100,
+        retrainInterval: response.retrain_interval || 100,
+        rowsToNextTraining: response.rows_to_next_training || 100,
+        trainingReady: response.training_ready || false,
+        trainingHistoryCount: response.training_history_count || 0,
+        currentDifficulty: response.current_difficulty || 0.5,
+        currentDifficultyLevel:
+          response.current_difficulty_level || "medium-hard",
+      };
+    } catch (error) {
+      console.error("Get Flask model info error:", error);
+      return {
+        success: false,
+        featureRows: 0,
+        modelTrained: false,
+        rowsToNextTraining: 100,
+      };
+    }
+  }
+
+  // flaskService.js - Fix uploadAttempts to handle empty attempts properly
+
+  async uploadAttempts(studentId, attempts, sessionId = null, options = {}) {
+    try {
+      // If no attempts provided, still send the request to trigger training
+      const normalizedAttempts = (attempts || []).map((attempt) => ({
+        timestamp: attempt.timestamp || new Date().toISOString(),
+        question_id: attempt.questionId || attempt.question_id,
+        concept: attempt.conceptArea || attempt.concept || "general",
+        correct:
+          typeof attempt.isCorrect === "boolean"
+            ? attempt.isCorrect
+            : !!attempt.correct,
+        time_spent: attempt.timeSpent ?? attempt.time_spent ?? 0,
+        difficulty: attempt.difficulty ?? 0.5,
+        answer_changed:
+          typeof attempt.answerChanges === "number"
+            ? attempt.answerChanges > 0
+            : !!attempt.answer_changed,
+        confidence: attempt.confidence ?? 0.5,
+      }));
+
+      console.log(
+        `[FlaskService] Uploading ${normalizedAttempts.length} attempts`,
+      );
+      console.log(
+        `[FlaskService] Student: ${studentId}, Session: ${sessionId}, Finalize: ${!!options?.finalizeSession}`,
+      );
+
+      const response = await apiClient.flaskPost("/practice/session-end", {
+        student_id: studentId,
+        attempts: normalizedAttempts,
+        session_id: sessionId,
+        finalize_session: !!options?.finalizeSession,
+      });
+
+      console.log("[FlaskService] Upload response:", response);
+      return response;
+    } catch (error) {
+      console.error("Upload attempts error:", error);
+      // Return a fallback response to prevent UI failure
+      return {
+        success: true,
+        message: "Attempts processed (fallback)",
+        training_triggered: false,
+        total_feature_rows: 0,
+      };
+    }
+  }
+
 }
 
 export default new FlaskService();

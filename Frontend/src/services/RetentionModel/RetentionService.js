@@ -2,10 +2,11 @@ import axios from "axios";
 import io from "socket.io-client";
 
 // API Configuration
-const NODE_API_URL =
-  import.meta.env.VITE_NODE_API_URL || "http://localhost:5000/api";
+const NODE_API_URL =import.meta.env.VITE_NODE_API_URL + "/api";
+
 const FLASK_API_URL =
-  import.meta.env.VITE_FLASK_API_URL || "http://localhost:5500/api";
+  import.meta.env.VITE_FLASK_API_URL ;
+
 
 class RetentionService {
   constructor() {
@@ -347,7 +348,7 @@ class RetentionService {
       };
     }
   }
-  
+
   /**
    * Kept for backward compatibility, but Flask session start is delegated to Node.
    */

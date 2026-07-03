@@ -4,8 +4,7 @@ import authService from "./authService";
 class WebSocketService {
   constructor() {
     this.socket = null;
-    this.socketUrl =
-      import.meta.env.VITE_BACKEND_URL ;
+    this.socketUrl = import.meta.env.VITE_BACKEND_URL;
     this.eventListeners = new Map();
     this.reconnectAttempts = 0;
     this.maxReconnectAttempts = 5;
@@ -260,7 +259,15 @@ class WebSocketService {
   leaveRoom(room) {
     return this.send("leave-room", { room });
   }
-
+  joinTest(sessionId, studentId, options = {}) {
+    return this.send("join-test", {
+      sessionId,
+      studentId,
+      // ==================== FIX: Don't request elapsed time if not needed ====================
+      requestElapsedTime: options.requestElapsedTime !== false,
+      startFresh: options.startFresh || false,
+    });
+  }
   /**
    * Ping server to check latency
    */

@@ -225,10 +225,6 @@ class TestService {
   }
 
   // ==================== Test Creation ====================
-
-  /**
-   * Create a new practice test
-   */
   async createPracticeTest(config) {
     try {
       const studentId = authService.getStudentId();
@@ -242,7 +238,7 @@ class TestService {
           description: config.description || "",
           selectedTopics: config.selectedTopics || [],
           selectedPdfs: config.selectedPdfs || [],
-          selectedCourseIds: config.selectedCourseIds || [], // Add course IDs
+          selectedCourseIds: config.selectedCourseIds || [],
           adaptiveEnabled: config.adaptiveEnabled !== false,
           batchSize: config.batchSize || 20,
           difficulty: config.initialDifficulty || 0.5,
@@ -250,12 +246,15 @@ class TestService {
         },
         selectedTopics: config.selectedTopics || [],
         selectedPdfs: config.selectedPdfs || [],
-        selectedCourseIds: config.selectedCourseIds || [], // Add course IDs
+        selectedCourseIds: config.selectedCourseIds || [],
       };
 
       const response = await apiClient.nodePost("/tests", testData);
 
       if (response.success) {
+        // ==================== FIX: Set sessionTime to 0 ====================
+        this.analytics.sessionTime = 0;
+
         this.currentSession = {
           sessionId: response.sessionId,
           flaskSessionId: response.flaskSessionId,
@@ -268,10 +267,13 @@ class TestService {
           status: "active",
           currentQuestionIndex: 0,
           answers: [],
+          sessionTime: 0, // Explicitly set to 0
         };
         this.currentQuestion = response.questions?.[0] || null;
         this.answers = [];
-        this.persistActiveSession();
+
+        // Don't persist immediately - let the timer start from 0
+        // this.persistActiveSession();
 
         this.practiceMode.currentDifficulty = response.config.difficulty || 0.5;
 
@@ -291,7 +293,6 @@ class TestService {
           }, 1000);
         }
 
-        // Initialize Flask features
         this.initializeFlaskFeatures();
 
         return {
@@ -468,6 +469,8 @@ class TestService {
   /**
    * Submit answer for current question
    */
+  // testService.js - Update submitAnswer function
+
   async submitAnswer(answerData) {
     if (!this.currentSession) {
       throw new Error("No active test session");
@@ -493,13 +496,20 @@ class TestService {
       throw new Error("Current question id is missing");
     }
 
+    // ==================== FIX: Ensure timeSpent is in seconds ====================
+    const timeSpent = answerData.timeSpent || 0;
+    // If timeSpent is > 600 (10 minutes), it's likely in milliseconds
+    const normalizedTimeSpent =
+      timeSpent > 600 ? Math.floor(timeSpent / 1000) : timeSpent;
+    // ==================== END OF FIX ====================
+
     // Prepare answer object
     const answer = {
       questionId,
       questionText: question.text,
       selectedOptions: answerData.selectedOptions,
       isCorrect: null,
-      timeSpent: answerData.timeSpent || 0,
+      timeSpent: normalizedTimeSpent, // Now in seconds
       answerChanges: answerData.answerChanges || 0,
       confidence: answerData.confidence || 0.5,
       conceptArea: question.conceptArea || question.topic,
@@ -508,7 +518,6 @@ class TestService {
       subject: question.subject || this.getSubjectFromTopic(question.topic),
       timestamp: new Date().toISOString(),
     };
-
     // Store answer
     this.answers.push(answer);
 
@@ -1549,27 +1558,140 @@ class TestService {
 
     this.persistActiveSession();
   }
+  // testService.js - Add this method to update session time without full persist
 
+  // testService.js - Add this method
+
+  /**
+   * Update session time without full state refresh
+   */
+  updateSessionTime(sessionTime) {
+    if (!this.currentSession) return;
+
+    const time = Math.max(0, Math.floor(sessionTime));
+
+    // Update analytics
+    if (this.analytics) {
+      this.analytics.sessionTime = time;
+    }
+
+    // Update session
+    if (this.currentSession) {
+      this.currentSession.sessionTime = time;
+    }
+
+    // Persist the updated time
+    this.persistActiveSession();
+  }
+
+  // testService.js - Add this method to debug persistence
+
+  /**
+   * Debug method to check what's in localStorage
+   */
+  debugPersistedSession() {
+    const raw = localStorage.getItem(this.ACTIVE_SESSION_KEY);
+    console.log(
+      "[TestService] Debug - Raw localStorage:",
+      raw ? "exists" : "null",
+    );
+    if (raw) {
+      try {
+        const data = JSON.parse(raw);
+        console.log("[TestService] Debug - Parsed data:", {
+          sessionId: data?.session?.sessionId,
+          sessionTime: data?.session?.sessionTime,
+          questionsCount: data?.session?.questions?.length,
+          currentQuestion: !!data?.currentQuestion,
+          savedAt: data?.savedAt,
+        });
+        return data;
+      } catch (e) {
+        console.log("[TestService] Debug - Parse error:", e);
+        return null;
+      }
+    }
+    return null;
+  }
+
+  // Fix persistActiveSession to ensure data is saved
   persistActiveSession() {
-    if (!this.currentSession?.sessionId) return;
+    if (!this.currentSession?.sessionId) {
+      console.log("[TestService] No session to persist");
+      return;
+    }
 
     if (
       this.currentSession?.status === "completed" ||
       this.currentSession?.status === "abandoned"
     ) {
-      localStorage.removeItem(this.ACTIVE_SESSION_KEY);
+      this.clearPersistedSession();
       return;
     }
 
+    // Get the current session time from analytics or session
+    const sessionTime =
+      this.analytics?.sessionTime || this.currentSession?.sessionTime || 0;
+
+    // Build complete state - ensure all data is included
     const payload = {
-      session: this.currentSession,
+      session: {
+        sessionId: this.currentSession.sessionId,
+        flaskSessionId: this.currentSession.flaskSessionId || null,
+        studentId: this.currentSession.studentId,
+        testType: this.currentSession.testType || "practice",
+        questions: this.currentSession.questions || [],
+        totalQuestions: this.currentSession.totalQuestions || 0,
+        startTime: this.currentSession.startTime || new Date().toISOString(),
+        config: this.currentSession.config || {},
+        status: this.currentSession.status || "active",
+        currentQuestionIndex: this.currentSession.currentQuestionIndex || 0,
+        sessionTime: sessionTime,
+        answers: this.answers || [],
+      },
       currentQuestion: this.currentQuestion,
+      answers: this.answers || [],
+      analytics: {
+        ...this.analytics,
+        sessionTime: sessionTime,
+        totalQuestions:
+          this.analytics?.totalQuestions ||
+          this.currentSession?.totalQuestions ||
+          0,
+        correctCount: this.analytics?.correctCount || 0,
+        wrongCount: this.analytics?.wrongCount || 0,
+        answeredQuestions: this.analytics?.answeredQuestions || 0,
+        currentAccuracy: this.analytics?.currentAccuracy || 0,
+      },
+      practiceMode: this.practiceMode || {},
+      flaskPredictions: this.flaskPredictions || {},
+      difficultyTelemetry: this.difficultyTelemetry || {},
+      currentIndex: this.currentSession.currentQuestionIndex || 0,
       savedAt: new Date().toISOString(),
+      version: "2.0",
     };
 
-    localStorage.setItem(this.ACTIVE_SESSION_KEY, JSON.stringify(payload));
+    try {
+      localStorage.setItem(this.ACTIVE_SESSION_KEY, JSON.stringify(payload));
+      // Log every time for debugging
+      console.log(
+        "[TestService] Session persisted at",
+        sessionTime,
+        "seconds, sessionId:",
+        this.currentSession.sessionId,
+      );
+      console.log(
+        "[TestService] Persisted data size:",
+        JSON.stringify(payload).length,
+        "bytes",
+      );
+    } catch (error) {
+      console.error("[TestService] Failed to persist session:", error);
+    }
   }
 
+  /* Get persisted session from localStorage
+   */
   getPersistedSession() {
     const raw = localStorage.getItem(this.ACTIVE_SESSION_KEY);
     if (!raw) return null;
@@ -1581,11 +1703,37 @@ class TestService {
     }
   }
 
+  /**
+   * Clear persisted session from localStorage
+   */
+  clearPersistedSession() {
+    localStorage.removeItem(this.ACTIVE_SESSION_KEY);
+    console.log("[TestService] Cleared persisted session");
+  }
+
+  /**
+   * Check if there is a persisted session
+   */
+  hasPersistedSession() {
+    return !!localStorage.getItem(this.ACTIVE_SESSION_KEY);
+  }
+  // testService.js - Fix restoreActiveSession
+
   async restoreActiveSession() {
     const persisted = this.getPersistedSession();
     if (!persisted?.session?.sessionId) {
+      console.log("[TestService] No persisted session found");
       return null;
     }
+
+    console.log(
+      "[TestService] Restoring session:",
+      persisted.session.sessionId,
+    );
+    console.log(
+      "[TestService] Restoring session time:",
+      persisted.session.sessionTime,
+    );
 
     const studentId = authService.getStudentId();
     if (
@@ -1593,72 +1741,153 @@ class TestService {
       studentId &&
       String(persisted.session.studentId) !== String(studentId)
     ) {
+      console.log(
+        "[TestService] Session belongs to different student, clearing",
+      );
       this.clearSession();
       return null;
     }
 
     try {
-      const sessionResponse = await apiClient.nodeGet(
-        `/tests/${persisted.session.sessionId}`,
-      );
+      if (persisted.session && persisted.currentQuestion) {
+        const currentIndex =
+          persisted.session.currentQuestionIndex !== undefined
+            ? persisted.session.currentQuestionIndex
+            : persisted.currentIndex || 0;
 
-      if (!sessionResponse?.success || !sessionResponse?.session) {
-        this.clearSession();
-        return null;
+        // Use persisted session time - DO NOT recalculate
+        const sessionTime =
+          persisted.analytics?.sessionTime ||
+          persisted.session?.sessionTime ||
+          0;
+        console.log("[TestService] Using persisted session time:", sessionTime);
+
+        const startTime =
+          persisted.session.startTime || new Date().toISOString();
+
+        this.currentSession = {
+          ...persisted.session,
+          status: persisted.session.status || "active",
+          startTime: startTime,
+          sessionTime: sessionTime, // Use stored time
+          currentQuestionIndex: currentIndex,
+        };
+        this.currentQuestion = persisted.currentQuestion;
+        this.answers = persisted.answers || [];
+
+        // Restore analytics with session time
+        if (persisted.analytics) {
+          this.analytics = {
+            ...this.analytics,
+            ...persisted.analytics,
+            sessionTime: sessionTime,
+          };
+        } else {
+          this.analytics.sessionTime = sessionTime;
+        }
+
+        if (persisted.practiceMode) {
+          this.practiceMode = {
+            ...this.practiceMode,
+            ...persisted.practiceMode,
+          };
+        }
+
+        if (persisted.flaskPredictions) {
+          this.flaskPredictions = persisted.flaskPredictions;
+        }
+
+        if (persisted.difficultyTelemetry) {
+          this.difficultyTelemetry = persisted.difficultyTelemetry;
+        }
+
+        // Try to refresh from server but preserve session time
+        try {
+          const sessionResponse = await apiClient.nodeGet(
+            `/tests/${persisted.session.sessionId}`,
+          );
+
+          if (sessionResponse?.success && sessionResponse?.session) {
+            const serverSession = sessionResponse.session;
+            if (
+              serverSession.status === "completed" ||
+              serverSession.status === "abandoned"
+            ) {
+              console.log("[TestService] Session completed on server");
+              this.clearSession();
+              return null;
+            }
+
+            // Merge server data but PRESERVE our session time
+            this.currentSession = {
+              ...this.currentSession,
+              ...serverSession,
+              questions:
+                serverSession.questions || this.currentSession.questions || [],
+              startTime:
+                serverSession.startTime || this.currentSession.startTime,
+              sessionTime: sessionTime, // Keep our session time
+              currentQuestionIndex:
+                serverSession.currentQuestionIndex !== undefined
+                  ? serverSession.currentQuestionIndex
+                  : currentIndex,
+            };
+
+            if (serverSession.currentQuestion) {
+              this.currentQuestion = serverSession.currentQuestion;
+            }
+
+            if (serverSession.answers) {
+              this.answers = serverSession.answers;
+            }
+          }
+        } catch (serverError) {
+          console.warn(
+            "Could not refresh session from server, using cached data:",
+            serverError,
+          );
+        }
+
+        // Persist again to ensure everything is saved
+        this.persistActiveSession();
+
+        console.log(
+          "[TestService] Session restored successfully at",
+          sessionTime,
+          "seconds",
+        );
+
+        return {
+          session: this.currentSession,
+          currentQuestion: this.currentQuestion,
+          answers: this.answers,
+          analytics: this.analytics,
+          flaskPredictions: this.flaskPredictions,
+          difficultyTelemetry: this.difficultyTelemetry,
+          currentIndex: currentIndex,
+        };
       }
-
-      const serverSession = sessionResponse.session;
-      if (
-        serverSession.status === "completed" ||
-        serverSession.status === "abandoned"
-      ) {
-        this.clearSession();
-        return null;
-      }
-
-      const questionsResponse = await apiClient.nodeGet(
-        `/tests/${persisted.session.sessionId}/questions`,
-        {
-          page: 1,
-          limit: 500,
-        },
-      );
-
-      const mergedQuestions =
-        questionsResponse?.questions?.length > 0
-          ? questionsResponse.questions
-          : persisted.session.questions || [];
-
-      this.currentSession = {
-        ...persisted.session,
-        ...serverSession,
-        questions: mergedQuestions,
-        totalQuestions: serverSession.totalQuestions || mergedQuestions.length,
-        config: serverSession.config || persisted.session.config,
-      };
-
-      const currentIndex = Math.max(
-        0,
-        this.currentSession.currentQuestionIndex || 0,
-      );
-
-      this.currentQuestion =
-        mergedQuestions[currentIndex] || persisted.currentQuestion || null;
-
-      this.answers = questionsResponse?.answers || [];
-      this.persistActiveSession();
-
-      return {
-        session: this.currentSession,
-        currentQuestion: this.currentQuestion,
-      };
     } catch (error) {
+      console.error("[TestService] Error restoring session:", error);
+      if (persisted.session && persisted.currentQuestion) {
+        this.currentSession = persisted.session;
+        this.currentQuestion = persisted.currentQuestion;
+        this.answers = persisted.answers || [];
+        this.persistActiveSession();
+        return {
+          session: this.currentSession,
+          currentQuestion: this.currentQuestion,
+          answers: this.answers,
+          analytics: this.analytics || {},
+          currentIndex: persisted.currentIndex || 0,
+        };
+      }
       this.clearSession();
       return null;
     }
+    return null;
   }
 }
-
 // Create and export singleton instance
 const testService = new TestService();
 testService.initialize();

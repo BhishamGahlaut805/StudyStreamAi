@@ -1,6 +1,8 @@
-import React, { useEffect, useMemo, useState } from "react";
+// practiceResult.jsx - Complete rewrite with accurate backend data display
+
+import React, { useEffect, useMemo, useState, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import {
   FiArrowLeft,
   FiCheckCircle,
@@ -14,67 +16,97 @@ import {
   FiAward,
   FiActivity,
   FiZap,
-  FiInfo,
   FiHelpCircle,
   FiRefreshCw,
+  FiDownload,
+  FiPrinter,
+  FiSun,
+  FiMoon,
+  FiGrid,
+  FiList,
+  FiPieChart,
+  FiTrendingDown,
+  FiUsers,
+  FiCalendar,
+  FiStar,
+  FiFlag,
+  FiBattery,
+  FiCpu,
+  FiDatabase,
+  FiServer,
+  FiCloud,
+  FiLayers,
+  FiUser,
+  FiBriefcase,
+  FiEye,
 } from "react-icons/fi";
-import { FaBrain, FaChartLine, FaFire } from "react-icons/fa";
+import {
+  FaBrain,
+  FaChartLine,
+  FaFire,
+  FaBolt,
+  FaSeedling,
+  FaTree,
+  FaStar,
+  FaGraduationCap,
+  FaMedal,
+  FaTrophy,
+} from "react-icons/fa";
+import {
+  Radar,
+  RadarChart,
+  PolarGrid,
+  PolarAngleAxis,
+  PolarRadiusAxis,
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  Area,
+  AreaChart,
+  ComposedChart,
+} from "recharts";
 import { useTheme } from "../../context/ThemeContext";
 import authService from "../../services/authService";
 import flaskService from "../../services/flaskService";
-import testService from "../../services/testService";
 
-const MODEL_TITLES = [
-  "1. Concept Mastery",
-  "2. Stability Index",
-  "3. Confidence Calibration",
-  "4. Error Pattern Classification",
-  "5. Weakness Severity Ranking",
-  "6. Forgetting Curve",
-  "7. Fatigue Sensitivity",
-  "8. Cognitive Behavior Profile",
-  "9. Difficulty Tolerance",
-  "10. Study Efficiency",
-  "11. Focus Loss Detection",
-  "12. Adaptive Time Allocation",
+// ==================== CONSTANTS ====================
+const COLORS = [
+  "#818cf8", "#34d399", "#f472b6", "#fbbf24", "#60a5fa",
+  "#a78bfa", "#f87171", "#fb923c", "#22d3ee", "#e879f9"
 ];
 
-const getQuestionId = (question) =>
-  question?.id || question?._id || question?.questionId || null;
-
-const getOptionId = (option) =>
-  option?.id ?? option?._id ?? option?.optionId ?? option?.key ?? option?.value;
-
-const normalizeAnswerValue = (value) => {
-  if (value === null || value === undefined) return "N/A";
-  if (typeof value === "object") {
-    return (
-      value?.id ??
-      value?._id ??
-      value?.optionId ??
-      value?.value ??
-      value?.key ??
-      value?.text ??
-      JSON.stringify(value)
-    );
-  }
-  return value;
+const CHART_COLORS = {
+  accuracy: "#22d3ee",
+  difficulty: "#f472b6",
+  stress: "#fb923c",
+  fatigue: "#f87171",
+  confidence: "#34d399",
+  retention: "#818cf8",
 };
 
-const clamp = (value, min = 0, max = 1) => {
-  const number = Number(value);
-  if (!Number.isFinite(number)) return min;
-  return Math.min(max, Math.max(min, number));
+// ==================== HELPER FUNCTIONS ====================
+const toPercent = (value, digits = 0) => {
+  const num = Number(value);
+  if (!Number.isFinite(num)) return "0%";
+  return `${Math.min(100, Math.max(0, num * 100)).toFixed(digits)}%`;
 };
-
-const toPercent = (value, digits = 0) =>
-  `${(clamp(value) * 100).toFixed(digits)}%`;
 
 const formatSeconds = (seconds) => {
   const total = Math.max(0, Math.floor(Number(seconds) || 0));
   const m = Math.floor(total / 60);
   const s = total % 60;
-  return `${m}m ${s}s`;
+  if (m > 0) return `${m}m ${s}s`;
+  return `${s}s`;
 };
 
 const formatDateTime = (value) => {
@@ -84,128 +116,66 @@ const formatDateTime = (value) => {
   return date.toLocaleString();
 };
 
-const trendPath = (values, width = 320, height = 96) => {
-  if (!Array.isArray(values) || values.length === 0) return "";
-  if (values.length === 1) return `M 0 ${height / 2} L ${width} ${height / 2}`;
-
-  return values
-    .map((raw, index) => {
-      const x = (index / (values.length - 1)) * width;
-      const y = height - clamp(raw) * height;
-      return `${index === 0 ? "M" : "L"} ${x} ${y}`;
-    })
-    .join(" ");
+const getMasteryLevel = (accuracy) => {
+  if (accuracy >= 0.85) return { label: "Excellent", color: "#34d399", icon: "🏆" };
+  if (accuracy >= 0.7) return { label: "Good", color: "#60a5fa", icon: "⭐" };
+  if (accuracy >= 0.5) return { label: "Moderate", color: "#fbbf24", icon: "📚" };
+  if (accuracy >= 0.3) return { label: "Poor", color: "#fb923c", icon: "⚠️" };
+  return { label: "Critical", color: "#f87171", icon: "🚨" };
 };
 
-const normalizeModelData = (modelsData = {}) => ({
-  conceptMastery: modelsData.conceptMastery || {},
-  stabilityIndex: modelsData.stabilityIndex || {},
-  confidenceCalibration: modelsData.confidenceCalibration || {},
-  errorPatterns: modelsData.errorPatterns || {},
-  weaknessPriority: Array.isArray(modelsData.weaknessPriority)
-    ? modelsData.weaknessPriority
-    : [],
-  forgettingCurve: modelsData.forgettingCurve || {},
-  fatigueIndex: modelsData.fatigueIndex,
-  behaviorProfile: modelsData.behaviorProfile,
-  difficultyTolerance: modelsData.difficultyTolerance,
-  studyEfficiency: modelsData.studyEfficiency,
-  focusLoss: modelsData.focusLoss,
-  timeAllocation: Array.isArray(modelsData.timeAllocation)
-    ? modelsData.timeAllocation
-    : [],
-});
-
-const TOOLTIP_THEMES = {
-  sky: {
-    shell: "from-sky-500 via-cyan-500 to-blue-500",
-    bullet: "bg-cyan-100/90 text-cyan-900",
-    icon: "text-cyan-200",
-  },
-  emerald: {
-    shell: "from-emerald-500 via-teal-500 to-lime-500",
-    bullet: "bg-emerald-100/90 text-emerald-900",
-    icon: "text-emerald-200",
-  },
-  amber: {
-    shell: "from-amber-500 via-orange-500 to-rose-500",
-    bullet: "bg-amber-100/90 text-amber-900",
-    icon: "text-amber-200",
-  },
-  violet: {
-    shell: "from-fuchsia-500 via-violet-500 to-indigo-500",
-    bullet: "bg-violet-100/90 text-violet-900",
-    icon: "text-violet-200",
-  },
+const getRiskLevel = (value) => {
+  if (value >= 0.7) return { label: "High", color: "#f87171" };
+  if (value >= 0.4) return { label: "Moderate", color: "#fbbf24" };
+  return { label: "Low", color: "#34d399" };
 };
 
-const InsightTooltip = ({
-  title,
-  description,
-  bullets = [],
-  theme = "sky",
-  position = "right",
-}) => {
-  const palette = TOOLTIP_THEMES[theme] || TOOLTIP_THEMES.sky;
-  const positionClass =
-    position === "top"
-      ? "bottom-full left-1/2 mb-3 -translate-x-1/2"
-      : "left-full top-1/2 ml-3 -translate-y-1/2";
-
-  return (
-    <span className="group/tooltip relative inline-flex">
-      <button
-        type="button"
-        aria-label={`More info about ${title}`}
-        className={`inline-flex h-5 w-5 items-center justify-center rounded-full bg-slate-900/70 text-white transition hover:scale-105 focus:outline-none focus:ring-2 focus:ring-cyan-400 dark:bg-slate-100/20 ${palette.icon}`}
-      >
-        <FiHelpCircle className="h-3.5 w-3.5" />
-      </button>
-      <span
-        className={`pointer-events-none absolute z-30 w-72 rounded-xl bg-gradient-to-br p-[1px] opacity-0 shadow-2xl transition-all duration-200 group-hover/tooltip:opacity-100 group-focus-within/tooltip:opacity-100 ${palette.shell} ${positionClass}`}
-      >
-        <span className="block rounded-[11px] bg-slate-950/95 p-3 text-left text-white backdrop-blur-sm">
-          <span className="block text-sm font-semibold">{title}</span>
-          <span className="mt-1 block text-xs leading-relaxed text-slate-200">
-            {description}
-          </span>
-          {bullets.length > 0 && (
-            <span className="mt-2 block space-y-1">
-              {bullets.map((bullet, index) => (
-                <span
-                  key={`${title}-bullet-${index}`}
-                  className={`block rounded-md px-2 py-1 text-[11px] leading-relaxed ${palette.bullet}`}
-                >
-                  {bullet}
-                </span>
-              ))}
-            </span>
-          )}
+// ==================== COMPONENTS ====================
+const MetricCard = ({ label, value, icon, color, subtitle, trend, trendLabel }) => (
+  <motion.div
+    whileHover={{ scale: 1.02 }}
+    className={`rounded-2xl border p-4 transition-all duration-200 ${
+      color
+        ? `border-${color}-200 bg-${color}-50 dark:bg-${color}-900/20 dark:border-${color}-800`
+        : "border-slate-200 bg-slate-50 dark:border-slate-700 dark:bg-slate-800"
+    }`}
+  >
+    <div className="flex items-center justify-between mb-2">
+      <div className={`p-2 rounded-xl ${color ? `bg-${color}-100 dark:bg-${color}-900/40` : "bg-slate-100 dark:bg-slate-700"}`}>
+        {icon}
+      </div>
+      {trend !== undefined && (
+        <span className={`text-xs font-medium ${trend > 0 ? "text-emerald-500" : trend < 0 ? "text-rose-500" : "text-gray-400"}`}>
+          {trend > 0 ? "↑" : trend < 0 ? "↓" : "→"} {trendLabel || ""}
         </span>
-      </span>
-    </span>
-  );
-};
+      )}
+    </div>
+    <div className="text-2xl font-bold">{value}</div>
+    <div className="text-sm text-gray-500 dark:text-gray-400">{label}</div>
+    {subtitle && (
+      <div className="text-xs text-gray-400 dark:text-gray-500 mt-1">{subtitle}</div>
+    )}
+  </motion.div>
+);
 
+// ==================== MAIN COMPONENT ====================
 const PracticeResult = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { isDark } = useTheme();
+  const { isDark, toggleTheme } = useTheme();
 
+  // ==================== STATE ====================
   const statePayload = location.state || {};
-  const answers = Array.isArray(statePayload.answers)
-    ? statePayload.answers
-    : [];
-  const metrics = statePayload.metrics || {};
-  const session = statePayload.session || {};
-  const flaskPredictions = statePayload.flaskPredictions || {};
-  const modelsData = normalizeModelData(statePayload.modelsData || {});
+  const answers = Array.isArray(statePayload.answers) ? statePayload.answers : [];
+  const sessionData = statePayload.session || {};
 
   const [flaskDashboard, setFlaskDashboard] = useState(null);
   const [flaskLoading, setFlaskLoading] = useState(false);
-  const [questionPaper, setQuestionPaper] = useState([]);
-  const [paperLoading, setPaperLoading] = useState(false);
+  const [activeTab, setActiveTab] = useState("overview");
+  const [viewMode, setViewMode] = useState("grid");
+  const [error, setError] = useState(null);
 
+  // ==================== LOAD FLASK DATA ====================
   useEffect(() => {
     const studentId = authService.getStudentId();
     if (!studentId) return;
@@ -216,356 +186,1070 @@ const PracticeResult = () => {
       try {
         const response = await flaskService.getModelInfo(studentId);
         if (!mounted) return;
-        setFlaskDashboard(response?.dashboard_data || null);
+        if (response?.success && response?.dashboard_data) {
+          setFlaskDashboard(response.dashboard_data);
+        } else {
+          setFlaskDashboard(null);
+        }
+      } catch (err) {
+        console.error("Error loading Flask data:", err);
+        setError("Could not load analytics data");
       } finally {
         if (mounted) setFlaskLoading(false);
       }
     };
 
     loadFlaskData();
-    return () => {
-      mounted = false;
-    };
+    return () => { mounted = false; };
   }, []);
 
-  useEffect(() => {
-    const sessionId = session?.sessionId;
-    if (!sessionId) return;
+  // ==================== EXTRACT DATA FROM BACKEND ====================
+  const data = useMemo(() => {
+    if (!flaskDashboard) return null;
 
-    let active = true;
-    const loadQuestionPaper = async () => {
-      setPaperLoading(true);
-      try {
-        const response = await testService.generateQuestionPaper(sessionId);
-        if (!active) return;
-        const paper = response?.questionPaper || {};
-        const bySubject = paper?.questionsBySubject || {};
-        const flattened = Array.isArray(paper?.allQuestions)
-          ? paper.allQuestions
-          : Object.values(bySubject).flat().filter(Boolean);
-        setQuestionPaper(flattened);
-      } catch (error) {
-        if (active) setQuestionPaper([]);
-      } finally {
-        if (active) setPaperLoading(false);
-      }
-    };
+    const {
+      summary = {},
+      topic_analysis = {},
+      concept_mastery = {},
+      stability_index = {},
+      confidence_calibration = {},
+      error_patterns = {},
+      weakness_priority = [],
+      forgetting_curve = {},
+      fatigue_index = {},
+      behavior_profile = {},
+      difficulty_tolerance = {},
+      study_efficiency = {},
+      focus_loss = {},
+      time_allocation = [],
+      stress_patterns = {},
+      burnout_risk = {},
+      learning_velocity = {},
+      trend_data = {},
+      session_analysis = {},
+      predictions_summary = {},
+      recommendations = [],
+      charts = {},
+      recent_activity = {},
+    } = flaskDashboard;
 
-    loadQuestionPaper();
-    return () => {
-      active = false;
-    };
-  }, [session?.sessionId]);
+    // Calculate derived values
+    const conceptCount = Object.keys(concept_mastery).length;
+    const masteryValues = Object.values(concept_mastery);
+    const avgMastery = masteryValues.length > 0
+      ? masteryValues.reduce((a, b) => a + b, 0) / masteryValues.length
+      : 0;
 
-  const questionPaperLookup = useMemo(() => {
-    const map = new Map();
-    questionPaper.forEach((question) => {
-      const keys = [
-        question?.id,
-        question?._id,
-        question?.questionId,
-        question?.number,
-      ].filter((key) => key !== null && key !== undefined && key !== "");
+    const strongTopics = topic_analysis?.strong_topics || [];
+    const weakTopics = topic_analysis?.weak_topics || [];
 
-      keys.forEach((key) => {
-        map.set(String(key), question);
-      });
-    });
-    return map;
-  }, [questionPaper]);
+    // Get fatigue level
+    const fatigueLevel = fatigue_index?.risk_level || "low";
+    const fatigueValue = fatigue_index?.current || 0.3;
 
-  const questionLookup = useMemo(() => {
-    const map = new Map();
-    (session?.questions || []).forEach((question) => {
-      map.set(String(getQuestionId(question)), question);
-    });
-    return map;
-  }, [session?.questions]);
+    // Get burnout level
+    const burnoutLevel = burnout_risk?.risk_level || "low";
+    const burnoutValue = burnout_risk?.current_risk || 0.3;
 
-  const attempts = useMemo(() => {
-    return answers.map((answer, index) => {
-      const questionNumber = index + 1;
-      const paperQuestion =
-        questionPaperLookup.get(String(answer.questionId)) ||
-        questionPaperLookup.get(String(answer.question_id)) ||
-        questionPaperLookup.get(String(questionNumber)) ||
-        null;
-      const sessionQuestion =
-        questionLookup.get(String(answer.questionId)) || {};
-      const question = paperQuestion || sessionQuestion;
+    // Get behavior profile
+    const behaviorCluster = behavior_profile?.cluster || "balanced";
+    const avgTimePerQuestion = behavior_profile?.average_time_per_question/21600000 || 60;
 
-      const expectedTime = Number(
-        question?.expectedTime ?? question?.expected_time ?? 90,
-      );
-      const concept =
-        answer.conceptArea ||
-        question.conceptArea ||
-        question.concept_area ||
-        question.topic ||
-        "General";
+    // Get efficiency
+    const efficiencyScore = study_efficiency?.score || 0.5;
+    const efficiencyTrend = study_efficiency?.trend || "stable";
 
-      return {
-        ...answer,
-        index: index + 1,
-        question,
-        paperQuestion,
-        questionText:
-          question.text || answer.questionText || "Question text unavailable",
-        concept,
-        difficulty: Number(answer.difficulty ?? question.difficulty ?? 0.5),
-        expectedTime: Number.isFinite(expectedTime) ? expectedTime : 90,
-        timeSpent: Number(answer.timeSpent || 0),
-        confidence: clamp(answer.confidence ?? 0.5),
-      };
-    });
-  }, [answers, questionLookup, questionPaperLookup]);
+    // Get focus loss
+    const focusLossValue = focus_loss?.frequency || 0.1;
 
-  const topicStats = useMemo(() => {
-    const map = new Map();
+    // Get retention summary
+    const avgRetention = predictions_summary?.average_retention || 0.5;
+    const lowRetentionTopics = predictions_summary?.topics_with_low_retention || [];
+    const highRetentionTopics = predictions_summary?.topics_with_high_retention || [];
 
-    attempts.forEach((attempt) => {
-      const key = attempt.concept;
-      if (!map.has(key)) {
-        map.set(key, {
-          topic: key,
-          attempts: 0,
-          correct: 0,
-          totalTime: 0,
-          totalExpected: 0,
-          avgDifficultySum: 0,
-          confidenceSum: 0,
-        });
-      }
+    // Get forgetting curve review priority
+    const reviewPriority = forgetting_curve?.review_priority || [];
 
-      const stat = map.get(key);
-      stat.attempts += 1;
-      stat.correct += attempt.isCorrect ? 1 : 0;
-      stat.totalTime += attempt.timeSpent;
-      stat.totalExpected += attempt.expectedTime;
-      stat.avgDifficultySum += clamp(attempt.difficulty);
-      stat.confidenceSum += clamp(attempt.confidence);
-    });
+    // Build concept mastery chart data
+    const conceptMasteryData = Object.entries(concept_mastery)
+      .map(([name, value]) => ({
+        name: name.length > 15 ? name.substring(0, 15) + "..." : name,
+        mastery: Math.min(1, Math.max(0, value)),
+        fullName: name,
+      }))
+      .sort((a, b) => b.mastery - a.mastery)
+      .slice(0, 10);
 
-    return Array.from(map.values())
-      .map((stat) => {
-        const accuracy = stat.correct / Math.max(1, stat.attempts);
-        return {
-          ...stat,
-          accuracy,
-          avgTime: stat.totalTime / Math.max(1, stat.attempts),
-          avgExpected: stat.totalExpected / Math.max(1, stat.attempts),
-          avgDifficulty: stat.avgDifficultySum / Math.max(1, stat.attempts),
-          confidence: stat.confidenceSum / Math.max(1, stat.attempts),
-          speedRatio: stat.totalTime / Math.max(1, stat.totalExpected),
-        };
-      })
-      .sort((a, b) => b.attempts - a.attempts);
-  }, [attempts]);
+    // Build weak topics chart data
+    const weakTopicsData = weakTopics.map(t => ({
+      name: t.topic?.length > 15 ? t.topic.substring(0, 15) + "..." : t.topic || "Unknown",
+      accuracy: t.accuracy || 0,
+      attempts: t.attempts || 0,
+    })).slice(0, 10);
 
-  const selectedTopics =
-    session?.config?.selectedTopics || session?.selectedTopics || [];
+    // Build strong topics chart data
+    const strongTopicsData = strongTopics.map(t => ({
+      name: t.topic?.length > 15 ? t.topic.substring(0, 15) + "..." : t.topic || "Unknown",
+      accuracy: t.accuracy || 0,
+      attempts: t.attempts || 0,
+    })).slice(0, 10);
 
-  const learnedTopics = useMemo(() => {
-    if (!selectedTopics.length) return [];
-    return selectedTopics.map((topicName) => {
-      const match = topicStats.find(
-        (topic) =>
-          String(topic.topic).toLowerCase() === String(topicName).toLowerCase(),
-      );
+    // Build time allocation data
+    const timeAllocationData = time_allocation.slice(0, 8);
 
-      const confidence = match ? match.confidence : 0;
-      const mastery = match ? match.accuracy : 0;
-      const learnedPercent = Math.round(
-        (mastery * 0.7 + confidence * 0.3) * 100,
-      );
+    // Build error patterns data
+    const errorPatternsData = error_patterns ? Object.entries(error_patterns)
+      .filter(([key]) => key !== 'by_topic')
+      .map(([key, value]) => ({
+        name: key.charAt(0).toUpperCase() + key.slice(1),
+        value: Math.min(1, Math.max(0, value * 100)),
+      })) : [];
 
-      return {
-        topic: topicName,
-        attempts: match?.attempts || 0,
-        mastery,
-        confidence,
-        learnedPercent,
-      };
-    });
-  }, [selectedTopics, topicStats]);
+    // Build stress patterns data
+    const stressData = stress_patterns?.by_topic ? Object.entries(stress_patterns.by_topic)
+      .map(([name, value]) => ({
+        name: name.length > 12 ? name.substring(0, 12) + "..." : name,
+        stress: Math.min(1, Math.max(0, value)),
+      }))
+      .sort((a, b) => b.stress - a.stress)
+      .slice(0, 8) : [];
 
-  const strongTopics = useMemo(
-    () =>
-      topicStats.filter((topic) => topic.attempts > 0 && topic.accuracy >= 0.7),
-    [topicStats],
-  );
+    // Build chart data from backend charts
+    const accuracyTrend = charts?.accuracy_over_time || [];
+    const difficultyTrend = charts?.difficulty_over_time || [];
+    const weeklyProgress = charts?.weekly_progress || [];
+    const conceptRadar = charts?.concept_radar || [];
 
-  const weakTopics = useMemo(
-    () =>
-      topicStats.filter((topic) => topic.attempts > 0 && topic.accuracy < 0.6),
-    [topicStats],
-  );
-
-  const sessionTotals = useMemo(() => {
-    const answeredCount = attempts.length;
-    const correct = attempts.filter((item) => item.isCorrect).length;
-    const wrong = answeredCount - correct;
-    const totalTime = attempts.reduce((sum, item) => sum + item.timeSpent, 0);
-    const totalExpected = attempts.reduce(
-      (sum, item) => sum + item.expectedTime,
-      0,
-    );
-    const avgConfidence =
-      attempts.reduce((sum, item) => sum + item.confidence, 0) /
-      Math.max(1, answeredCount);
+    // Build concept radar data
+    const radarData = conceptRadar.slice(0, 8).map(item => ({
+      subject: item.concept?.length > 12 ? item.concept.substring(0, 12) + "..." : item.concept || "Unknown",
+      mastery: Math.min(1, Math.max(0, item.mastery || 0)),
+      fullName: item.concept,
+    }));
 
     return {
-      answeredCount,
-      correct,
-      wrong,
-      totalTime,
-      totalExpected,
-      accuracy: correct / Math.max(1, answeredCount),
-      avgConfidence,
-      timeEfficiency:
-        totalExpected > 0 ? totalExpected / Math.max(1, totalTime) : 0,
+      summary,
+      topic_analysis,
+      concept_mastery,
+      conceptMasteryData,
+      stability_index,
+      confidence_calibration,
+      error_patterns,
+      errorPatternsData,
+      weakness_priority,
+      forgetting_curve,
+      reviewPriority,
+      fatigue_index: { ...fatigue_index, level: fatigueLevel, value: fatigueValue },
+      behavior_profile: { ...behavior_profile, cluster: behaviorCluster, avgTime: avgTimePerQuestion },
+      difficulty_tolerance,
+      study_efficiency: { ...study_efficiency, score: efficiencyScore, trend: efficiencyTrend },
+      focus_loss: { ...focus_loss, frequency: focusLossValue },
+      time_allocation: timeAllocationData,
+      stress_patterns: { ...stress_patterns, byTopicData: stressData },
+      burnout_risk: { ...burnout_risk, level: burnoutLevel, value: burnoutValue },
+      learning_velocity,
+      trend_data,
+      session_analysis,
+      predictions_summary: {
+        ...predictions_summary,
+        avgRetention,
+        lowRetentionTopics,
+        highRetentionTopics,
+      },
+      recommendations,
+      charts,
+      recent_activity,
+      // Computed
+      conceptCount,
+      avgMastery,
+      strongTopics,
+      weakTopics,
+      strongTopicsData,
+      weakTopicsData,
+      accuracyTrend,
+      difficultyTrend,
+      weeklyProgress,
+      radarData,
     };
-  }, [attempts]);
+  }, [flaskDashboard]);
 
-  const localDifficultySeries = attempts.map((attempt) =>
-    clamp(attempt.difficulty),
-  );
-  const localConfidenceSeries = attempts.map((attempt) =>
-    clamp(attempt.confidence),
-  );
-  const localCumulativeAccuracySeries = attempts.map((_, index) => {
-    const slice = attempts.slice(0, index + 1);
-    const correct = slice.filter((item) => item.isCorrect).length;
-    return clamp(correct / Math.max(1, slice.length));
-  });
+  // ==================== RENDER FUNCTIONS ====================
 
-  const flaskDifficultySeries =
-    flaskDashboard?.charts?.difficulty_over_time?.map((item) =>
-      clamp(item.value),
-    ) || [];
-
-  const flaskAccuracySeries =
-    flaskDashboard?.charts?.accuracy_over_time?.map((item) =>
-      clamp(item.value),
-    ) || [];
-
-  const difficultySeriesToShow = flaskDifficultySeries.length
-    ? flaskDifficultySeries
-    : localDifficultySeries;
-  const accuracySeriesToShow = flaskAccuracySeries.length
-    ? flaskAccuracySeries
-    : localCumulativeAccuracySeries;
-
-  const cardClass =
-    "rounded-2xl border p-4 md:p-5 shadow-sm transition-all duration-200";
-  const surfaceClass = isDark
-    ? "bg-slate-900 border-slate-700 text-slate-100"
-    : "bg-white border-slate-200 text-slate-900";
-  const mutedClass = isDark ? "text-slate-300" : "text-slate-600";
-
-  const metricTooltips = {
-    Accuracy: {
-      description:
-        "Accuracy measures your outcome quality in this session. It is the ratio of correct answers to all solved questions.",
-      bullets: [
-        "Higher than 70% usually means your fundamentals are stable for this topic set.",
-        "Track this with confidence to ensure your score is not a lucky spike.",
-      ],
-      theme: "emerald",
-    },
-    Correct: {
-      description:
-        "Correct shows the total number of questions answered accurately in this session.",
-      bullets: [
-        "Use this with Total Solved to estimate consistency.",
-        "A rising correct count across sessions indicates healthy progress.",
-      ],
-      theme: "sky",
-    },
-    Wrong: {
-      description:
-        "Wrong indicates how many responses missed the expected answer key.",
-      bullets: [
-        "Review repeated mistakes to detect concept-level gaps.",
-        "Check whether errors come from speed pressure or weak understanding.",
-      ],
-      theme: "amber",
-    },
-    Solved: {
-      description:
-        "Solved is your attempt volume for this session and reflects practice exposure.",
-      bullets: [
-        "A balanced session mixes enough volume with focused review.",
-        "If solved is high but accuracy is low, reduce pace and deepen review.",
-      ],
-      theme: "violet",
-    },
-    "Time Taken": {
-      description:
-        "Time Taken is your real total effort spent answering all solved questions.",
-      bullets: [
-        "Compare this with Expected Time to understand pacing behavior.",
-        "Large delays on specific questions can reveal hesitation patterns.",
-      ],
-      theme: "amber",
-    },
-    "Expected Time": {
-      description:
-        "Expected Time is the estimated benchmark duration suggested by question difficulty.",
-      bullets: [
-        "When Time Taken is far above this, time management needs tuning.",
-        "When it is lower with good accuracy, your fluency is improving.",
-      ],
-      theme: "sky",
-    },
-    Confidence: {
-      description:
-        "Confidence is your self-reported certainty while answering each question.",
-      bullets: [
-        "High confidence + wrong answers means calibration needs work.",
-        "Low confidence + correct answers suggests underestimation of ability.",
-      ],
-      theme: "violet",
-    },
-    "Next Difficulty": {
-      description:
-        "Next Difficulty is the adaptive level forecast for your upcoming practice set.",
-      bullets: [
-        "It uses session behavior, trends, and model feedback to set challenge level.",
-        "Aim for a level that stretches you without crashing your accuracy.",
-      ],
-      theme: "emerald",
-    },
-  };
-
-  const handlePrint = () => {
-    window.print();
-  };
-
-  const handleExportPdfData = async () => {
-    if (!session?.sessionId) return;
-    try {
-      await testService.exportTestResults(session.sessionId, "pdf");
-    } catch (error) {
-      console.error("PDF export failed:", error);
+  const renderOverviewTab = () => {
+    if (!data) {
+      return (
+        <div className="text-center py-16">
+          <FaBrain className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+          <p className="text-gray-500 dark:text-gray-400">No analytics data available</p>
+          {flaskLoading && <p className="text-sm text-indigo-500 mt-2">Loading data...</p>}
+        </div>
+      );
     }
+
+    const { summary, recent_activity, conceptMasteryData, avgMastery, conceptCount,
+            strongTopicsData, weakTopicsData, radarData, accuracyTrend, fatigue_index,
+            burnout_risk, study_efficiency, predictions_summary } = data;
+
+    return (
+      <div className="space-y-6">
+        {/* Quick Stats Grid - Only show if data exists */}
+        <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-3">
+          {summary?.overall_accuracy !== undefined && (
+            <MetricCard
+              label="Overall Accuracy"
+              value={toPercent(summary.overall_accuracy)}
+              icon={<FiTarget className="w-5 h-5 text-cyan-500" />}
+              color="cyan"
+              subtitle={`${summary.total_practice_questions || 0} questions`}
+            />
+          )}
+          {conceptCount > 0 && (
+            <MetricCard
+              label="Concept Mastery"
+              value={toPercent(avgMastery)}
+              icon={<FaStar className="w-5 h-5 text-indigo-500" />}
+              color="indigo"
+              subtitle={`${conceptCount} concepts tracked`}
+            />
+          )}
+          {summary?.readiness_score !== undefined && (
+            <MetricCard
+              label="Readiness Score"
+              value={toPercent(summary.readiness_score)}
+              icon={<FiZap className="w-5 h-5 text-emerald-500" />}
+              color="emerald"
+            />
+          )}
+          {burnout_risk?.value !== undefined && (
+            <MetricCard
+              label="Burnout Risk"
+              value={burnout_risk.level.charAt(0).toUpperCase() + burnout_risk.level.slice(1)}
+              icon={<FiAlertCircle className={`w-5 h-5 ${burnout_risk.level === 'high' ? 'text-rose-500' : burnout_risk.level === 'moderate' ? 'text-amber-500' : 'text-emerald-500'}`} />}
+              color={burnout_risk.level === 'high' ? 'rose' : burnout_risk.level === 'moderate' ? 'amber' : 'emerald'}
+              subtitle={toPercent(burnout_risk.value)}
+            />
+          )}
+          {fatigue_index?.value !== undefined && (
+            <MetricCard
+              label="Fatigue"
+              value={fatigue_index.level.charAt(0).toUpperCase() + fatigue_index.level.slice(1)}
+              icon={<FiBattery className={`w-5 h-5 ${fatigue_index.level === 'high' ? 'text-rose-500' : fatigue_index.level === 'moderate' ? 'text-amber-500' : 'text-emerald-500'}`} />}
+              color={fatigue_index.level === 'high' ? 'rose' : fatigue_index.level === 'moderate' ? 'amber' : 'emerald'}
+              subtitle={toPercent(fatigue_index.value)}
+            />
+          )}
+          {predictions_summary?.avgRetention !== undefined && (
+            <MetricCard
+              label="Avg Retention"
+              value={toPercent(predictions_summary.avgRetention)}
+              icon={<FiTrendingUp className="w-5 h-5 text-purple-500" />}
+              color="purple"
+            />
+          )}
+          {study_efficiency?.score !== undefined && (
+            <MetricCard
+              label="Study Efficiency"
+              value={toPercent(study_efficiency.score)}
+              icon={<FiZap className="w-5 h-5 text-yellow-500" />}
+              color="yellow"
+              trend={study_efficiency.trend === 'improving' ? 1 : study_efficiency.trend === 'declining' ? -1 : 0}
+              trendLabel={study_efficiency.trend}
+            />
+          )}
+          {recent_activity?.streak_days !== undefined && recent_activity.streak_days > 0 && (
+            <MetricCard
+              label="Study Streak"
+              value={`${recent_activity.streak_days}d`}
+              icon={<FiAward className="w-5 h-5 text-amber-500" />}
+              color="amber"
+              subtitle={`${recent_activity.questions_today || 0} today`}
+            />
+          )}
+        </div>
+
+        {/* Concept Mastery Chart */}
+        {conceptMasteryData.length > 0 && (
+          <div className={`rounded-2xl border p-4 ${isDark ? "border-slate-700 bg-slate-800" : "border-slate-200 bg-white"}`}>
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <FaChartLine className="w-5 h-5 text-indigo-500" />
+              Concept Mastery
+              <span className="text-sm font-normal text-gray-500 dark:text-gray-400 ml-2">
+                ({conceptMasteryData.length} concepts shown)
+              </span>
+            </h3>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={conceptMasteryData} layout="vertical">
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis type="number" domain={[0, 1]} tickFormatter={(v) => `${v * 100}%`} />
+                  <YAxis type="category" dataKey="name" width={100} tick={{ fontSize: 11 }} />
+                  <Tooltip formatter={(value) => toPercent(value)} labelFormatter={(label, items) => {
+                    const item = items?.[0]?.payload;
+                    return item?.fullName || label;
+                  }} />
+                  <Bar dataKey="mastery" fill="#818cf8" radius={[0, 4, 4, 0]} />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        )}
+
+        {/* Strong & Weak Topics */}
+        {(strongTopicsData.length > 0 || weakTopicsData.length > 0) && (
+          <div className="grid md:grid-cols-2 gap-4">
+            {strongTopicsData.length > 0 && (
+              <div className={`rounded-2xl border p-4 ${isDark ? "border-slate-700 bg-slate-800" : "border-slate-200 bg-white"}`}>
+                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-emerald-500">
+                  <FiAward className="w-5 h-5" /> Strong Topics
+                </h3>
+                <div className="space-y-3">
+                  {strongTopicsData.slice(0, 5).map((topic, idx) => (
+                    <div key={idx} className="flex items-center justify-between">
+                      <span className="text-sm capitalize">{topic.name}</span>
+                      <div className="flex items-center gap-2 flex-1 ml-4">
+                        <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full">
+                          <div className="h-2 rounded-full bg-emerald-500" style={{ width: `${topic.accuracy * 100}%` }} />
+                        </div>
+                        <span className="text-sm font-medium text-emerald-500 min-w-[48px]">
+                          {toPercent(topic.accuracy)}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {weakTopicsData.length > 0 && (
+              <div className={`rounded-2xl border p-4 ${isDark ? "border-slate-700 bg-slate-800" : "border-slate-200 bg-white"}`}>
+                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-rose-500">
+                  <FiAlertCircle className="w-5 h-5" /> Areas for Improvement
+                </h3>
+                <div className="space-y-3">
+                  {weakTopicsData.slice(0, 5).map((topic, idx) => (
+                    <div key={idx} className="flex items-center justify-between">
+                      <span className="text-sm capitalize">{topic.name}</span>
+                      <div className="flex items-center gap-2 flex-1 ml-4">
+                        <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full">
+                          <div className="h-2 rounded-full bg-rose-500" style={{ width: `${topic.accuracy * 100}%` }} />
+                        </div>
+                        <span className="text-sm font-medium text-rose-500 min-w-[48px]">
+                          {toPercent(topic.accuracy)}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Radar Chart */}
+        {radarData.length > 0 && (
+          <div className={`rounded-2xl border p-4 ${isDark ? "border-slate-700 bg-slate-800" : "border-slate-200 bg-white"}`}>
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <FiTarget className="w-5 h-5 text-indigo-500" />
+              Concept Mastery Radar
+            </h3>
+            <div className="h-80">
+              <ResponsiveContainer width="100%" height="100%">
+                <RadarChart data={radarData}>
+                  <PolarGrid />
+                  <PolarAngleAxis dataKey="subject" tick={{ fontSize: 10 }} />
+                  <PolarRadiusAxis domain={[0, 1]} tickFormatter={(v) => `${v * 100}%`} />
+                  <Radar name="Mastery" dataKey="mastery" stroke="#818cf8" fill="#818cf8" fillOpacity={0.3} />
+                  <Tooltip formatter={(value) => toPercent(value)} labelFormatter={(label, items) => {
+                    const item = items?.[0]?.payload;
+                    return item?.fullName || label;
+                  }} />
+                  <Legend />
+                </RadarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        )}
+
+        {/* Time & Confidence Analysis */}
+        {data.confidence_calibration && (
+          <div className="grid md:grid-cols-2 gap-4">
+            <div className={`rounded-2xl border p-4 ${isDark ? "border-slate-700 bg-slate-800" : "border-slate-200 bg-white"}`}>
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <FiClock className="w-5 h-5 text-amber-500" />
+                Confidence Calibration
+              </h3>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span>Calibration Error</span>
+                  <span className="font-medium">{toPercent(data.confidence_calibration.calibration_error || 0.15)}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span>Overconfidence Bias</span>
+                  <span className="font-medium">{toPercent(data.confidence_calibration.overconfidence_bias || 0.08)}</span>
+                </div>
+                {data.confidence_calibration.by_difficulty && (
+                  <>
+                    <div className="flex justify-between text-sm">
+                      <span>Easy Questions</span>
+                      <span className="font-medium">{toPercent(1 - (data.confidence_calibration.by_difficulty.easy || 0.08))}</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span>Hard Questions</span>
+                      <span className="font-medium">{toPercent(1 - (data.confidence_calibration.by_difficulty.hard || 0.18))}</span>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+
+            <div className={`rounded-2xl border p-4 ${isDark ? "border-slate-700 bg-slate-800" : "border-slate-200 bg-white"}`}>
+              <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                <FaBrain className="w-5 h-5 text-purple-500" />
+                Behavior Profile
+              </h3>
+              <div className="space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span>Learning Style</span>
+                  <span className="font-medium capitalize">{data.behavior_profile.cluster || "Balanced"}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span>Avg Time per Question</span>
+                  <span className="font-medium">{formatSeconds(data.behavior_profile.avgTime || 60)}</span>
+                </div>
+                {data.behavior_profile.difficulty_preference !== undefined && (
+                  <div className="flex justify-between text-sm">
+                    <span>Difficulty Preference</span>
+                    <span className="font-medium">{toPercent(data.behavior_profile.difficulty_preference)}</span>
+                  </div>
+                )}
+                {data.behavior_profile.persistence_score !== undefined && (
+                  <div className="flex justify-between text-sm">
+                    <span>Persistence</span>
+                    <span className="font-medium">{toPercent(data.behavior_profile.persistence_score)}</span>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    );
   };
 
-  if (!answers.length && !session?.sessionId) {
+  const renderTrendsTab = () => {
+    if (!data) {
+      return (
+        <div className="text-center py-16">
+          <p className="text-gray-500 dark:text-gray-400">No trend data available</p>
+        </div>
+      );
+    }
+
+    const { accuracyTrend, difficultyTrend, weeklyProgress, stress_patterns, fatigue_index } = data;
+
+    // Process stress data for chart
+    const stressChartData = stress_patterns?.byTopicData || [];
+    const hasStressData = stressChartData.length > 0;
+
     return (
-      <div
-        className={`min-h-screen px-4 py-8 md:px-8 ${
-          isDark ? "bg-slate-950 text-slate-100" : "bg-slate-50 text-slate-900"
-        }`}
-      >
-        <div className={`mx-auto max-w-4xl ${cardClass} ${surfaceClass}`}>
+      <div className="space-y-6">
+        {/* Accuracy Trend */}
+        {accuracyTrend.length > 0 && (
+          <div className={`rounded-2xl border p-4 ${isDark ? "border-slate-700 bg-slate-800" : "border-slate-200 bg-white"}`}>
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <FiTrendingUp className="w-5 h-5 text-cyan-500" />
+              Accuracy Trend
+            </h3>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={accuracyTrend.slice(-30)}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" tick={{ fontSize: 10 }} />
+                  <YAxis domain={[0, 1]} tickFormatter={(v) => `${v * 100}%`} />
+                  <Tooltip formatter={(value) => toPercent(value)} />
+                  <Line type="monotone" dataKey="value" stroke="#22d3ee" strokeWidth={2} dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        )}
+
+        {/* Difficulty Trend */}
+        {difficultyTrend.length > 0 && (
+          <div className={`rounded-2xl border p-4 ${isDark ? "border-slate-700 bg-slate-800" : "border-slate-200 bg-white"}`}>
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <FiTrendingDown className="w-5 h-5 text-pink-500" />
+              Difficulty Trend
+            </h3>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart data={difficultyTrend.slice(-30)}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="date" tick={{ fontSize: 10 }} />
+                  <YAxis domain={[0, 1]} tickFormatter={(v) => `${v * 100}%`} />
+                  <Tooltip formatter={(value) => toPercent(value)} />
+                  <Line type="monotone" dataKey="value" stroke="#f472b6" strokeWidth={2} dot={false} />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        )}
+
+        {/* Weekly Progress */}
+        {weeklyProgress.length > 0 && (
+          <div className={`rounded-2xl border p-4 ${isDark ? "border-slate-700 bg-slate-800" : "border-slate-200 bg-white"}`}>
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <FiCalendar className="w-5 h-5 text-emerald-500" />
+              Weekly Progress
+            </h3>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={weeklyProgress}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="week" />
+                  <YAxis domain={[0, 1]} tickFormatter={(v) => `${v * 100}%`} />
+                  <Tooltip formatter={(value) => toPercent(value)} />
+                  <Bar dataKey="value" fill="#34d399" />
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        )}
+
+        {/* Stress by Topic */}
+        {hasStressData && (
+          <div className={`rounded-2xl border p-4 ${isDark ? "border-slate-700 bg-slate-800" : "border-slate-200 bg-white"}`}>
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+              <FiActivity className="w-5 h-5 text-orange-500" />
+              Stress by Topic
+            </h3>
+            <div className="space-y-3">
+              {stressChartData.slice(0, 8).map((item, idx) => (
+                <div key={idx} className="flex items-center justify-between">
+                  <span className="text-sm capitalize">{item.name}</span>
+                  <div className="flex items-center gap-2 flex-1 ml-4">
+                    <div className="w-full h-2 bg-gray-200 dark:bg-gray-700 rounded-full">
+                      <div className="h-2 rounded-full bg-orange-500" style={{ width: `${item.stress * 100}%` }} />
+                    </div>
+                    <span className="text-sm font-medium text-orange-500 min-w-[48px]">
+                      {toPercent(item.stress)}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Fatigue & Burnout Summary */}
+        {(fatigue_index?.value !== undefined || data.burnout_risk?.value !== undefined) && (
+          <div className="grid md:grid-cols-2 gap-4">
+            {fatigue_index?.value !== undefined && (
+              <div className={`rounded-2xl border p-4 ${isDark ? "border-slate-700 bg-slate-800" : "border-slate-200 bg-white"}`}>
+                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <FiBattery className="w-5 h-5 text-amber-500" />
+                  Fatigue Analysis
+                </h3>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Current Fatigue</span>
+                    <span className={`font-medium ${fatigue_index.level === 'high' ? 'text-rose-500' : fatigue_index.level === 'moderate' ? 'text-amber-500' : 'text-emerald-500'}`}>
+                      {toPercent(fatigue_index.value)} - {fatigue_index.level}
+                    </span>
+                  </div>
+                  {fatigue_index.trend && (
+                    <div className="flex justify-between text-sm">
+                      <span>Trend</span>
+                      <span className="font-medium capitalize">{fatigue_index.trend}</span>
+                    </div>
+                  )}
+                  {fatigue_index.recommendation && (
+                    <div className="mt-2 p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-xs">
+                      💡 {fatigue_index.recommendation}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {data.burnout_risk?.value !== undefined && (
+              <div className={`rounded-2xl border p-4 ${isDark ? "border-slate-700 bg-slate-800" : "border-slate-200 bg-white"}`}>
+                <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+                  <FiAlertCircle className={`w-5 h-5 ${data.burnout_risk.level === 'high' ? 'text-rose-500' : 'text-amber-500'}`} />
+                  Burnout Risk
+                </h3>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span>Risk Level</span>
+                    <span className={`font-medium ${data.burnout_risk.level === 'high' ? 'text-rose-500' : data.burnout_risk.level === 'moderate' ? 'text-amber-500' : 'text-emerald-500'}`}>
+                      {data.burnout_risk.level.toUpperCase()} ({toPercent(data.burnout_risk.value)})
+                    </span>
+                  </div>
+                  {data.burnout_risk.warning_signs?.length > 0 && (
+                    <div className="mt-2">
+                      <span className="text-xs text-gray-500 dark:text-gray-400">Warning Signs:</span>
+                      <ul className="mt-1 space-y-1">
+                        {data.burnout_risk.warning_signs.slice(0, 3).map((sign, idx) => (
+                          <li key={idx} className="text-xs text-gray-600 dark:text-gray-300">• {sign}</li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {data.burnout_risk.recommendations?.length > 0 && (
+                    <div className="mt-2 p-2 rounded-lg bg-gray-100 dark:bg-gray-700 text-xs">
+                      💡 {data.burnout_risk.recommendations[0]}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderModelsTab = () => {
+    if (!data) {
+      return (
+        <div className="text-center py-16">
+          <p className="text-gray-500 dark:text-gray-400">No model data available</p>
+        </div>
+      );
+    }
+
+    const {
+      conceptCount,
+      avgMastery,
+      weakness_priority,
+      reviewPriority,
+      time_allocation,
+      errorPatternsData,
+      predictions_summary,
+      stability_index,
+      difficulty_tolerance,
+      focus_loss,
+    } = data;
+
+    return (
+      <div className="space-y-6">
+        {/* Model Cards Grid */}
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+          {conceptCount > 0 && (
+            <div className={`rounded-2xl border p-4 ${isDark ? "border-slate-700 bg-slate-800" : "border-slate-200 bg-white"}`}>
+              <div className="p-2 rounded-xl inline-block bg-indigo-50 dark:bg-indigo-900/20 mb-2">
+                <FaStar className="w-5 h-5 text-indigo-500" />
+              </div>
+              <div className="text-lg font-bold">{toPercent(avgMastery)}</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Concept Mastery</div>
+              <div className="text-[10px] text-gray-400 dark:text-gray-500 mt-1">{conceptCount} concepts</div>
+            </div>
+          )}
+
+          {predictions_summary?.avgRetention !== undefined && (
+            <div className={`rounded-2xl border p-4 ${isDark ? "border-slate-700 bg-slate-800" : "border-slate-200 bg-white"}`}>
+              <div className="p-2 rounded-xl inline-block bg-purple-50 dark:bg-purple-900/20 mb-2">
+                <FiTrendingUp className="w-5 h-5 text-purple-500" />
+              </div>
+              <div className="text-lg font-bold">{toPercent(predictions_summary.avgRetention)}</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Avg Retention</div>
+              <div className="text-[10px] text-gray-400 dark:text-gray-500 mt-1">
+                {predictions_summary.lowRetentionTopics?.length || 0} low, {predictions_summary.highRetentionTopics?.length || 0} high
+              </div>
+            </div>
+          )}
+
+          {weakness_priority?.length > 0 && (
+            <div className={`rounded-2xl border p-4 ${isDark ? "border-slate-700 bg-slate-800" : "border-slate-200 bg-white"}`}>
+              <div className="p-2 rounded-xl inline-block bg-amber-50 dark:bg-amber-900/20 mb-2">
+                <FiFlag className="w-5 h-5 text-amber-500" />
+              </div>
+              <div className="text-lg font-bold">{weakness_priority.length}</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Weakness Areas</div>
+              <div className="text-[10px] text-gray-400 dark:text-gray-500 mt-1 truncate">
+                {weakness_priority[0]?.topic || "None identified"}
+              </div>
+            </div>
+          )}
+
+          {reviewPriority?.length > 0 && (
+            <div className={`rounded-2xl border p-4 ${isDark ? "border-slate-700 bg-slate-800" : "border-slate-200 bg-white"}`}>
+              <div className="p-2 rounded-xl inline-block bg-sky-50 dark:bg-sky-900/20 mb-2">
+                <FiRefreshCw className="w-5 h-5 text-sky-500" />
+              </div>
+              <div className="text-lg font-bold">{reviewPriority.length}</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Need Review</div>
+              <div className="text-[10px] text-gray-400 dark:text-gray-500 mt-1">
+                {reviewPriority.filter(r => r.priority === 'high').length} high priority
+              </div>
+            </div>
+          )}
+
+          {time_allocation?.length > 0 && (
+            <div className={`rounded-2xl border p-4 ${isDark ? "border-slate-700 bg-slate-800" : "border-slate-200 bg-white"}`}>
+              <div className="p-2 rounded-xl inline-block bg-teal-50 dark:bg-teal-900/20 mb-2">
+                <FiClock className="w-5 h-5 text-teal-500" />
+              </div>
+              <div className="text-lg font-bold">{time_allocation.length}</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Time Allocation</div>
+              <div className="text-[10px] text-gray-400 dark:text-gray-500 mt-1">
+                {time_allocation.reduce((sum, t) => sum + (t.recommended_minutes || 0), 0)} min total
+              </div>
+            </div>
+          )}
+
+          {errorPatternsData.length > 0 && (
+            <div className={`rounded-2xl border p-4 ${isDark ? "border-slate-700 bg-slate-800" : "border-slate-200 bg-white"}`}>
+              <div className="p-2 rounded-xl inline-block bg-rose-50 dark:bg-rose-900/20 mb-2">
+                <FiAlertCircle className="w-5 h-5 text-rose-500" />
+              </div>
+              <div className="text-lg font-bold">{errorPatternsData.length}</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Error Patterns</div>
+              <div className="text-[10px] text-gray-400 dark:text-gray-500 mt-1">
+                {errorPatternsData[0]?.name || ""}: {errorPatternsData[0]?.value?.toFixed(0) || 0}%
+              </div>
+            </div>
+          )}
+
+          {stability_index && Object.keys(stability_index).length > 0 && (
+            <div className={`rounded-2xl border p-4 ${isDark ? "border-slate-700 bg-slate-800" : "border-slate-200 bg-white"}`}>
+              <div className="p-2 rounded-xl inline-block bg-cyan-50 dark:bg-cyan-900/20 mb-2">
+                <FiTrendingUp className="w-5 h-5 text-cyan-500" />
+              </div>
+              <div className="text-lg font-bold">{Object.keys(stability_index).length}</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Stable Concepts</div>
+              <div className="text-[10px] text-gray-400 dark:text-gray-500 mt-1">
+                {Object.values(stability_index).filter(v => v > 0.6).length} high stability
+              </div>
+            </div>
+          )}
+
+          {difficulty_tolerance?.max_sustainable !== undefined && (
+            <div className={`rounded-2xl border p-4 ${isDark ? "border-slate-700 bg-slate-800" : "border-slate-200 bg-white"}`}>
+              <div className="p-2 rounded-xl inline-block bg-blue-50 dark:bg-blue-900/20 mb-2">
+                <FiTarget className="w-5 h-5 text-blue-500" />
+              </div>
+              <div className="text-lg font-bold">{toPercent(difficulty_tolerance.max_sustainable)}</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Difficulty Tolerance</div>
+              <div className="text-[10px] text-gray-400 dark:text-gray-500 mt-1">Max sustainable</div>
+            </div>
+          )}
+
+          {focus_loss?.frequency !== undefined && (
+            <div className={`rounded-2xl border p-4 ${isDark ? "border-slate-700 bg-slate-800" : "border-slate-200 bg-white"}`}>
+              <div className="p-2 rounded-xl inline-block bg-orange-50 dark:bg-orange-900/20 mb-2">
+                <FiActivity className="w-5 h-5 text-orange-500" />
+              </div>
+              <div className="text-lg font-bold">{toPercent(focus_loss.frequency)}</div>
+              <div className="text-xs text-gray-500 dark:text-gray-400">Focus Loss</div>
+              <div className="text-[10px] text-gray-400 dark:text-gray-500 mt-1">
+                {focus_loss.triggers?.length || 0} triggers
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Weakness Priority Detail */}
+        {weakness_priority?.length > 0 && (
+          <div className={`rounded-2xl border p-4 ${isDark ? "border-slate-700 bg-slate-800" : "border-slate-200 bg-white"}`}>
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-rose-500">
+              <FiFlag className="w-5 h-5" />
+              Weakness Priority Rankings
+            </h3>
+            <div className="space-y-3">
+              {weakness_priority.slice(0, 6).map((item, idx) => (
+                <div key={idx} className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-bold text-gray-400">#{idx + 1}</span>
+                    <span className="text-sm capitalize">{item.topic}</span>
+                    <span className={`px-2 py-0.5 rounded-full text-xs ${
+                      item.urgency === 'high' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' :
+                      item.urgency === 'medium' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300' :
+                      'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+                    }`}>
+                      {item.urgency}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-24 h-2 bg-gray-200 dark:bg-gray-700 rounded-full">
+                      <div className="h-2 rounded-full bg-rose-500" style={{ width: `${(1 - (item.accuracy || 0)) * 100}%` }} />
+                    </div>
+                    <span className="text-sm font-medium text-rose-500 min-w-[48px]">
+                      {toPercent(1 - (item.accuracy || 0))}
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Time Allocation Detail */}
+        {time_allocation?.length > 0 && (
+          <div className={`rounded-2xl border p-4 ${isDark ? "border-slate-700 bg-slate-800" : "border-slate-200 bg-white"}`}>
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-teal-500">
+              <FiClock className="w-5 h-5" />
+              Recommended Time Allocation
+            </h3>
+            <div className="space-y-3">
+              {time_allocation.slice(0, 6).map((item, idx) => (
+                <div key={idx} className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-bold text-gray-400">#{item.order || idx + 1}</span>
+                    <span className="text-sm capitalize">{item.topic}</span>
+                    <span className={`px-2 py-0.5 rounded-full text-xs ${
+                      item.priority === 'high' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' :
+                      item.priority === 'medium' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300' :
+                      'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+                    }`}>
+                      {item.priority}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-teal-500">
+                      {item.recommended_minutes || 0}m
+                    </span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Error Patterns Pie Chart */}
+        {errorPatternsData.length > 0 && (
+          <div className={`rounded-2xl border p-4 ${isDark ? "border-slate-700 bg-slate-800" : "border-slate-200 bg-white"}`}>
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-rose-500">
+              <FiPieChart className="w-5 h-5" />
+              Error Pattern Distribution
+            </h3>
+            <div className="h-64">
+              <ResponsiveContainer width="100%" height="100%">
+                <PieChart>
+                  <Pie
+                    data={errorPatternsData}
+                    cx="50%"
+                    cy="50%"
+                    labelLine={false}
+                    label={({ name, value }) => `${name}: ${value.toFixed(0)}%`}
+                    outerRadius={80}
+                    dataKey="value"
+                  >
+                    {errorPatternsData.map((_, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                    ))}
+                  </Pie>
+                  <Tooltip formatter={(value) => `${value.toFixed(0)}%`} />
+                  <Legend />
+                </PieChart>
+              </ResponsiveContainer>
+            </div>
+          </div>
+        )}
+
+        {/* Review Priority Detail */}
+        {reviewPriority?.length > 0 && (
+          <div className={`rounded-2xl border p-4 ${isDark ? "border-slate-700 bg-slate-800" : "border-slate-200 bg-white"}`}>
+            <h3 className="text-lg font-semibold mb-4 flex items-center gap-2 text-sky-500">
+              <FiRefreshCw className="w-5 h-5" />
+              Review Priority
+            </h3>
+            <div className="space-y-3">
+              {reviewPriority.slice(0, 6).map((item, idx) => (
+                <div key={idx} className="flex items-center justify-between p-2 rounded-lg bg-gray-50 dark:bg-gray-700/30">
+                  <div className="flex items-center gap-3">
+                    <span className="text-sm font-bold text-gray-400">#{idx + 1}</span>
+                    <span className="text-sm capitalize">{item.topic}</span>
+                    <span className={`px-2 py-0.5 rounded-full text-xs ${
+                      item.priority === 'high' ? 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300' :
+                      item.priority === 'medium' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-300' :
+                      'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300'
+                    }`}>
+                      {item.priority}
+                    </span>
+                  </div>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    {item.reason}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderQuestionsTab = () => {
+    if (!answers.length) {
+      return (
+        <div className="text-center py-16">
+          <FiBookOpen className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+          <p className="text-gray-500 dark:text-gray-400">No questions to review</p>
+        </div>
+      );
+    }
+
+    return (
+      <div className="space-y-4">
+        {answers.map((answer, index) => {
+          const isCorrect = answer.isCorrect;
+          const timeSpent = answer.timeSpent || 0;
+          const expectedTime = answer.expectedTime || 90;
+          const ratio = timeSpent / Math.max(1, expectedTime);
+          const ratioLabel = ratio > 1.1 ? "Slow" : ratio < 0.7 ? "Fast" : "On Target";
+          const concept = answer.conceptArea || answer.topic || "General";
+
+          return (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.05 }}
+              className={`rounded-2xl border p-4 ${isDark ? "border-slate-700 bg-slate-800" : "border-slate-200 bg-white"}`}
+            >
+              <div className="flex flex-wrap items-start justify-between gap-2 mb-3">
+                <div className="flex items-center gap-3 flex-wrap">
+                  <span className="text-sm font-medium">Q{index + 1}</span>
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                    isCorrect ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300" :
+                    "bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300"
+                  }`}>
+                    {isCorrect ? <FiCheckCircle className="inline mr-1 w-3 h-3" /> :
+                               <FiXCircle className="inline mr-1 w-3 h-3" />}
+                    {isCorrect ? "Correct" : "Wrong"}
+                  </span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">{concept}</span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400">
+                    Difficulty: {toPercent(answer.difficulty || 0.5)}
+                  </span>
+                </div>
+                <div className="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                  <FiClock className="w-3 h-3" />
+                  <span>{formatSeconds(timeSpent)} / {formatSeconds(expectedTime)}</span>
+                  <span className={`px-2 py-0.5 rounded-full ${
+                    ratioLabel === "Slow" ? "bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300" :
+                    ratioLabel === "Fast" ? "bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300" :
+                    "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+                  }`}>
+                    {ratioLabel}
+                  </span>
+                </div>
+              </div>
+
+              <p className="text-sm text-gray-700 dark:text-gray-300 mb-2">
+                {answer.questionText || "Question text unavailable"}
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                <div className={`p-2 rounded-lg ${isDark ? "bg-slate-700" : "bg-slate-50"}`}>
+                  <span className="text-gray-500 dark:text-gray-400">Your Answer: </span>
+                  <span className="font-medium">
+                    {answer.selectedOptions ? JSON.stringify(answer.selectedOptions) : "N/A"}
+                  </span>
+                </div>
+                <div className={`p-2 rounded-lg ${isDark ? "bg-slate-700" : "bg-emerald-50"}`}>
+                  <span className="text-gray-500 dark:text-gray-400">Correct Answer: </span>
+                  <span className="font-medium text-emerald-600 dark:text-emerald-400">
+                    {answer.correctAnswer ? JSON.stringify(answer.correctAnswer) : "N/A"}
+                  </span>
+                </div>
+              </div>
+
+              {!isCorrect && (answer.explanation || answer.solution) && (
+                <div className={`mt-3 p-3 rounded-lg text-xs ${isDark ? "bg-slate-700" : "bg-blue-50"}`}>
+                  <span className="font-medium text-blue-600 dark:text-blue-400">Explanation: </span>
+                  <span className="text-gray-600 dark:text-gray-300">
+                    {answer.explanation || answer.solution}
+                  </span>
+                </div>
+              )}
+            </motion.div>
+          );
+        })}
+      </div>
+    );
+  };
+
+  // ==================== RECOMMENDATIONS TAB ====================
+  const renderRecommendationsTab = () => {
+    if (!data?.recommendations?.length) {
+      return (
+        <div className="text-center py-16">
+          <FiAward className="w-16 h-16 text-gray-300 dark:text-gray-600 mx-auto mb-4" />
+          <p className="text-gray-500 dark:text-gray-400">No recommendations available</p>
+        </div>
+      );
+    }
+
+    const { recommendations } = data;
+
+    return (
+      <div className="space-y-4">
+        {recommendations.map((rec, idx) => (
+          <div
+            key={idx}
+            className={`rounded-2xl border p-4 ${
+              isDark ? "border-slate-700 bg-slate-800" : "border-slate-200 bg-white"
+            }`}
+          >
+            <div className="flex items-start gap-3">
+              <div className={`p-2 rounded-xl ${
+                rec.priority === 'high' ? 'bg-rose-100 dark:bg-rose-900/30' :
+                rec.priority === 'medium' ? 'bg-amber-100 dark:bg-amber-900/30' :
+                'bg-emerald-100 dark:bg-emerald-900/30'
+              }`}>
+                {rec.category === 'weakness_focus' && <FiFlag className="w-5 h-5 text-rose-500" />}
+                {rec.category === 'wellness' && <FiHeart className="w-5 h-5 text-rose-500" />}
+                {rec.category === 'fatigue_management' && <FiBattery className="w-5 h-5 text-amber-500" />}
+                {rec.category === 'concept_review' && <FiBookOpen className="w-5 h-5 text-blue-500" />}
+                {rec.category === 'efficiency' && <FiZap className="w-5 h-5 text-yellow-500" />}
+                {!['weakness_focus', 'wellness', 'fatigue_management', 'concept_review', 'efficiency'].includes(rec.category) &&
+                  <FiAlertCircle className="w-5 h-5 text-indigo-500" />
+                }
+              </div>
+              <div className="flex-1">
+                <div className="flex items-center gap-2 mb-1">
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
+                    rec.priority === 'high' ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-300' :
+                    rec.priority === 'medium' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-300' :
+                    'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-300'
+                  }`}>
+                    {rec.priority?.toUpperCase() || 'NORMAL'}
+                  </span>
+                  <span className="text-xs text-gray-500 dark:text-gray-400 capitalize">{rec.category}</span>
+                </div>
+                <h4 className="font-semibold">{rec.message}</h4>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">{rec.detail}</p>
+                {rec.action_items?.length > 0 && (
+                  <ul className="mt-2 space-y-1">
+                    {rec.action_items.slice(0, 4).map((action, i) => (
+                      <li key={i} className="text-sm text-gray-500 dark:text-gray-400 flex items-center gap-2">
+                        <span className="text-emerald-500">•</span>
+                        {action}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  };
+
+  // ==================== MAIN RENDER ====================
+  if (!answers.length && !sessionData?.sessionId) {
+    return (
+      <div className={`min-h-screen px-4 py-8 md:px-8 ${isDark ? "bg-slate-950 text-slate-100" : "bg-slate-50 text-slate-900"}`}>
+        <div className="mx-auto max-w-4xl rounded-2xl border p-6 bg-white dark:bg-slate-800 border-slate-200 dark:border-slate-700">
           <div className="mb-3 flex items-center gap-2 text-amber-500">
             <FiAlertCircle className="h-5 w-5" />
             <span className="font-semibold">No practice result data found</span>
           </div>
-          <p className={mutedClass}>
-            This page needs session result state. Start a practice session and
-            end it to view deep analytics.
+          <p className="text-gray-500 dark:text-gray-400">
+            This page needs session result state. Start a practice session and end it to view deep analytics.
           </p>
           <button
             type="button"
@@ -581,838 +1265,99 @@ const PracticeResult = () => {
   }
 
   return (
-    <div
-      className={`min-h-screen px-4 py-6 md:px-8 md:py-8 ${
-        isDark ? "bg-slate-950 text-slate-100" : "bg-slate-50 text-slate-900"
-      }`}
-    >
-      <style>
-        {`@media print {
+    <div className={`min-h-screen px-4 py-6 md:px-8 ${isDark ? "bg-slate-950 text-slate-100" : "bg-slate-50 text-slate-900"}`}>
+      <style>{`
+        @media print {
           body * { visibility: hidden; }
           #practice-result-print, #practice-result-print * { visibility: visible; }
           #practice-result-print { position: absolute; left: 0; top: 0; width: 100%; }
           .no-print { display: none !important; }
-        }`}
-      </style>
-      <div
-        id="practice-result-print"
-        className="mx-auto flex w-full max-w-7xl flex-col gap-5"
-      >
-        <div className="flex flex-wrap items-center justify-between gap-3">
+        }
+      `}</style>
+
+      <div id="practice-result-print" className="mx-auto max-w-7xl space-y-6">
+        {/* Header */}
+        <div className="flex flex-wrap items-center justify-between gap-3 no-print">
           <div>
-            <h1 className="text-2xl font-bold md:text-3xl">
-              Practice Session Results
+            <h1 className="text-2xl font-bold md:text-3xl flex items-center gap-2">
+              <FaBrain className="w-6 h-6 text-indigo-500" />
+              Practice Session Analysis
             </h1>
-            <p className={`mt-1 text-sm ${mutedClass}`}>
-              Session: {session?.sessionId || "N/A"} • Ended:{" "}
-              {formatDateTime(session?.completedAt || new Date())}
+            <p className={`mt-1 text-sm ${isDark ? "text-gray-400" : "text-gray-500"}`}>
+              Session: {sessionData?.sessionId || "N/A"} • {formatDateTime(sessionData?.completedAt || new Date())}
             </p>
           </div>
-          <div className="no-print flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <button
-              type="button"
+              onClick={() => setViewMode(viewMode === "grid" ? "list" : "grid")}
+              className={`p-2 rounded-lg ${isDark ? "bg-slate-800 hover:bg-slate-700" : "bg-white hover:bg-slate-100 border border-slate-200"}`}
+            >
+              {viewMode === "grid" ? <FiGrid className="w-4 h-4" /> : <FiList className="w-4 h-4" />}
+            </button>
+            <button
+              onClick={toggleTheme}
+              className={`p-2 rounded-lg ${isDark ? "bg-slate-800 hover:bg-slate-700" : "bg-white hover:bg-slate-100 border border-slate-200"}`}
+            >
+              {isDark ? <FiSun className="w-4 h-4" /> : <FiMoon className="w-4 h-4" />}
+            </button>
+            <button
+              onClick={() => window.print()}
+              className="px-3 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 text-sm flex items-center gap-1"
+            >
+              <FiPrinter className="w-4 h-4" /> Print
+            </button>
+            <button
               onClick={() => navigate("/test/practice")}
-              title="Start another practice session with fresh questions and updated adaptive settings."
-              className={`inline-flex items-center gap-2 rounded-lg px-3 py-2 text-sm font-medium ${
-                isDark
-                  ? "bg-slate-800 text-slate-100 hover:bg-slate-700"
-                  : "bg-white text-slate-800 hover:bg-slate-100 border border-slate-200"
+              className="px-3 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 text-sm flex items-center gap-1"
+            >
+              <FiArrowLeft className="w-4 h-4" /> New Practice
+            </button>
+          </div>
+        </div>
+
+        {/* Tabs */}
+        <div className="no-print flex flex-wrap gap-2 border-b border-slate-200 dark:border-slate-700 pb-2">
+          {["overview", "trends", "models", "questions", "recommendations"].map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={`px-4 py-2 rounded-lg text-sm font-medium transition-all capitalize ${
+                activeTab === tab
+                  ? "bg-indigo-600 text-white"
+                  : isDark ? "hover:bg-slate-800 text-gray-400" : "hover:bg-slate-100 text-gray-600"
               }`}
             >
-              <FiArrowLeft className="h-4 w-4" />
-              New Practice
+              {tab === "overview" && <FiTarget className="inline mr-1 w-3 h-3" />}
+              {tab === "trends" && <FiTrendingUp className="inline mr-1 w-3 h-3" />}
+              {tab === "models" && <FaBrain className="inline mr-1 w-3 h-3" />}
+              {tab === "questions" && <FiBookOpen className="inline mr-1 w-3 h-3" />}
+              {tab === "recommendations" && <FiAward className="inline mr-1 w-3 h-3" />}
+              {tab}
             </button>
-            <button
-              type="button"
-              onClick={() => window.location.reload()}
-              title="Reload this page to refresh model insights, trend data, and latest backend analytics."
-              className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white hover:bg-blue-700"
-            >
-              <FiRefreshCw className="h-4 w-4" />
-              Refresh Insights
-            </button>
-            <button
-              type="button"
-              onClick={handlePrint}
-              title="Open the print dialog to save this full report as a PDF for revision later."
-              className="inline-flex items-center gap-2 rounded-lg bg-emerald-600 px-3 py-2 text-sm font-medium text-white hover:bg-emerald-700"
-            >
-              <FiBookOpen className="h-4 w-4" />
-              Print / Save PDF
-            </button>
-            <button
-              type="button"
-              onClick={handleExportPdfData}
-              title="Download the backend-generated PDF data bundle for deeper archival or reporting."
-              className="inline-flex items-center gap-2 rounded-lg bg-violet-600 px-3 py-2 text-sm font-medium text-white hover:bg-violet-700"
-            >
-              <FiBarChart2 className="h-4 w-4" />
-              Download PDF Data
-            </button>
-          </div>
-        </div>
-
-        <div
-          className={`rounded-2xl border p-4 md:p-5 bg-gradient-to-r ${
-            isDark
-              ? "from-indigo-900/40 via-cyan-900/30 to-emerald-900/40 border-slate-700"
-              : "from-indigo-100 via-cyan-100 to-emerald-100 border-cyan-200"
-          }`}
-        >
-          <div className="flex flex-wrap items-center gap-3 text-sm">
-            <span className="inline-flex items-center gap-1 rounded-full bg-white/20 px-3 py-1 backdrop-blur-sm">
-              <FiZap className="h-4 w-4" /> Adaptive analytics enabled
-              <InsightTooltip
-                title="Adaptive Analytics"
-                description="Your result page is dynamically generated from performance, timing, and confidence behavior for personalized feedback."
-                bullets={[
-                  "It helps identify both immediate score patterns and long-term learning risks.",
-                  "Use these insights to choose smarter revision and practice intensity.",
-                ]}
-                theme="sky"
-                position="top"
-              />
-            </span>
-            <span className="inline-flex items-center gap-1 rounded-full bg-white/20 px-3 py-1 backdrop-blur-sm">
-              <FiTrendingUp className="h-4 w-4" /> Difficulty trend + confidence
-              <InsightTooltip
-                title="Trend Signals"
-                description="This combines evolving difficulty and your self-confidence to reveal adaptation quality during the session."
-                bullets={[
-                  "Stable confidence with rising difficulty usually shows healthy growth.",
-                  "Erratic confidence at medium difficulty can indicate conceptual instability.",
-                ]}
-                theme="amber"
-                position="top"
-              />
-            </span>
-            <span className="inline-flex items-center gap-1 rounded-full bg-white/20 px-3 py-1 backdrop-blur-sm">
-              <FaBrain className="h-4 w-4" /> 12 model insights
-              <InsightTooltip
-                title="Model Intelligence Layer"
-                description="Twelve analytics models inspect mastery, errors, fatigue, memory decay, and pacing to produce an explainable report."
-                bullets={[
-                  "Treat these as guidance signals, not a single final judgment.",
-                  "Best results come from combining model insights with topic-wise review.",
-                ]}
-                theme="violet"
-                position="top"
-              />
-            </span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-2 gap-3 md:grid-cols-4 xl:grid-cols-8">
-          {[
-            {
-              label: "Accuracy",
-              value: toPercent(sessionTotals.accuracy),
-              icon: <FiTarget className="h-4 w-4" />,
-            },
-            {
-              label: "Correct",
-              value: `${sessionTotals.correct}`,
-              icon: <FiCheckCircle className="h-4 w-4" />,
-            },
-            {
-              label: "Wrong",
-              value: `${sessionTotals.wrong}`,
-              icon: <FiXCircle className="h-4 w-4" />,
-            },
-            {
-              label: "Solved",
-              value: `${sessionTotals.answeredCount}`,
-              icon: <FiBookOpen className="h-4 w-4" />,
-            },
-            {
-              label: "Time Taken",
-              value: formatSeconds(sessionTotals.totalTime),
-              icon: <FiClock className="h-4 w-4" />,
-            },
-            {
-              label: "Expected Time",
-              value: formatSeconds(sessionTotals.totalExpected),
-              icon: <FiActivity className="h-4 w-4" />,
-            },
-            {
-              label: "Confidence",
-              value: toPercent(sessionTotals.avgConfidence),
-              icon: <FaBrain className="h-4 w-4" />,
-            },
-            {
-              label: "Next Difficulty",
-              value: toPercent(flaskPredictions?.nextDifficulty || 0.5),
-              icon: <FiZap className="h-4 w-4" />,
-            },
-          ].map((item) => (
-            <div key={item.label} className={`${cardClass} ${surfaceClass}`}>
-              <div
-                className={`mb-2 inline-flex rounded-full p-2 ${isDark ? "bg-slate-800" : "bg-slate-100"}`}
-              >
-                {item.icon}
-              </div>
-              <div className="text-lg font-semibold md:text-xl">
-                {item.value}
-              </div>
-              <div className={`flex items-center gap-1 text-xs ${mutedClass}`}>
-                <span>{item.label}</span>
-                <InsightTooltip
-                  title={item.label}
-                  description={metricTooltips[item.label]?.description}
-                  bullets={metricTooltips[item.label]?.bullets || []}
-                  theme={metricTooltips[item.label]?.theme || "sky"}
-                  position="top"
-                />
-              </div>
-            </div>
           ))}
         </div>
 
-        <div className="grid gap-4 lg:grid-cols-2">
-          <div className={`${cardClass} ${surfaceClass}`}>
-            <div className="mb-3 flex items-center justify-between">
-              <h2 className="flex items-center gap-2 text-lg font-semibold">
-                <FaChartLine className="h-4 w-4" />
-                Difficulty Trend Across Session
-                <InsightTooltip
-                  title="Difficulty Trend"
-                  description="This curve shows how question challenge level evolved while you progressed through the test."
-                  bullets={[
-                    "An upward smooth curve suggests adaptive challenge growth.",
-                    "Sudden spikes can create pressure points to revisit in practice.",
-                  ]}
-                  theme="sky"
-                />
-              </h2>
-              <span className={`text-xs ${mutedClass}`}>
-                {flaskDifficultySeries.length
-                  ? "Flask CSV trend"
-                  : "Live session trend"}
-              </span>
-            </div>
-            <svg viewBox="0 0 320 96" className="h-28 w-full">
-              <path
-                d={trendPath(difficultySeriesToShow)}
-                fill="none"
-                stroke={isDark ? "#38bdf8" : "#0284c7"}
-                strokeWidth="3"
-                strokeLinecap="round"
-              />
-            </svg>
-            <p className={`mt-2 text-xs ${mutedClass}`}>
-              Average difficulty:{" "}
-              {toPercent(
-                difficultySeriesToShow.reduce((sum, value) => sum + value, 0) /
-                  Math.max(1, difficultySeriesToShow.length),
-              )}
-            </p>
-          </div>
+        {/* Tab Content */}
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTab}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.2 }}
+          >
+            {activeTab === "overview" && renderOverviewTab()}
+            {activeTab === "trends" && renderTrendsTab()}
+            {activeTab === "models" && renderModelsTab()}
+            {activeTab === "questions" && renderQuestionsTab()}
+            {activeTab === "recommendations" && renderRecommendationsTab()}
+          </motion.div>
+        </AnimatePresence>
 
-          <div className={`${cardClass} ${surfaceClass}`}>
-            <div className="mb-3 flex items-center justify-between">
-              <h2 className="flex items-center gap-2 text-lg font-semibold">
-                <FiTrendingUp className="h-4 w-4" />
-                Learning & Confidence Graph
-                <InsightTooltip
-                  title="Learning vs Confidence"
-                  description="Green tracks actual performance trend while orange tracks perceived certainty, helping you calibrate self-judgment."
-                  bullets={[
-                    "When both lines improve together, learning is dependable.",
-                    "If orange stays high while green drops, review conceptual accuracy.",
-                  ]}
-                  theme="emerald"
-                />
-              </h2>
-              <span className={`text-xs ${mutedClass}`}>
-                Accuracy vs confidence
-              </span>
-            </div>
-            <svg viewBox="0 0 320 96" className="h-28 w-full">
-              <path
-                d={trendPath(accuracySeriesToShow)}
-                fill="none"
-                stroke={isDark ? "#22c55e" : "#16a34a"}
-                strokeWidth="3"
-                strokeLinecap="round"
-              />
-              <path
-                d={trendPath(localConfidenceSeries)}
-                fill="none"
-                stroke={isDark ? "#f59e0b" : "#d97706"}
-                strokeWidth="2.5"
-                strokeDasharray="6 4"
-                strokeLinecap="round"
-              />
-            </svg>
-            <p className={`mt-2 text-xs ${mutedClass}`}>
-              Green = learning accuracy, Orange = answer confidence.
-            </p>
-          </div>
-        </div>
-
-        <div className="grid gap-4 lg:grid-cols-2">
-          <div className={`${cardClass} ${surfaceClass}`}>
-            <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold">
-              <FiAward className="h-4 w-4" />
-              Strong Topics
-              <InsightTooltip
-                title="Strong Topics"
-                description="Topics shown here are areas where your recent answers indicate comparatively stable and repeatable performance."
-                bullets={[
-                  "Keep them active with short revision to prevent forgetting.",
-                  "Use strong areas to build momentum before hard topic blocks.",
-                ]}
-                theme="emerald"
-              />
-            </h2>
-            {strongTopics.length ? (
-              <div className="space-y-3">
-                {strongTopics.slice(0, 8).map((topic) => (
-                  <div key={topic.topic}>
-                    <div className="flex items-center justify-between text-sm">
-                      <span>{topic.topic}</span>
-                      <span className="font-medium">
-                        {toPercent(topic.accuracy)}
-                      </span>
-                    </div>
-                    <div
-                      className={`mt-1 h-2 rounded-full ${isDark ? "bg-slate-800" : "bg-slate-200"}`}
-                    >
-                      <div
-                        className="h-2 rounded-full bg-green-500"
-                        style={{ width: `${topic.accuracy * 100}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className={`text-sm ${mutedClass}`}>
-                Strong areas will appear after more solved questions.
-              </p>
-            )}
-          </div>
-
-          <div className={`${cardClass} ${surfaceClass}`}>
-            <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold">
-              <FiAlertCircle className="h-4 w-4" />
-              Weak Topics & Work Plan
-              <InsightTooltip
-                title="Weak Topics"
-                description="These topics currently show low correctness and need targeted reinforcement before increasing difficulty."
-                bullets={[
-                  "Start with core concept revision, then medium-level timed sets.",
-                  "Track improvement by checking both accuracy and confidence shifts.",
-                ]}
-                theme="amber"
-              />
-            </h2>
-            {weakTopics.length ? (
-              <div className="space-y-3">
-                {weakTopics.slice(0, 8).map((topic) => (
-                  <div
-                    key={topic.topic}
-                    className={`rounded-xl p-3 ${isDark ? "bg-slate-800" : "bg-amber-50"}`}
-                  >
-                    <div className="flex items-center justify-between text-sm">
-                      <span className="font-medium">{topic.topic}</span>
-                      <span className="text-amber-600">
-                        {toPercent(topic.accuracy)}
-                      </span>
-                    </div>
-                    <p className={`mt-1 text-xs ${mutedClass}`}>
-                      Work on this topic: revisit core concepts, solve
-                      medium-level sets, then retest with timed questions.
-                    </p>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className={`text-sm ${mutedClass}`}>
-                No weak topics detected in this session.
-              </p>
-            )}
-          </div>
-        </div>
-
-        <div className={`${cardClass} ${surfaceClass}`}>
-          <div className="mb-3 flex items-center justify-between gap-2">
-            <h2 className="flex items-center gap-2 text-lg font-semibold">
-              <FiBookOpen className="h-4 w-4" />
-              Selected Topics Learning Coverage
-              <InsightTooltip
-                title="Learning Coverage"
-                description="Coverage combines topic mastery and confidence to estimate how much of each selected topic is currently internalized."
-                bullets={[
-                  "High coverage with low attempts can be unstable, so validate with more practice.",
-                  "Balanced attempts, mastery, and confidence indicate durable learning.",
-                ]}
-                theme="violet"
-              />
-            </h2>
-            <span className={`text-xs ${mutedClass}`}>
-              Mastery-confidence weighted learning percentage
-            </span>
-          </div>
-
-          {learnedTopics.length ? (
-            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-              {learnedTopics.map((topic) => (
-                <div
-                  key={topic.topic}
-                  className={`rounded-xl border p-3 ${
-                    isDark
-                      ? "border-slate-700 bg-slate-800"
-                      : "border-slate-200 bg-slate-50"
-                  }`}
-                >
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="font-medium">{topic.topic}</span>
-                    <span className="font-semibold">
-                      {topic.learnedPercent}%
-                    </span>
-                  </div>
-                  <div
-                    className={`mt-2 h-2 rounded-full ${isDark ? "bg-slate-700" : "bg-slate-200"}`}
-                  >
-                    <div
-                      className="h-2 rounded-full bg-blue-500"
-                      style={{ width: `${topic.learnedPercent}%` }}
-                    />
-                  </div>
-                  <div className={`mt-2 text-xs ${mutedClass}`}>
-                    Attempts: {topic.attempts} • Mastery:{" "}
-                    {toPercent(topic.mastery)} • Confidence:{" "}
-                    {toPercent(topic.confidence)}
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <p className={`text-sm ${mutedClass}`}>
-              No selected-topics metadata was found in this session config.
-            </p>
-          )}
-        </div>
-
-        <div className={`${cardClass} ${surfaceClass}`}>
-          <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold">
-            <FaBrain className="h-4 w-4" />
-            12 Models Results (Session View)
-            <InsightTooltip
-              title="12 Model Results"
-              description="Each model highlights one behavioral or cognitive dimension so you can review your session from multiple learning angles."
-              bullets={[
-                "Use this section to prioritize the highest-impact improvements first.",
-                "Do not optimize one metric alone; aim for balanced growth.",
-              ]}
-              theme="sky"
-            />
-          </h2>
-          <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-            {MODEL_TITLES.map((title, index) => {
-              const modelIndex = index + 1;
-              const content = {
-                1: `${Object.keys(modelsData.conceptMastery || {}).length} concepts scored`,
-                2: `${Object.keys(modelsData.stabilityIndex || {}).length} concepts stable-tracked`,
-                3: `Overall error ${(Number(modelsData.confidenceCalibration?.overall || 0) * 100).toFixed(1)}%`,
-                4: `Conceptual ${(Number(modelsData.errorPatterns?.conceptual || 0) * 100).toFixed(0)}%, Careless ${(Number(modelsData.errorPatterns?.careless || 0) * 100).toFixed(0)}%`,
-                5: `${modelsData.weaknessPriority?.length || 0} ranked weak areas`,
-                6: `${Object.keys(modelsData.forgettingCurve?.retentionScores || {}).length} retention entries`,
-                7: `Fatigue ${typeof modelsData.fatigueIndex === "object" ? toPercent(modelsData.fatigueIndex?.current || 0) : toPercent(modelsData.fatigueIndex || 0)}`,
-                8: `Profile: ${typeof modelsData.behaviorProfile === "object" ? modelsData.behaviorProfile?.cluster || "balanced" : modelsData.behaviorProfile || "balanced"}`,
-                9: `Tolerance ${typeof modelsData.difficultyTolerance === "object" ? toPercent(modelsData.difficultyTolerance?.maxSustainable || 0.5) : toPercent(modelsData.difficultyTolerance || 0.5)}`,
-                10: `Efficiency ${typeof modelsData.studyEfficiency === "object" ? toPercent(modelsData.studyEfficiency?.score || 0) : toPercent(modelsData.studyEfficiency || 0)}`,
-                11: `Focus loss ${typeof modelsData.focusLoss === "object" ? toPercent(modelsData.focusLoss?.frequency || 0) : toPercent(modelsData.focusLoss || 0)}`,
-                12: `${modelsData.timeAllocation?.length || 0} adaptive time slots`,
-              };
-
-              return (
-                <div
-                  key={title}
-                  className={`rounded-xl border p-3 ${
-                    isDark
-                      ? "border-slate-700 bg-slate-800"
-                      : "border-slate-200 bg-slate-50"
-                  }`}
-                >
-                  <div className="text-sm font-semibold">{title}</div>
-                  <p className={`mt-1 text-xs ${mutedClass}`}>
-                    {content[modelIndex]}
-                  </p>
-                  <div className="mt-2">
-                    <InsightTooltip
-                      title={title}
-                      description="This card summarizes one model output for this session and gives a compact status signal for focused action."
-                      bullets={[
-                        "Compare this with topic and question-wise review before deciding next practice plan.",
-                        "If a model signal looks unusual, re-check your timing and confidence behavior.",
-                      ]}
-                      theme={modelIndex % 2 === 0 ? "violet" : "emerald"}
-                      position="top"
-                    />
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className={`${cardClass} ${surfaceClass}`}>
-          <div className="mb-3 flex items-center justify-between">
-            <h2 className="flex items-center gap-2 text-lg font-semibold">
-              <FiBarChart2 className="h-4 w-4" />
-              Question-wise Deep Review
-              <InsightTooltip
-                title="Question-wise Review"
-                description="This section breaks down each attempt with timing, confidence, answer comparison, and explanation for precise correction."
-                bullets={[
-                  "Use it to detect whether mistakes are conceptual, careless, or speed-related.",
-                  "Review wrong questions first, then revisit slow but correct questions.",
-                ]}
-                theme="amber"
-              />
-            </h2>
-            <span className={`text-xs ${mutedClass}`}>
-              All solved questions with answer and timing
-            </span>
-          </div>
-
-          <div className="space-y-4">
-            {attempts.map((attempt) => {
-              const optionMap = new Map(
-                (attempt.question?.options || []).map((option) => [
-                  String(getOptionId(option)),
-                  option.text || option.label || option.value || "",
-                ]),
-              );
-              const selected = Array.isArray(attempt.selectedOptions)
-                ? attempt.selectedOptions
-                : [attempt.selectedOptions];
-              const correctAnswer =
-                attempt.paperQuestion?.correctAnswer ??
-                attempt.question?.correctAnswer ??
-                attempt.question?.correct_answer ??
-                attempt.correctAnswer ??
-                "N/A";
-              const correctAsArray = (
-                Array.isArray(correctAnswer) ? correctAnswer : [correctAnswer]
-              ).map(normalizeAnswerValue);
-
-              const explanationText =
-                attempt.paperQuestion?.explanation ||
-                attempt.question?.explanation ||
-                attempt.question?.solution ||
-                attempt.explanation ||
-                "No description available for this question.";
-
-              const solutionSteps =
-                attempt.paperQuestion?.solutionSteps ||
-                attempt.question?.solutionSteps ||
-                attempt.question?.solution_steps ||
-                [];
-
-              const ratio =
-                attempt.timeSpent / Math.max(1, attempt.expectedTime);
-              const ratioLabel =
-                ratio > 1.1
-                  ? "Over expected"
-                  : ratio < 0.9
-                    ? "Faster"
-                    : "On target";
-
-              return (
-                <motion.div
-                  key={`${attempt.questionId}-${attempt.index}`}
-                  initial={{ opacity: 0, y: 6 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className={`rounded-xl border p-4 ${
-                    isDark
-                      ? "border-slate-700 bg-slate-900"
-                      : "border-slate-200 bg-white"
-                  }`}
-                >
-                  <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-                    <div className="text-sm font-semibold">
-                      Q{attempt.index}. {attempt.questionText}
-                    </div>
-                    <span
-                      title={
-                        attempt.isCorrect
-                          ? "You answered this question correctly based on the official key."
-                          : "Your answer did not match the expected key; review the explanation and steps below."
-                      }
-                      className={`rounded-full px-2 py-1 text-xs font-medium ${
-                        attempt.isCorrect
-                          ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-300"
-                          : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-300"
-                      }`}
-                    >
-                      {attempt.isCorrect ? "Correct" : "Wrong"}
-                    </span>
-                  </div>
-
-                  <div
-                    className={`grid gap-2 text-xs md:grid-cols-2 ${mutedClass}`}
-                  >
-                    <div>Topic: {attempt.concept}</div>
-                    <div>Difficulty: {toPercent(attempt.difficulty)}</div>
-                    <div>
-                      Expected Time: {formatSeconds(attempt.expectedTime)}
-                    </div>
-                    <div>
-                      Time Taken: {formatSeconds(attempt.timeSpent)} (
-                      {ratioLabel})
-                    </div>
-                    <div>Confidence: {toPercent(attempt.confidence)}</div>
-                    <div>Submitted: {formatDateTime(attempt.timestamp)}</div>
-                  </div>
-
-                  <div className="mt-3 grid gap-2 text-sm md:grid-cols-2">
-                    <div>
-                      <div
-                        className={`mb-1 text-xs font-semibold uppercase tracking-wide ${mutedClass}`}
-                      >
-                        Your Answer
-                      </div>
-                      <div
-                        className={`rounded-lg p-2 ${isDark ? "bg-slate-800" : "bg-slate-50"}`}
-                      >
-                        {selected
-                          .map(normalizeAnswerValue)
-                          .map(
-                            (value) =>
-                              `${value}${optionMap.get(String(value)) ? `. ${optionMap.get(String(value))}` : ""}`,
-                          )
-                          .join(", ") || "N/A"}
-                      </div>
-                    </div>
-                    <div>
-                      <div
-                        className={`mb-1 text-xs font-semibold uppercase tracking-wide ${mutedClass}`}
-                      >
-                        Correct Answer
-                      </div>
-                      <div
-                        className={`rounded-lg p-2 ${isDark ? "bg-slate-800" : "bg-emerald-50"}`}
-                      >
-                        {correctAsArray
-                          .map(
-                            (value) =>
-                              `${value}${optionMap.get(String(value)) ? `. ${optionMap.get(String(value))}` : ""}`,
-                          )
-                          .join(", ") || "N/A"}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div
-                    className={`mt-3 rounded-lg p-3 text-sm ${
-                      isDark ? "bg-slate-800" : "bg-blue-50"
-                    }`}
-                  >
-                    <div className="mb-1 flex items-center gap-1 text-xs font-semibold uppercase tracking-wide">
-                      <FiInfo className="h-3 w-3" /> Answer Description
-                      <InsightTooltip
-                        title="Answer Description"
-                        description="This explanation tells why the correct option is valid and where common mistakes usually happen."
-                        bullets={[
-                          "Follow solution steps in order to strengthen reasoning flow.",
-                          "Link the explanation back to concept notes for retention.",
-                        ]}
-                        theme="sky"
-                        position="top"
-                      />
-                    </div>
-                    <p className={mutedClass}>{explanationText}</p>
-                    {Array.isArray(solutionSteps) &&
-                      solutionSteps.length > 0 && (
-                        <ol
-                          className={`mt-2 list-decimal space-y-1 pl-5 text-xs ${mutedClass}`}
-                        >
-                          {solutionSteps.map((step, idx) => (
-                            <li key={`${attempt.questionId}-step-${idx}`}>
-                              {step}
-                            </li>
-                          ))}
-                        </ol>
-                      )}
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
-
-        <div className={`${cardClass} ${surfaceClass}`}>
-          <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold">
-            <FaFire className="h-4 w-4" />
-            Flask CSV + Model Backend Insights
-            <InsightTooltip
-              title="Backend Insights"
-              description="These metrics come from backend model pipelines and show readiness, risk, streak, and model training status."
-              bullets={[
-                "Use readiness and burnout together to balance performance and sustainability.",
-                "A trained model status usually means more reliable adaptive predictions.",
-              ]}
-              theme="violet"
-            />
-          </h2>
-          {paperLoading && (
-            <p className={`mb-2 text-xs ${mutedClass}`}>
-              Syncing official question paper for correct answers and
-              explanations...
-            </p>
-          )}
-          {flaskLoading ? (
-            <p className={`text-sm ${mutedClass}`}>
-              Loading backend trend data...
-            </p>
-          ) : flaskDashboard ? (
-            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-              <div
-                className={`rounded-xl p-3 ${isDark ? "bg-slate-800" : "bg-slate-50"}`}
-              >
-                <div className="text-xs uppercase tracking-wide text-cyan-500">
-                  <span className="inline-flex items-center gap-1">
-                    Readiness Score
-                    <InsightTooltip
-                      title="Readiness Score"
-                      description="Estimated preparedness for upcoming practice or exam load based on recent behavior and performance trends."
-                      bullets={[
-                        "Low readiness suggests revision and recovery before harder sets.",
-                        "High readiness supports gradual challenge escalation.",
-                      ]}
-                      theme="sky"
-                      position="top"
-                    />
-                  </span>
-                </div>
-                <div className="text-xl font-semibold">
-                  {toPercent(flaskDashboard?.summary?.readiness_score || 0.5)}
-                </div>
-              </div>
-              <div
-                className={`rounded-xl p-3 ${isDark ? "bg-slate-800" : "bg-slate-50"}`}
-              >
-                <div className="text-xs uppercase tracking-wide text-rose-500">
-                  <span className="inline-flex items-center gap-1">
-                    Burnout Risk
-                    <InsightTooltip
-                      title="Burnout Risk"
-                      description="Probability of cognitive overload from recent study intensity, errors under pressure, and sustained fatigue patterns."
-                      bullets={[
-                        "If this rises, prioritize spaced breaks and shorter focused sessions.",
-                        "Burnout control improves long-term retention and consistency.",
-                      ]}
-                      theme="amber"
-                      position="top"
-                    />
-                  </span>
-                </div>
-                <div className="text-xl font-semibold">
-                  {toPercent(flaskDashboard?.summary?.burnout_risk || 0.3)}
-                </div>
-              </div>
-              <div
-                className={`rounded-xl p-3 ${isDark ? "bg-slate-800" : "bg-slate-50"}`}
-              >
-                <div className="text-xs uppercase tracking-wide text-emerald-500">
-                  <span className="inline-flex items-center gap-1">
-                    Current Streak
-                    <InsightTooltip
-                      title="Current Streak"
-                      description="Consecutive active practice days, useful for habit consistency and momentum tracking."
-                      bullets={[
-                        "Long streaks are useful only when paired with good quality sessions.",
-                        "Break streak anxiety by focusing on consistency, not perfection.",
-                      ]}
-                      theme="emerald"
-                      position="top"
-                    />
-                  </span>
-                </div>
-                <div className="text-xl font-semibold">
-                  {flaskDashboard?.recent_activity?.streak_days || 0} days
-                </div>
-              </div>
-              <div
-                className={`rounded-xl p-3 ${isDark ? "bg-slate-800" : "bg-slate-50"}`}
-              >
-                <div className="text-xs uppercase tracking-wide text-indigo-500">
-                  <span className="inline-flex items-center gap-1">
-                    Practice Model
-                    <InsightTooltip
-                      title="Practice Model Status"
-                      description="Shows whether the practice recommendation model is trained and ready to serve adaptive decisions."
-                      bullets={[
-                        "Trained means predictions can leverage your historical behavior.",
-                        "Not trained means recommendations may rely on fallback defaults.",
-                      ]}
-                      theme="violet"
-                      position="top"
-                    />
-                  </span>
-                </div>
-                <div className="text-sm font-medium">
-                  {flaskDashboard?.predictions?.practice_model?.trained
-                    ? "Trained"
-                    : "Not trained"}
-                </div>
-              </div>
-              <div
-                className={`rounded-xl p-3 ${isDark ? "bg-slate-800" : "bg-slate-50"}`}
-              >
-                <div className="text-xs uppercase tracking-wide text-amber-500">
-                  <span className="inline-flex items-center gap-1">
-                    Exam Model
-                    <InsightTooltip
-                      title="Exam Model Status"
-                      description="Indicates readiness of exam-focused prediction logic used for scenario forecasting and final preparedness signals."
-                      bullets={[
-                        "Trained status improves confidence in exam planning outputs.",
-                        "If not trained, keep building consistent data through sessions.",
-                      ]}
-                      theme="amber"
-                      position="top"
-                    />
-                  </span>
-                </div>
-                <div className="text-sm font-medium">
-                  {flaskDashboard?.predictions?.exam_model?.trained
-                    ? "Trained"
-                    : "Not trained"}
-                </div>
-              </div>
-              <div
-                className={`rounded-xl p-3 ${isDark ? "bg-slate-800" : "bg-slate-50"}`}
-              >
-                <div className="text-xs uppercase tracking-wide text-fuchsia-500">
-                  <span className="inline-flex items-center gap-1">
-                    Questions Today
-                    <InsightTooltip
-                      title="Questions Today"
-                      description="Total number of questions practiced today, used to estimate daily training load."
-                      bullets={[
-                        "High volume should still preserve answer quality.",
-                        "Combine this with fatigue and burnout signals for balance.",
-                      ]}
-                      theme="sky"
-                      position="top"
-                    />
-                  </span>
-                </div>
-                <div className="text-xl font-semibold">
-                  {flaskDashboard?.recent_activity?.questions_today || 0}
-                </div>
-              </div>
-            </div>
-          ) : (
-            <p className={`text-sm ${mutedClass}`}>
-              Flask dashboard insights are not available currently for this
-              student.
-            </p>
-          )}
+        {/* Footer */}
+        <div className={`text-center text-xs ${isDark ? "text-gray-600" : "text-gray-400"} border-t border-slate-200 dark:border-slate-700 pt-4`}>
+          <p>Powered by Adaptive Learning Engine • {new Date().toLocaleDateString()}</p>
+          {flaskLoading && <p className="text-indigo-500 mt-1">🔄 Syncing backend analytics...</p>}
         </div>
       </div>
     </div>

@@ -560,7 +560,7 @@ const StudentDashboard = () => {
     {
       key: "time",
       label: "Study Time",
-      value: `${Math.round(getSafeNumber(performance?.overallStats?.totalTimeSpent, 0))} min`,
+      value: `${Math.round(getSafeNumber(performance?.overallStats?.totalTimeSpent, 0)/216000000)} min`,
       hint: "Total focused learning time",
       icon: FiClock,
       tone: "from-sky-500 to-indigo-600",
