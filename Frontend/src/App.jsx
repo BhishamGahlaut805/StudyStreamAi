@@ -27,7 +27,7 @@ import DesignAdaptiveLearning from "./Pages/Design/DesignAdaptiveLearning";
 import DesignRetention from "./Pages/Design/DesignRetention";
 
 import LearningView from "./Pages/Dashboard/LearningView";
-import AdminDashboard from "./Pages/Dashboard/adminDashboard";
+import AdminDashboard from "./Pages/Dashboard/AdminDashboard";
 import CourseCardPage from "./Pages/Course/courseCardsPage";
 import CourseDetailPage from "./Pages/Course/CourseOverviewDetail";
 
