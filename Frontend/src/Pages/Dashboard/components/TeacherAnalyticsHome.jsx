@@ -19,7 +19,7 @@ import {
 import teacherService from "../../../services/Teacher/teacherService";
 import StyledCard from "../../../components/StyleCard";
 import EnhancedBarChart from "./EnhancedBarChart";
-import MasteryPieChart from "./MasteryPieChart";
+import MasteryPieChart from "./masteryPieChart";
 
 const getServiceData = (response) => {
   if (!response) return null;

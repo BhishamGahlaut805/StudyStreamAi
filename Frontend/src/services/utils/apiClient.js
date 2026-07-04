@@ -3,9 +3,9 @@ import Cookies from "js-cookie";
 
 class ApiClient {
   constructor() {
-    this.apiUrl = import.meta.env.VITE_API_URL || "http://localhost:5000/api";
+    this.apiUrl = import.meta.env.VITE_API_URL
     this.flaskUrl =
-      import.meta.env.VITE_FLASK_URL || "http://localhost:5500/api";
+      import.meta.env.VITE_FLASK_API_URL
 
     // Node.js API client
     this.nodeClient = axios.create({
@@ -25,7 +25,7 @@ class ApiClient {
         "Content-Type": "application/json",
       },
     });
-
+    console.log("ApiClient initialized with Flask API URL:", this.flaskUrl);
     this.setupInterceptors();
   }
 
@@ -160,6 +160,7 @@ class ApiClient {
 
   // Flask API methods
   async flaskGet(url, params = {}) {
+    console.log("Making GET request to Flask API:", this.flaskUrl + url, "with params:", params)
     const response = await this.flaskClient.get(url, { params });
     return response.data;
   }

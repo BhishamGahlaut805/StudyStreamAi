@@ -19,7 +19,7 @@ import ProfileImage from "./Image";
 import EditProfileModal from "./EditProfileComponent";
 import profileService from "../services/profileService";
 import AlertMessage from "./AlertMessage";
-import StyledCard from "./Stylecard";
+import StyledCard from "./StyleCard";
 
 const UserProfile = ({ user }) => {
   const [activeTab, setActiveTab] = useState("personal");

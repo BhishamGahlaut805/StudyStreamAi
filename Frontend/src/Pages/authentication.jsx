@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { useAuth } from "../context/authContext";
 import GoogleLoginButton from "../components/Auth/GoogleLogin";
-import DefaultLogin from "../components/Auth/DefaultLogin";
+import DefaultLogin from "../components/Auth/defaultLogin";
 import {
   FiLogIn,
   FiUserPlus,

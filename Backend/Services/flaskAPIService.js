@@ -1,6 +1,6 @@
 const axios = require("axios");
 
-const FLASK_API_URL = process.env.FLASK_API_URL || "http://localhost:5500/api";
+const FLASK_API_URL = process.env.FLASK_API_URL + "/api" ;
 
 class FlaskApiService {
   constructor() {

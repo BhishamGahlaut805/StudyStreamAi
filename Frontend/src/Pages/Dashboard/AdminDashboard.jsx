@@ -32,8 +32,8 @@ import {
   FiLayers,
   FiBarChart,
 } from "react-icons/fi";
-import adminService from "../../services/adminService";
-import profileService from "../../services/profileService";
+import adminService from "../../services/AdminService";
+import profileService from "../../services/Profile/profileService";
 import ProfileComponent from "../../components/profileComponent";
 import { useAuth } from "../../context/authContext";
 

@@ -1,4 +1,4 @@
-export { default } from "../profileService";
+// export { default } from "../profileService";
 import axios from "axios";
 import Cookies from "js-cookie";
 
