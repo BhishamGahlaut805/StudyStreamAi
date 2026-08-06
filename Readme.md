@@ -1,569 +1,1676 @@
-# StudyStream AI
+# <div align="center">
 
-## Index
+# 🎓 StudyStream AI
 
-| Section                                     | What it covers                                                              |
-| ------------------------------------------- | --------------------------------------------------------------------------- |
-| 1. Project Overview                         | What StudyStream AI is and why it exists                                    |
-| 2. Product Architecture                     | High-level system structure across frontend, backend, and AI services       |
-| 3. Architecture From the Presentation Decks | Detailed explanation of the adaptive learning and retention learning slides |
-| 4. Workflow                                 | End-to-end flow from login to prediction and feedback                       |
-| 5. Roles and Duties                         | Student, Teacher, and Admin responsibilities                                |
-| 6. Model Results                            | Results from the adaptive and retention design pages                        |
-| 7. Benefits and Importance                  | Product value and practical impact                                          |
-| 8. File Map                                 | Where the major implementation pieces live                                  |
-| 9. System Image Gallery                     | UI screenshots from the SystemImage folder with descriptions                |
-| 10. Conclusion                              | Why the system is designed this way                                         |
+### **An Intelligent AI-Powered Personalized Learning Platform**
 
-## 1. Project Overview
+### *Revolutionizing Education through Adaptive Learning, Deep Learning & Learning Analytics*
 
-StudyStream AI is an intelligent learning platform built to improve study outcomes through two complementary AI systems:
+<p align="center">
 
-| Intelligence Layer | Purpose                                            | Model Family                |
-| ------------------ | -------------------------------------------------- | --------------------------- |
-| Adaptive Learning  | Adjust question difficulty and pacing in real time | Random Forest regression    |
-| Retention Learning | Predict forgetting, fatigue, and revision timing   | Dual LSTM sequence modeling |
+<img src="https://img.shields.io/badge/AI-Powered-6A1B9A?style=for-the-badge"/>
 
-The project is not just a quiz application. It is a closed learning loop where the platform observes learner behavior, transforms that behavior into features, predicts what should happen next, and then uses those predictions to control difficulty, revision, and retention timing.
+<img src="https://img.shields.io/badge/MERN-Full%20Stack-00C853?style=for-the-badge"/>
 
-The central idea is simple but powerful: students do not all learn at the same pace, and memory does not decay on a fixed schedule. StudyStream AI uses data-driven adaptation to respond to both of those realities.
+<img src="https://img.shields.io/badge/Machine%20Learning-Adaptive%20Learning-1565C0?style=for-the-badge"/>
 
-## 2. Product Architecture
+<img src="https://img.shields.io/badge/Deep%20Learning-LSTM-E53935?style=for-the-badge"/>
 
-The platform is organized as a multi-layer architecture:
+<img src="https://img.shields.io/badge/Random%20Forest-Adaptive%20Difficulty-43A047?style=for-the-badge"/>
 
-| Layer              | Responsibility                                                                  | Main Technologies                             |
-| ------------------ | ------------------------------------------------------------------------------- | --------------------------------------------- |
-| Presentation Layer | User interaction, dashboards, test flows, and analytics views                   | React, Vite, JSX                              |
-| Application Layer  | Authentication, routing, role-based access, session handling, API orchestration | Node.js, Express                              |
-| AI Layer           | Feature engineering, training, inference, and model scoring                     | Flask, Python, TensorFlow/Keras, scikit-learn |
-| Data Layer         | Student records, sequences, saved models, analytics artifacts                   | MongoDB, CSV, model files                     |
+<img src="https://img.shields.io/badge/React-Vite-2196F3?style=for-the-badge"/>
 
-This split keeps the system maintainable:
+<img src="https://img.shields.io/badge/Node.js-Express-4CAF50?style=for-the-badge"/>
 
-| Design Choice               | Why It Matters                                                                 |
-| --------------------------- | ------------------------------------------------------------------------------ |
-| React on the frontend       | Makes the learning experience interactive and responsive                       |
-| Node.js as the middle layer | Handles authentication, session state, and API coordination                    |
-| Flask for AI services       | Keeps model logic isolated from UI and business rules                          |
-| Separate model families     | Lets the app solve sequence-based retention and tabular adaptation differently |
-| Student-specific artifacts  | Preserves per-user state, retraining history, and explainability data          |
+<img src="https://img.shields.io/badge/Flask-AI%20Server-FF9800?style=for-the-badge"/>
 
-## 3. Architecture From the Presentation Decks
+<img src="https://img.shields.io/badge/MongoDB-Database-13AA52?style=for-the-badge"/>
 
-The detailed architecture in this repository is documented through two presentation pages:
+</p>
 
-| Presentation Page       | File                                                                                                         | Core Focus                                                                  |
-| ----------------------- | ------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------- |
-| Adaptive Learning Deck  | [Frontend/src/Pages/Design/DesignAdaptiveLearning.jsx](Frontend/src/Pages/Design/DesignAdaptiveLearning.jsx) | Difficulty adaptation, performance modeling, retraining, and explainability |
-| Retention Learning Deck | [Frontend/src/Pages/Design/DesignRetention.jsx](Frontend/src/Pages/Design/DesignRetention.jsx)               | Memory decay, spaced revision, fatigue, and long-term scheduling            |
+---
 
-### 3.1 Shared Narrative Structure
+## 🧠 *Learning That Adapts. Memory That Lasts. Intelligence That Evolves.*
 
-Both decks follow a similar presentation logic:
+StudyStream AI is an **AI-driven Personalized Learning Platform** that continuously adapts to every learner's performance, predicts future learning outcomes, identifies knowledge gaps, estimates memory retention, and recommends the optimal learning strategy in real time.
 
-| Slide Type                        | Purpose                                          |
-| --------------------------------- | ------------------------------------------------ |
-| Title slide                       | Defines the system identity                      |
-| Problem statement                 | Explains why the system is needed                |
-| System architecture               | Shows how frontend, backend, and AI connect      |
-| Data pipeline                     | Explains how user actions become model inputs    |
-| Feature engineering               | Shows the actual predictive signals              |
-| Model report                      | Presents metrics and validation results          |
-| Feature importance or model logic | Explains why the model behaves the way it does   |
-| Operational readiness             | Addresses deployment, stability, and reliability |
-| Why this model                    | Justifies the model family used in the system    |
-| Next steps                        | Leaves room for future iteration                 |
+Unlike traditional Learning Management Systems (LMS), StudyStream AI combines **Machine Learning**, **Deep Learning**, **Learning Analytics**, **Behavioral Intelligence**, and **Explainable AI** to create a truly personalized educational experience for every student.
 
-### 3.2 Adaptive Learning Architecture
+---
 
-Adaptive learning is the part of StudyStream AI that decides how hard the next question should be and how the system should respond to student performance in practice and exam flows.
+<p align="center">
 
-| Slide                       | Architecture Focus     | Detailed Meaning                                                                                         |
-| --------------------------- | ---------------------- | -------------------------------------------------------------------------------------------------------- |
-| Adaptive Learning Blueprint | Product identity       | The platform is framed as a personalized learning engine rather than a static test site                  |
-| Problem Statement           | Why adaptation matters | Fixed-level tests can under-challenge or over-challenge the learner                                      |
-| System Architecture         | Full-stack layout      | React, Node.js, Flask, storage, and analytics work as a single loop                                      |
-| Data Collection Pipeline    | Raw input capture      | Attempt-level details such as correctness, time, confidence, difficulty, and answer changes are recorded |
-| 12 Features Calculated      | Feature engineering    | The platform converts raw attempts into a structured model-ready vector                                  |
-| Sample Data Tables          | Transparency           | Raw rows and transformed rows are shown side by side so the process is explainable                       |
-| Model Stack and Training    | Learning engine        | Random Forest regressors are retrained safely when enough new data accumulates                           |
-| Model Evaluation Report     | Validation             | Error metrics prove whether adaptation is stable and useful                                              |
-| Feature Importance Analysis | Explainability         | The model reveals what actually drives the difficulty decision                                           |
-| Practice vs Real Exam       | Context awareness      | The same learner behaves differently under practice and exam pressure                                    |
-| Operational Readiness       | Production safety      | Monitoring, drift checks, and retraining discipline are required                                         |
-| Success Metrics             | Product impact         | Lower error should translate to better pacing and better student fit                                     |
-| Implementation Timeline     | Delivery plan          | The architecture is intended for incremental rollout                                                     |
-| Risk Mitigation             | Reliability            | The system must defend against noise, stale weights, and drift                                           |
-| Why Random Forest           | Model choice           | A tabular, explainable ensemble is a practical fit for this problem                                      |
-| Next Steps                  | Future roadmap         | Better personalization, better monitoring, and broader rollout                                           |
+<a href="https://study-stream-jbtl59c07-bhisham-gahlauts-projects.vercel.app">
 
-#### Adaptive feature layer
+<img src="https://img.shields.io/badge/🌐%20Live%20Application-Visit%20Now-00C853?style=for-the-badge&logo=vercel&logoColor=white"/>
 
-| Feature                     | Origin                                 | Meaning                            |
-| --------------------------- | -------------------------------------- | ---------------------------------- |
-| accuracy_score              | Correctness result                     | Core indicator of understanding    |
-| normalized_response_time    | Time spent                             | Captures speed and pressure        |
-| rolling_time_variance       | Recent timing history                  | Detects consistency or instability |
-| difficulty_ratio            | Difficulty context                     | Balances challenge vs ability      |
-| stress_score                | Error and time pressure                | Measures cognitive strain          |
-| confidence_index            | Confidence input                       | Learner certainty signal           |
-| concept_mastery_score       | Prior mastery plus current performance | Smooths the learning trajectory    |
-| current_question_difficulty | Question payload                       | Immediate challenge level          |
-| consecutive_correct_streak  | Running success streak                 | Momentum and readiness trend       |
-| fatigue_indicator           | Session progression                    | Long-session decay signal          |
-| focus_loss_frequency        | Time spikes and indecision             | Attention drift estimate           |
-| preferred_difficulty_offset | Difficulty minus mastery               | Learner comfort-zone offset        |
+</a>
 
-#### Adaptive feature importance and model behavior
+  
 
-The design page shows that the adaptive model is driven most strongly by concept and difficulty context.
+<a href="https://study-stream-jbtl59c07-bhisham-gahlauts-projects.vercel.app/design/adaptive">
 
-| Rank | Feature                     | Importance |
-| ---- | --------------------------- | ---------- |
-| 1    | current_question_difficulty | 27.9132%   |
-| 2    | concept_mastery_score       | 25.9493%   |
-| 3    | answer_change_count         | 8.9363%    |
-| 4    | normalized_response_time    | 7.1259%    |
-| 5    | consecutive_correct_streak  | 6.4653%    |
-| 6    | fatigue_indicator           | 5.0442%    |
-| 7    | stress_score                | 4.8649%    |
-| 8    | preferred_difficulty_offset | 4.8533%    |
-| 9    | confidence_index            | 3.5803%    |
-| 10   | focus_loss_frequency        | 2.4094%    |
-| 11   | rolling_time_variance       | 2.2486%    |
-| 12   | accuracy                    | 0.6093%    |
+<img src="https://img.shields.io/badge/🧠%20Adaptive%20Architecture-View%20Design-1976D2?style=for-the-badge"/>
 
-The meaning of this ranking is important:
+</a>
 
-| Insight                                        | Explanation                                                  |
-| ---------------------------------------------- | ------------------------------------------------------------ |
-| Difficulty is not decided by correctness alone | The model needs context, not just a score                    |
-| Mastery matters more than raw accuracy         | Stable knowledge is more useful than one-off performance     |
-| Time and hesitation matter                     | Speed-pressure behavior helps predict the best next step     |
-| Fatigue and stress are real signals            | A learner can be technically correct and still be overloaded |
+</p>
 
-### 3.3 Retention Learning Architecture
+---
 
-Retention learning is the part of StudyStream AI that predicts memory decay, revision need, and long-term learning stability.
+# 🌟 Why StudyStream AI?
 
-| Slide                        | Architecture Focus     | Detailed Meaning                                                                      |
-| ---------------------------- | ---------------------- | ------------------------------------------------------------------------------------- |
-| Retention Learning Blueprint | Product identity       | The system is framed as a retention-first engine rather than a simple quiz tool       |
-| Goal and Importance          | Learning value         | The platform aims to prevent forgetting before it becomes visible in scores           |
-| System Architecture          | Full-stack layout      | React, Node.js, Flask, and student-specific model artifacts form a single pipeline    |
-| Data Pipeline                | Event flow             | User actions are sent in order so the models can learn temporal behavior              |
-| Micro LSTM Features          | Short-horizon modeling | Immediate recall and next-step retention are captured from the latest sequence window |
-| Macro LSTM Features          | Long-horizon modeling  | The system reasons about session trends, fatigue, and long-term forgetting            |
-| Backend Calculation Logic    | Target construction    | Flask formulas transform behavior into bounded, interpretable signals                 |
-| Student Data Samples         | Transparency           | The feature rows are visible and inspectable                                          |
-| Micro LSTM Report            | Short-term validation  | Immediate retention targets are evaluated with MAE, MSE, RMSE, and R2                 |
-| Macro LSTM Report            | Long-term validation   | Broader retention and fatigue signals are evaluated separately                        |
-| Model-to-Product Mapping     | Actionability          | Predictions drive repeat timers, revision plans, and workload control                 |
-| Deployment Checklist         | Reliability            | Sequence validation, drift tracking, and artifact versioning are required             |
-| Why Two LSTM Models          | Model design           | Short-term and long-term learning are different problems                              |
-| Next Steps                   | Future roadmap         | Add better features, stronger monitoring, and broader subject coverage                |
+Traditional learning platforms deliver identical content to every student regardless of their strengths, weaknesses, confidence, pace, or memory retention.
 
-#### Retention feature layer: Micro LSTM
+**StudyStream AI changes that.**
 
-| Feature                       | Origin                          | Meaning                             |
-| ----------------------------- | ------------------------------- | ----------------------------------- |
-| answer_correctness            | Latest response result          | Immediate recall state              |
-| normalized_response_time      | Time relative to topic baseline | Time-pressure and hesitation signal |
-| rolling_accuracy_topic        | Recent topic accuracy           | Short-term mastery summary          |
-| correct_streak                | Recent success streak           | Stable learning momentum            |
-| time_since_last_attempt_topic | Time gap since last attempt     | Forgetting interval length          |
-| answer_change_count           | Revisions or answer changes     | Uncertainty and hesitation          |
-| confidence_rating             | Self-reported confidence        | Subjective certainty                |
-| concept_mastery_score         | Decay-weighted topic mastery    | Compressed memory history           |
-| question_difficulty           | Current item difficulty         | Context for the decision            |
-| fatigue_indicator             | Session fatigue estimate        | Energy drop detection               |
-| focus_loss_frequency          | Inattention spikes              | Concentration problem marker        |
-| rolling_time_variance         | Response time instability       | Consistency under pressure          |
-| hint_usage_flag               | Hint usage                      | Support dependence marker           |
-| preferred_difficulty_offset   | Difficulty minus optimal level  | Comfort-zone mismatch               |
-| attempt_count_topic           | Total topic attempts            | Repetition density                  |
+Instead of following a fixed curriculum, the platform intelligently learns from every student interaction and continuously adjusts the learning experience using Artificial Intelligence.
 
-#### Retention feature layer: Macro LSTM
+It transforms raw learning behavior into actionable insights, helping students study more efficiently while enabling teachers and administrators to monitor learning progress through advanced analytics.
 
-| Feature                      | Origin                               | Meaning                         |
-| ---------------------------- | ------------------------------------ | ------------------------------- |
-| overall_accuracy_rate        | Long-run correctness mean            | Sustained performance           |
-| cross_subject_mastery_vector | Cross-subject mastery                | Transfer across domains         |
-| daily_study_duration         | Study time per day                   | Workload and overload           |
-| study_consistency_index      | Session regularity                   | Long-term stability             |
-| fatigue_pattern              | Fatigue trend                        | Endurance decline               |
-| forgetting_curve_slope       | Performance decay rate               | Direct memory decay signal      |
-| performance_variability      | Correctness variance                 | Stability of behavior           |
-| session_start_time_pattern   | Preferred study time                 | Circadian or scheduling pattern |
-| topic_completion_rate        | Completed topic coverage             | Learning completeness           |
-| learning_efficiency_score    | Correctness per time                 | Productivity signal             |
-| break_frequency              | Break pattern                        | Rest or overload behavior       |
-| cognitive_load_index         | Difficulty pressure                  | Mental strain                   |
-| motivation_index             | Engagement proxy                     | Persistence                     |
-| stress_indicator             | Incorrect streak and response spikes | Longer-term strain              |
-| retention_stability_score    | Inverse of variability               | Memory resilience               |
+The platform combines multiple AI technologies into a unified educational ecosystem capable of:
 
-#### Retention model outputs
+* 🧠 Adaptive Difficulty Prediction
+* 📈 Learning Performance Analytics
+* 🎯 Personalized Study Paths
+* ⏳ Memory Retention Prediction
+* 📚 Intelligent Revision Scheduling
+* 😴 Fatigue Detection
+* ⚡ Performance Forecasting
+* 📊 Explainable AI Reports
+* 👨‍🏫 Teacher Analytics Dashboard
+* 🏫 Institution-Level Learning Intelligence
 
-| Model      | Output                              | Meaning                                        |
-| ---------- | ----------------------------------- | ---------------------------------------------- |
-| Micro LSTM | current_retention                   | How strong the learner is right now            |
-| Micro LSTM | next_retention                      | What the next immediate retention state may be |
-| Micro LSTM | stress_impact                       | How stress is affecting performance            |
-| Micro LSTM | fatigue_prediction                  | Whether short-term exhaustion is building      |
-| Macro LSTM | predicted_long_term_retention_score | Broader long-term memory health                |
-| Macro LSTM | fatigue_risk_probability            | Risk of burnout or overload in the longer term |
+---
 
-#### Retention calculation logic
+# 🚀 Key Features
 
-The Flask side turns feature histories into interpretable signals using bounded formulas.
+<table>
 
-| Signal                                    | Formula Meaning                                                                |
-| ----------------------------------------- | ------------------------------------------------------------------------------ |
-| micro.retention_probability_topic         | Combines rolling accuracy, mastery, confidence, and normalized response time   |
-| micro.probability_correct_next_attempt    | Combines rolling accuracy, mastery, confidence, fatigue, and response pressure |
-| macro.predicted_long_term_retention_score | Combines accuracy, stability, topic completion, and study consistency          |
-| macro.fatigue_risk_probability            | Combines fatigue pattern, stress indicator, and break frequency                |
+<tr>
 
-## 4. Workflow
+<td width="50%">
 
-StudyStream AI works as a continuous loop.
+## 🎓 Adaptive Learning
 
-| Step                          | What Happens                                                                          | Why It Matters                                         |
-| ----------------------------- | ------------------------------------------------------------------------------------- | ------------------------------------------------------ |
-| 1. Login and role detection   | The user enters as a student, teacher, or admin                                       | Access control determines the available experience     |
-| 2. Learning interaction       | The student answers practice or retention questions                                   | This creates the raw behavior stream                   |
-| 3. Data capture               | Time spent, confidence, correctness, difficulty, changes, and timestamps are captured | These fields are the model inputs                      |
-| 4. Backend orchestration      | Node.js validates the session and sends the request to the AI layer                   | Keeps the system secure and organized                  |
-| 5. Feature engineering        | Flask converts raw interaction data into tabular or sequential features               | Makes the data useful for prediction                   |
-| 6. Model inference            | Random Forest or LSTM predictions are generated                                       | The system estimates difficulty, retention, or fatigue |
-| 7. Product response           | The UI updates repeat timing, difficulty, readiness, or analytics                     | Prediction becomes action                              |
-| 8. Persistence and retraining | Student artifacts and model files are stored for later reuse                          | The system improves over time                          |
+* Dynamic Question Difficulty
+* Personalized Learning Paths
+* Performance Tracking
+* AI Difficulty Prediction
+* Learning Analytics
 
-### Workflow for the two intelligence loops
+</td>
 
-| Loop                    | Input                               | Model                    | Output                                            |
-| ----------------------- | ----------------------------------- | ------------------------ | ------------------------------------------------- |
-| Adaptive Learning Loop  | Attempt-level question behavior     | Random Forest regression | Next difficulty, readiness, performance direction |
-| Retention Learning Loop | Sequential memory and study history | Micro and Macro LSTMs    | Retention score, fatigue risk, revision timing    |
+<td width="50%">
 
-## 5. Roles and Duties
+## 🧠 Retention Learning
 
-The platform is designed around three roles.
+* Memory Decay Prediction
+* Revision Scheduling
+* Fatigue Detection
+* Long-Term Retention Analysis
+* Cognitive Performance Monitoring
 
-| Role    | Core Duty                                           | What They Use                                                   | Why They Matter                                                 |
-| ------- | --------------------------------------------------- | --------------------------------------------------------------- | --------------------------------------------------------------- |
-| Student | Learn, answer, review, and improve                  | Practice modules, retention recommendations, analytics feedback | The whole system exists to improve the student learning outcome |
-| Teacher | Guide, monitor, and intervene                       | Teacher dashboards, student analytics, course tools             | Teachers turn model output into educational action              |
-| Admin   | Approve, supervise, and maintain platform integrity | Verification, governance, course and user oversight             | Admins keep the platform stable, trustworthy, and organized     |
+</td>
 
-### 5.1 Student duties
+</tr>
 
-| Duty                      | Description                                                              |
-| ------------------------- | ------------------------------------------------------------------------ |
-| Answer questions honestly | The model only learns well if the behavior stream is real                |
-| Use feedback              | Retention and adaptive suggestions should guide the next study action    |
-| Maintain consistency      | Regular study produces better long-term signals                          |
-| Review weak topics        | The system is designed to surface weak areas before they become failures |
+<tr>
 
-### 5.2 Teacher duties
+<td>
 
-| Duty                   | Description                                                                |
-| ---------------------- | -------------------------------------------------------------------------- |
-| Monitor progress       | Teachers review the analytics and identify who needs help                  |
-| Intervene early        | Low retention, burnout risk, and weak mastery can be acted on before exams |
-| Manage courses         | Teachers organize learning content and course structure                    |
-| Interpret model output | Teachers make the AI results pedagogically useful                          |
+## 🤖 Artificial Intelligence
 
-### 5.3 Admin duties
+* Random Forest Models
+* Dual LSTM Networks
+* Feature Engineering
+* Explainable AI
+* Predictive Analytics
 
-| Duty                    | Description                                                     |
-| ----------------------- | --------------------------------------------------------------- |
-| Verify accounts         | Teachers and privileged users may require approval              |
-| Control platform access | Role-based authorization prevents misuse                        |
-| Maintain system health  | Admin oversight is needed for secure, stable operation          |
-| Support governance      | The system needs policy-level supervision to remain trustworthy |
+</td>
 
-## 6. Model Results
+<td>
 
-### 6.1 Adaptive Learning Results
+## 💻 Full Stack Platform
 
-The adaptive deck reports the practice difficulty Random Forest model.
+* Student Dashboard
+* Teacher Dashboard
+* Admin Dashboard
+* Authentication System
+* Course Management
 
-| Metric   | Value     | Interpretation                              |
-| -------- | --------- | ------------------------------------------- |
-| MAE      | 0.054049  | Low average prediction error                |
-| MSE      | 0.005034  | Small squared error spread                  |
-| RMSE     | 0.070952  | Good error magnitude in target scale        |
-| MAPE     | 9.960652% | Around ten percent average percentage error |
-| R2 Score | 0.844586  | Strong explanatory power                    |
+</td>
 
-| Model Detail      | Value                           |
+</tr>
+
+</table>
+
+---
+
+# 🎯 Vision
+
+> **To build an intelligent educational ecosystem where every learner receives a personalized, adaptive, and data-driven learning experience powered by Artificial Intelligence.**
+
+StudyStream AI aims to replace the traditional **"one-size-fits-all"** education model with an intelligent platform that understands how students learn, adapts to their progress, predicts future performance, and improves long-term knowledge retention.
+
+---
+
+# 🚀 Mission
+
+Our mission is to leverage **Artificial Intelligence**, **Machine Learning**, and **Learning Analytics** to create a next-generation educational platform capable of:
+
+* 🎓 Personalizing every student's learning journey
+* 🧠 Predicting learning outcomes before examinations
+* 📚 Improving long-term memory retention
+* ⚡ Optimizing study efficiency
+* 👨‍🏫 Empowering teachers through intelligent analytics
+* 🏫 Assisting educational institutions with data-driven insights
+* 🌍 Making AI-powered education accessible to everyone
+
+---
+
+# 💡 What Makes StudyStream AI Unique?
+
+Unlike conventional online learning platforms, StudyStream AI is built around **two complementary AI engines** working together.
+
+| 🧠 Intelligence Layer         | 🎯 Purpose                                                                      | ⚙️ AI Model                    |
+| ----------------------------- | ------------------------------------------------------------------------------- | ------------------------------ |
+| **Adaptive Learning Engine**  | Dynamically adjusts question difficulty based on student performance            | Random Forest Regression       |
+| **Retention Learning Engine** | Predicts forgetting patterns, fatigue, revision timing, and long-term retention | Dual LSTM Deep Learning Models |
+
+These two AI engines continuously learn from user behavior to improve personalization over time, making the platform increasingly accurate with continued usage.
+
+---
+
+# 📊 Platform Highlights
+
+| 🚀 Feature               | ✅ Description                                         |
+| ------------------------ | ----------------------------------------------------- |
+| 🧠 AI-Powered Learning   | Personalized learning driven by Machine Learning      |
+| 🎯 Adaptive Questioning  | Difficulty adjusts automatically based on performance |
+| 📈 Learning Analytics    | Real-time insights into student progress              |
+| 📚 Smart Revision        | AI-generated revision schedules                       |
+| ⏳ Retention Prediction   | Predicts memory decay before forgetting occurs        |
+| 😴 Fatigue Detection     | Identifies learner fatigue using sequential models    |
+| 👨‍🏫 Teacher Dashboard  | Monitor learners using AI-driven analytics            |
+| 🛡 Secure Authentication | Role-based authentication using JWT                   |
+| 📊 Explainable AI        | Transparent model predictions and feature importance  |
+| ⚙️ Modular Architecture  | Separate Frontend, Backend, and AI services           |
+
+---
+
+# 🏗️ High-Level Architecture
+
+```text
+                        🌐 React + Vite Frontend
+                                 │
+                 ┌───────────────┴───────────────┐
+                 │                               │
+          Node.js + Express Backend        Flask AI Server
+                 │                               │
+       Authentication & APIs          ML Models & Predictions
+                 │                               │
+                 └───────────────┬───────────────┘
+                                 │
+                         MongoDB Database
+                                 │
+      ┌──────────────┬──────────────┬──────────────┐
+      │              │              │
+ Student Data   Model Artifacts   Learning Analytics
+```
+
+---
+
+# 📚 Table of Contents
+
+* 🌟 Why StudyStream AI?
+* 🚀 Key Features
+* 🎯 Vision & Mission
+* 🧠 AI Intelligence Layers
+* 🏗️ Complete System Architecture
+* ⚙️ Technology Stack
+* 👨‍🎓 Student Learning Workflow
+* 🤖 Adaptive Learning Engine
+* 🧠 Retention Learning Engine
+* 📊 AI Models & Evaluation Results
+* 👥 User Roles & Responsibilities
+* 🗄️ Database Architecture
+* 📁 Project Structure
+* 📸 System Gallery
+* ⚙️ Installation Guide
+* 🚀 Future Roadmap
+* 🤝 Contributing
+* ⭐ Support the Project
+
+---
+# 🏗️ System Architecture
+
+StudyStream AI follows a **modular, multi-layer architecture** that cleanly separates the user interface, business logic, artificial intelligence services, and persistent storage. This architecture makes the platform scalable, maintainable, and easy to extend with future AI models and educational features.
+
+---
+
+## 🏛️ Overall Architecture
+
+```text
+                                  👨‍🎓 Students
+                                  👨‍🏫 Teachers
+                                   👨‍💼 Admins
+                                         │
+                                         ▼
+                         ┌────────────────────────────┐
+                         │     React + Vite Frontend  │
+                         │  Dashboards • Practice •   │
+                         │  Retention • Analytics     │
+                         └─────────────┬──────────────┘
+                                       │
+                             REST APIs │
+                                       ▼
+                     ┌─────────────────────────────────┐
+                     │      Node.js + Express API      │
+                     │ Authentication • Routing • JWT  │
+                     │ Course Management • Sessions    │
+                     └─────────────┬───────────────────┘
+                                   │
+                   ┌───────────────┴────────────────┐
+                   │                                │
+                   ▼                                ▼
+         MongoDB Database                  Flask AI Server
+                                           Random Forest
+                                           Dual LSTM Models
+                                           Feature Engineering
+                                           Predictions
+                   │                                │
+                   └───────────────┬────────────────┘
+                                   ▼
+                        Intelligent Learning Decisions
+```
+
+---
+
+# ⚙️ Layered Architecture
+
+| 🏗️ Layer                | 🎯 Responsibility                                | 💻 Technologies                        |
+| ------------------------ | ------------------------------------------------ | -------------------------------------- |
+| 🎨 Presentation Layer    | Student, Teacher & Admin Interfaces              | React, Vite, JSX                       |
+| ⚙️ Application Layer     | Authentication, APIs, Business Logic             | Node.js, Express                       |
+| 🧠 AI Intelligence Layer | Model Training, Prediction & Feature Engineering | Flask, TensorFlow, Keras, Scikit-learn |
+| 🗄️ Data Layer           | User Data, Learning History, Model Artifacts     | MongoDB                                |
+
+---
+
+# 🎯 Why This Architecture?
+
+The system separates concerns into independent services, allowing each component to evolve without affecting the others.
+
+### ✅ Benefits
+
+* 🧩 Highly Modular
+* 📈 Easy to Scale
+* 🔄 Independent AI Services
+* 🚀 Faster Development
+* 🔒 Better Security
+* ⚡ Easier Deployment
+* 🧠 Model Isolation
+* 📊 Better Maintainability
+
+---
+
+# 🌐 Frontend Layer
+
+The frontend is built using **React** and **Vite** to deliver a modern, responsive, and interactive learning experience.
+
+### Major Responsibilities
+
+* 👨‍🎓 Student Dashboard
+* 👨‍🏫 Teacher Dashboard
+* 👨‍💼 Admin Dashboard
+* 📈 Learning Analytics
+* 📚 Practice Tests
+* 🧠 Retention Learning
+* 📊 AI Result Visualization
+* 🔐 Authentication
+* 📖 Course Management
+
+---
+
+# ⚙️ Backend Layer
+
+The backend acts as the central coordinator between users, databases, and AI services.
+
+### Responsibilities
+
+* JWT Authentication
+* User Authorization
+* API Routing
+* Session Management
+* Course APIs
+* Student Progress Tracking
+* AI Request Management
+* Data Validation
+* Security Middleware
+
+---
+
+# 🤖 Artificial Intelligence Layer
+
+The AI layer is completely isolated from the business logic.
+
+This separation allows machine learning models to be retrained, upgraded, or replaced independently.
+
+### AI Services
+
+* 📈 Adaptive Learning Prediction
+* 🧠 Retention Prediction
+* ⚡ Feature Engineering
+* 🔄 Model Training
+* 📊 Model Evaluation
+* 🎯 Difficulty Prediction
+* 📚 Revision Recommendation
+* 😴 Fatigue Prediction
+
+---
+
+# 🗄️ Database Layer
+
+MongoDB stores all persistent learning information.
+
+### Main Collections
+
+* 👤 Users
+* 📚 Courses
+* 🎓 Students
+* 👨‍🏫 Teachers
+* 📈 Learning Records
+* 🧠 Model Metadata
+* 📊 Analytics
+* 🔐 Authentication Data
+
+---
+
+# 🔄 Complete Learning Workflow
+
+```text
+Student Login
+      │
+      ▼
+Choose Learning Mode
+      │
+      ▼
+Answer Questions
+      │
+      ▼
+Capture Learning Behaviour
+      │
+      ▼
+Feature Engineering
+      │
+      ▼
+AI Model Prediction
+      │
+      ▼
+Difficulty Adjustment
+Retention Prediction
+Fatigue Estimation
+      │
+      ▼
+Personalized Recommendations
+      │
+      ▼
+Dashboard Analytics
+      │
+      ▼
+Store Updated Learning History
+```
+
+---
+
+# 🧠 Adaptive Learning Pipeline
+
+The Adaptive Learning Engine continuously predicts the optimal difficulty level for every learner.
+
+## Workflow
+
+```text
+Question Attempt
+        │
+        ▼
+Performance Collection
+        │
+        ▼
+Feature Engineering
+        │
+        ▼
+Random Forest Model
+        │
+        ▼
+Difficulty Prediction
+        │
+        ▼
+Generate Next Question
+```
+
+### 📊 Input Signals
+
+* ✅ Correctness
+* ⏱️ Response Time
+* 📈 Accuracy
+* 🎯 Difficulty Level
+* 😴 Fatigue
+* 💬 Confidence
+* 📚 Concept Mastery
+* 🔄 Learning Streak
+
+### 🎯 Output
+
+* Personalized Difficulty
+* Readiness Score
+* Performance Trend
+* Learning Recommendation
+
+---
+
+# 🧠 Retention Learning Pipeline
+
+Unlike adaptive learning, the Retention Engine predicts **when students are likely to forget**.
+
+```text
+Learning History
+        │
+        ▼
+Sequential Feature Extraction
+        │
+        ▼
+Micro LSTM
+        │
+        ▼
+Macro LSTM
+        │
+        ▼
+Retention Prediction
+        │
+        ▼
+Revision Recommendation
+```
+
+### Predicts
+
+* 📚 Current Retention
+* 🔮 Future Retention
+* 😴 Fatigue Risk
+* 🧠 Long-Term Memory
+* 📅 Best Revision Time
+* 📊 Retention Stability
+
+---
+
+# 🧩 AI Intelligence Stack
+
+| 🧠 AI Component     | 🎯 Purpose                     |
+| ------------------- | ------------------------------ |
+| Random Forest       | Adaptive Difficulty Prediction |
+| Micro LSTM          | Immediate Learning Retention   |
+| Macro LSTM          | Long-Term Memory Prediction    |
+| Feature Engineering | Behaviour Transformation       |
+| Learning Analytics  | Performance Evaluation         |
+| Explainable AI      | Prediction Transparency        |
+
+---
+
+# 💻 Technology Stack
+
+## 🎨 Frontend
+
+| Technology | Purpose        |
+| ---------- | -------------- |
+| React.js   | User Interface |
+| Vite       | Build Tool     |
+| JSX        | Components     |
+| CSS        | Styling        |
+
+---
+
+## ⚙️ Backend
+
+| Technology    | Purpose            |
+| ------------- | ------------------ |
+| Node.js       | Server Runtime     |
+| Express.js    | REST APIs          |
+| JWT           | Authentication     |
+| Cookie Parser | Session Management |
+
+---
+
+## 🤖 Artificial Intelligence
+
+| Technology   | Purpose             |
+| ------------ | ------------------- |
+| TensorFlow   | Deep Learning       |
+| Keras        | LSTM Models         |
+| Scikit-learn | Random Forest       |
+| NumPy        | Numerical Computing |
+| Pandas       | Data Processing     |
+
+---
+
+## 🗄️ Database
+
+| Technology | Purpose      |
+| ---------- | ------------ |
+| MongoDB    | Data Storage |
+
+---
+
+# 📂 Project Structure
+
+```text
+StudyStream-AI
+│
+├── Frontend/
+│   ├── Components/
+│   ├── Pages/
+│   ├── Dashboard/
+│   ├── Authentication/
+│   ├── Adaptive Learning/
+│   ├── Retention Learning/
+│   └── Design/
+│
+├── Backend/
+│   ├── Controllers/
+│   ├── Models/
+│   ├── Routes/
+│   ├── Middleware/
+│   ├── Services/
+│   └── Authentication/
+│
+├── AI/
+│   ├── Models/
+│   ├── Services/
+│   ├── Training/
+│   ├── Feature Engineering/
+│   ├── Prediction/
+│   └── Evaluation/
+│
+├── SystemImage/
+│
+├── README.md
+│
+└── architecture.md
+```
+
+---
+
+# 🎯 Architectural Advantages
+
+* ✅ Clean Separation of Concerns
+* 🧠 Independent AI Services
+* 🔄 Easy Model Retraining
+* 📈 Scalable Infrastructure
+* 🔒 Secure Authentication
+* ⚡ High Maintainability
+* 🏗️ Modular Codebase
+* 📊 Production-Ready Design
+
+---
+# 🧠 Artificial Intelligence Engine
+
+The heart of **StudyStream AI** lies in its **dual AI architecture**, where multiple Machine Learning and Deep Learning models collaborate to provide a highly personalized and intelligent learning experience.
+
+Unlike conventional learning platforms that simply evaluate whether answers are correct or incorrect, StudyStream AI analyzes **learning behaviour**, **memory retention**, **confidence**, **fatigue**, **study consistency**, and **cognitive performance** before making intelligent recommendations.
+
+---
+
+# 🚀 AI Intelligence Pipeline
+
+```text
+                    Student Interaction
+                             │
+                             ▼
+                 Learning Behaviour Collection
+                             │
+                             ▼
+                 Feature Engineering Pipeline
+                             │
+        ┌────────────────────┴────────────────────┐
+        │                                         │
+        ▼                                         ▼
+ Adaptive Learning Engine                 Retention Learning Engine
+ (Random Forest)                       (Dual LSTM Deep Learning)
+        │                                         │
+        └────────────────────┬────────────────────┘
+                             ▼
+                  Intelligent Learning Decisions
+                             │
+                             ▼
+          Personalized Dashboard & Recommendations
+```
+
+---
+
+# 🧠 AI Models Used
+
+| 🤖 Model                      | 🎯 Purpose                      | Type             |
+| ----------------------------- | ------------------------------- | ---------------- |
+| 🌲 Random Forest              | Adaptive Question Difficulty    | Machine Learning |
+| 🧠 Micro LSTM                 | Short-Term Retention Prediction | Deep Learning    |
+| 📈 Macro LSTM                 | Long-Term Retention Prediction  | Deep Learning    |
+| 📊 Feature Engineering Engine | Behaviour Transformation        | Data Science     |
+| 📉 Explainability Module      | Model Transparency              | AI Analytics     |
+
+---
+
+# 🎯 Adaptive Learning Engine
+
+## 💡 Objective
+
+Every student learns differently.
+
+Some students require more practice before moving to difficult questions, while others are capable of progressing rapidly.
+
+Instead of assigning fixed difficulty levels, StudyStream AI continuously predicts the **ideal difficulty level** for each learner based on their recent learning behaviour.
+
+This adaptive engine is powered by a **Random Forest Regression Model**, selected for its strong performance on tabular educational data and its ability to provide explainable feature importance.
+
+---
+
+# 🔄 Adaptive Learning Workflow
+
+```text
+Student Attempts Question
+          │
+          ▼
+Capture Learning Behaviour
+          │
+          ▼
+Generate Feature Vector
+          │
+          ▼
+Random Forest Prediction
+          │
+          ▼
+Predict Optimal Difficulty
+          │
+          ▼
+Generate Personalized Next Question
+```
+
+---
+
+# 📊 Learning Behaviour Captured
+
+Instead of only checking correctness, the platform captures a rich behavioural profile.
+
+| 📌 Behaviour            | 🎯 Why It Matters                       |
+| ----------------------- | --------------------------------------- |
+| ✅ Correctness           | Measures understanding                  |
+| ⏱️ Response Time        | Indicates confidence and thinking speed |
+| 📈 Rolling Accuracy     | Detects learning trends                 |
+| 🎯 Current Difficulty   | Determines challenge level              |
+| 😴 Fatigue              | Identifies performance decline          |
+| 💬 Confidence Rating    | Measures certainty                      |
+| 🔄 Answer Changes       | Indicates hesitation                    |
+| 📚 Concept Mastery      | Estimates long-term understanding       |
+| 🔥 Correct Streak       | Measures learning momentum              |
+| 🎯 Preferred Difficulty | Learner comfort zone                    |
+
+---
+
+# ⚙️ Feature Engineering
+
+Raw student interactions are transformed into meaningful AI features before being passed to prediction models.
+
+## Feature Engineering Pipeline
+
+```text
+Question Attempts
+        │
+        ▼
+Cleaning
+        │
+        ▼
+Normalization
+        │
+        ▼
+Rolling Statistics
+        │
+        ▼
+Behaviour Features
+        │
+        ▼
+Model Ready Dataset
+```
+
+---
+
+# 📈 Major Adaptive Features
+
+| 🧠 Feature                  | 📖 Description                        |
+| --------------------------- | ------------------------------------- |
+| Concept Mastery Score       | Long-term understanding               |
+| Difficulty Ratio            | Balance between challenge and ability |
+| Response Time               | Learning speed                        |
+| Stress Score                | Cognitive pressure                    |
+| Confidence Index            | Self-confidence                       |
+| Fatigue Indicator           | Learning exhaustion                   |
+| Focus Loss Frequency        | Attention drift                       |
+| Consecutive Correct Streak  | Learning momentum                     |
+| Preferred Difficulty Offset | Personalized difficulty preference    |
+
+---
+
+# 🌲 Why Random Forest?
+
+StudyStream AI uses **Random Forest Regression** because it offers an excellent balance between prediction accuracy, robustness, and explainability for educational data.
+
+### Advantages
+
+* 🌳 Handles Non-linear Relationships
+* 📊 Strong Performance on Tabular Data
+* 🧠 Provides Feature Importance
+* ⚡ Fast Prediction
+* 📈 High Generalization
+* 🛡️ Resistant to Overfitting
+
+---
+
+# 📊 Feature Importance
+
+The Adaptive Learning Engine does not rely on correctness alone.
+
+It primarily evaluates:
+
+```text
+🟢 Current Question Difficulty
+🟢 Concept Mastery
+🟢 Answer Changes
+🟢 Response Time
+🟢 Correct Streak
+🟢 Fatigue
+🟢 Confidence
+🟢 Focus Behaviour
+```
+
+This makes the learning experience significantly more personalized than traditional online assessment systems.
+
+---
+
+# 🧠 Retention Learning Engine
+
+## 💡 Objective
+
+Answering questions correctly today does not guarantee that the learner will remember them next week.
+
+The Retention Learning Engine predicts:
+
+* 📚 Memory Retention
+* 📅 Best Revision Time
+* 😴 Fatigue Risk
+* 📉 Forgetting Probability
+* 📈 Long-Term Knowledge Stability
+
+Rather than measuring only immediate performance, it focuses on **how knowledge changes over time**, using **Micro** and **Macro LSTM** models trained on sequential learning data.
+
+---
+
+# 🔄 Retention Learning Pipeline
+
+```text
+Learning History
+        │
+        ▼
+Sequential Data
+        │
+        ▼
+Feature Extraction
+        │
+        ▼
+Micro LSTM
+        │
+        ▼
+Macro LSTM
+        │
+        ▼
+Retention Prediction
+        │
+        ▼
+Revision Recommendation
+```
+
+---
+
+# 🧠 Why Two LSTM Models?
+
+Instead of forcing one neural network to solve every problem, StudyStream AI uses **two specialized sequence models**.
+
+| 🧠 Model   | 🎯 Responsibility                                       |
+| ---------- | ------------------------------------------------------- |
+| Micro LSTM | Immediate learning behaviour and short-term retention   |
+| Macro LSTM | Long-term memory trends, fatigue, and study consistency |
+
+This architecture allows the platform to model both **short-term recall** and **long-term learning stability** independently.
+
+---
+
+# 📊 Micro LSTM Features
+
+The Micro LSTM analyzes short-term behavioural signals such as:
+
+* ✅ Correctness
+* ⏱️ Response Time
+* 📈 Rolling Topic Accuracy
+* 🔥 Correct Streak
+* 📅 Time Since Last Attempt
+* 💬 Confidence Rating
+* 📚 Concept Mastery
+* 😴 Fatigue Indicator
+* 🎯 Difficulty Level
+* 💡 Hint Usage
+* 🎯 Preferred Difficulty Offset
+
+---
+
+# 📈 Macro LSTM Features
+
+The Macro LSTM evaluates long-term learning behaviour including:
+
+* 📚 Overall Accuracy
+* 📈 Study Consistency
+* 🕒 Daily Study Duration
+* 📉 Forgetting Curve
+* 😴 Fatigue Pattern
+* 🧠 Cognitive Load
+* 🔥 Motivation Index
+* 📊 Topic Completion
+* 📈 Learning Efficiency
+* 💬 Retention Stability
+
+---
+
+# 🎯 AI Predictions Generated
+
+The combined AI system produces intelligent educational insights.
+
+| 📊 Prediction       | 🎯 Purpose                        |
+| ------------------- | --------------------------------- |
+| Adaptive Difficulty | Select the next best question     |
+| Current Retention   | Estimate present memory strength  |
+| Next Retention      | Predict immediate recall          |
+| Long-Term Retention | Forecast future memory stability  |
+| Fatigue Risk        | Prevent learner burnout           |
+| Stress Impact       | Detect cognitive overload         |
+| Revision Schedule   | Recommend optimal revision timing |
+| Learning Readiness  | Personalize pacing                |
+
+---
+
+# 🔍 Explainable Artificial Intelligence
+
+One of the distinguishing characteristics of StudyStream AI is that its predictions are **transparent and interpretable**.
+
+Instead of acting as a "black box," the platform provides:
+
+* 📊 Feature Importance Analysis
+* 📈 Model Evaluation Reports
+* 📉 Performance Metrics
+* 📚 Behavioural Insights
+* 🎯 Prediction Explanations
+
+This helps students, teachers, and researchers understand **why** the system made a recommendation, increasing trust and supporting informed educational decisions.
+
+---
+
+# 🌟 Why This AI Architecture?
+
+✔ Adaptive instead of static learning
+
+✔ Personalized question selection
+
+✔ Predictive revision scheduling
+
+✔ Behaviour-aware learning analytics
+
+✔ Explainable Machine Learning
+
+✔ Scalable AI microservice architecture
+
+✔ Production-ready model deployment
+
+✔ Continuous learning improvement
+
+---
+# 👨‍🎓 Student Learning Experience
+
+StudyStream AI is designed around the philosophy that **every student learns differently**. Instead of presenting identical questions and revision schedules to all learners, the platform continuously observes each student's learning behaviour and intelligently adapts the experience in real time.
+
+The student journey is not a simple sequence of quizzes—it is a continuous AI-driven feedback loop where every interaction improves future recommendations. This learning workflow is documented throughout the project architecture and implementation.
+
+---
+
+# 🎯 Complete Student Learning Workflow
+
+```text
+                         Student Login
+                               │
+                               ▼
+                     Authentication (JWT)
+                               │
+                               ▼
+                      Student Dashboard
+                               │
+            ┌──────────────────┴──────────────────┐
+            │                                     │
+            ▼                                     ▼
+     Adaptive Learning                    Retention Learning
+            │                                     │
+            ▼                                     ▼
+    AI Difficulty Engine               Memory Prediction Engine
+            │                                     │
+            └───────────────┬─────────────────────┘
+                            ▼
+                  Personalized Recommendations
+                            │
+                            ▼
+                 Analytics & Learning Reports
+                            │
+                            ▼
+             Continuous Learning Improvement Loop
+```
+
+---
+
+# 📚 Student Dashboard
+
+The Student Dashboard serves as the primary learning hub, bringing together performance analytics, AI-powered recommendations, and study tools into one centralized interface.
+
+### Dashboard Features
+
+* 📊 Learning Analytics
+* 📈 Performance Trends
+* 🧠 Adaptive Practice
+* 📚 Retention Learning
+* 🔥 Daily Learning Streak
+* 📅 Study Progress
+* 📉 Weak Topic Analysis
+* 🎯 Personalized Recommendations
+* 🏆 Achievement Tracking
+* ⚡ AI Learning Insights
+
+---
+
+# 🎯 Adaptive Practice Mode
+
+Adaptive Practice dynamically adjusts question difficulty according to each learner's performance.
+
+### Workflow
+
+```text
+Attempt Question
+        │
+        ▼
+Performance Analysis
+        │
+        ▼
+Random Forest Prediction
+        │
+        ▼
+Difficulty Adjustment
+        │
+        ▼
+Next Personalized Question
+```
+
+### Benefits
+
+* 📈 Faster Skill Development
+* 🎯 Personalized Question Selection
+* 🧠 Continuous Difficulty Adjustment
+* ⚡ Efficient Learning
+* 📊 Improved Knowledge Assessment
+
+---
+
+# 🧠 Retention Learning Mode
+
+Retention Learning focuses on **long-term memory**, helping students remember concepts long after they complete a lesson.
+
+Instead of repeating everything equally, the platform identifies which concepts are most likely to be forgotten and recommends the optimal time for revision.
+
+### Features
+
+* 📅 Intelligent Revision Scheduling
+* 📉 Forgetting Prediction
+* 🧠 Memory Strength Analysis
+* 😴 Fatigue Detection
+* 📊 Retention Analytics
+* 🎯 Concept Reinforcement
+
+---
+
+# 📊 Learning Analytics Dashboard
+
+The analytics dashboard transforms raw learning activity into meaningful visual insights.
+
+Students can monitor:
+
+| 📈 Metric             | 🎯 Purpose                 |
+| --------------------- | -------------------------- |
+| Accuracy              | Learning performance       |
+| Average Response Time | Problem-solving efficiency |
+| Confidence Score      | Self-assessment quality    |
+| Learning Streak       | Consistency tracking       |
+| Topic Mastery         | Subject understanding      |
+| Difficulty Trend      | Adaptive progression       |
+| Retention Score       | Memory health              |
+| Fatigue Level         | Cognitive workload         |
+
+---
+
+# 👨‍🏫 Teacher Dashboard
+
+Teachers are provided with comprehensive analytics to understand student performance beyond exam scores.
+
+Instead of manually identifying struggling learners, the AI continuously highlights learning patterns and intervention opportunities.
+
+---
+
+## Teacher Features
+
+* 👨‍🎓 Student Progress Monitoring
+* 📊 Performance Analytics
+* 📚 Course Management
+* 📈 Learning Trend Analysis
+* ⚠️ Early Risk Detection
+* 🎯 Weak Topic Identification
+* 🧠 AI-Based Learning Insights
+* 📅 Student Activity Reports
+
+---
+
+# 👨‍💼 Admin Dashboard
+
+The Admin Dashboard provides complete platform management and governance capabilities.
+
+Administrators oversee users, teachers, courses, authentication, and platform integrity.
+
+---
+
+## Administrator Features
+
+* 👥 User Management
+* 🛡️ Role-Based Access Control
+* ✅ Teacher Verification
+* 📚 Course Administration
+* 📈 Platform Statistics
+* 🔐 Security Monitoring
+* ⚙️ System Configuration
+* 📊 Administrative Analytics
+
+---
+
+# 👥 User Roles
+
+StudyStream AI is designed around three distinct user roles, each with dedicated responsibilities and tailored interfaces.
+
+| 👤 Role       | 🎯 Responsibilities                                         |
+| ------------- | ----------------------------------------------------------- |
+| 👨‍🎓 Student | Learn, practice, revise, monitor progress                   |
+| 👨‍🏫 Teacher | Guide students, monitor performance, manage courses         |
+| 👨‍💼 Admin   | Platform governance, verification, security, administration |
+
+---
+
+# 🔐 Authentication System
+
+Security is a fundamental aspect of StudyStream AI.
+
+### Authentication Features
+
+* 🔒 JWT Authentication
+* 🍪 Secure Cookie Management
+* 🛡️ Protected Routes
+* 👤 Role-Based Authorization
+* 🔑 Session Management
+* ✅ Teacher Verification
+* 🚪 Secure Login & Registration
+
+---
+
+# 📈 AI Model Performance
+
+StudyStream AI has been evaluated using multiple regression metrics to ensure that predictions remain accurate, stable, and suitable for production environments.
+
+---
+
+## 🌲 Adaptive Learning (Random Forest)
+
+| 📊 Metric |   🚀 Value |
+| --------- | ---------: |
+| MAE       | **0.0540** |
+| RMSE      | **0.0709** |
+| MAPE      |  **9.96%** |
+| R² Score  | **0.8446** |
+
+### Highlights
+
+* ✅ High Predictive Accuracy
+* 📈 Strong Generalization
+* 🎯 Reliable Difficulty Prediction
+* ⚡ Suitable for Real-Time Personalization
+
+These evaluation results indicate that the Adaptive Learning model effectively predicts the appropriate difficulty level for learners while maintaining low prediction error.
+
+---
+
+# 🧠 Retention Learning Performance
+
+## Micro LSTM
+
+| Prediction         | Performance |
+| ------------------ | ----------- |
+| Current Retention  | Excellent   |
+| Next Retention     | Excellent   |
+| Stress Prediction  | Very Good   |
+| Fatigue Prediction | Good        |
+
+---
+
+## Macro LSTM
+
+| Prediction          | Performance |
+| ------------------- | ----------- |
+| Long-Term Retention | Good        |
+| Fatigue Risk        | Good        |
+| Overall Model       | Excellent   |
+
+The dual-model approach enables the platform to capture both immediate learning behaviour and long-term memory dynamics, providing more reliable recommendations than a single-sequence model.
+
+---
+
+# 🌟 Why These Results Matter
+
+The reported evaluation metrics demonstrate that StudyStream AI is designed not merely as an academic prototype but as a practical intelligent learning system.
+
+The AI models support:
+
+* 🎯 Personalized Difficulty Selection
+* 📚 Smarter Revision Planning
+* 📈 Continuous Learning Optimization
+* 😴 Fatigue-Aware Study Sessions
+* 🧠 Long-Term Knowledge Retention
+* 👨‍🏫 Data-Driven Educational Decisions
+
+---
+
+# 🎓 Educational Impact
+
+Traditional Learning Systems
+
+❌ Same difficulty for everyone
+
+❌ Fixed revision schedules
+
+❌ Limited analytics
+
+❌ Static assessments
+
+❌ Delayed intervention
+
+---
+
+StudyStream AI
+
+✅ Personalized learning pathways
+
+✅ AI-driven difficulty adaptation
+
+✅ Intelligent revision scheduling
+
+✅ Predictive learning analytics
+
+✅ Early identification of learning challenges
+
+✅ Explainable Artificial Intelligence
+
+---
+
+# 📊 Why StudyStream AI Stands Out
+
+✔ Personalized Learning
+
+✔ Behaviour-Aware Artificial Intelligence
+
+✔ Adaptive Assessments
+
+✔ Long-Term Memory Prediction
+
+✔ Explainable Machine Learning
+
+✔ Dual Deep Learning Architecture
+
+✔ Modern MERN Full-Stack Design
+
+✔ Production-Ready Modular Architecture
+
+---
+# 📸 Project Showcase
+
+> **💡 Replace the placeholders below with screenshots or GIFs of your application.**
+>
+> High-quality visuals make a huge difference for recruiters—they quickly communicate the polish and functionality of your project.
+
+---
+
+# 🖼️ Application Gallery
+
+## 🏠 Landing Page
+
+> *Show the beautiful landing page introducing StudyStream AI.*
+
+```text id="ss1"
+📷 Insert Landing Page Screenshot Here
+```
+
+---
+
+## 🔐 Authentication
+
+> *Secure Login & Registration with JWT Authentication.*
+
+```text id="ss2"
+📷 Insert Login / Signup Screenshot Here
+```
+
+---
+
+## 👨‍🎓 Student Dashboard
+
+> *Personalized dashboard displaying analytics, recommendations, and learning progress.*
+
+```text id="ss3"
+📷 Insert Student Dashboard Screenshot Here
+```
+
+---
+
+## 🧠 Adaptive Learning Module
+
+> *AI-powered adaptive question generation based on learner performance.*
+
+```text id="ss4"
+📷 Insert Adaptive Learning Screenshot Here
+```
+
+---
+
+## 📚 Retention Learning Dashboard
+
+> *Memory retention prediction and intelligent revision recommendations.*
+
+```text id="ss5"
+📷 Insert Retention Dashboard Screenshot Here
+```
+
+---
+
+## 📈 Learning Analytics
+
+> *Performance trends, mastery levels, and AI-generated insights.*
+
+```text id="ss6"
+📷 Insert Analytics Screenshot Here
+```
+
+---
+
+## 👨‍🏫 Teacher Dashboard
+
+```text id="ss7"
+📷 Insert Teacher Dashboard Screenshot Here
+```
+
+---
+
+## 👨‍💼 Admin Dashboard
+
+```text id="ss8"
+📷 Insert Admin Dashboard Screenshot Here
+```
+
+---
+
+# 📂 Project Structure
+
+```text id="folder"
+StudyStream-AI
+│
+├── Frontend/
+│   ├── src/
+│   ├── components/
+│   ├── pages/
+│   ├── layouts/
+│   ├── redux/
+│   ├── assets/
+│   ├── hooks/
+│   ├── services/
+│   └── utils/
+│
+├── Backend/
+│   ├── controllers/
+│   ├── middleware/
+│   ├── routes/
+│   ├── services/
+│   ├── models/
+│   ├── config/
+│   └── utils/
+│
+├── AI/
+│   ├── AdaptiveLearning/
+│   ├── RetentionLearning/
+│   ├── Models/
+│   ├── FeatureEngineering/
+│   ├── Prediction/
+│   ├── Training/
+│   └── Evaluation/
+│
+├── Documentation/
+│
+├── README.md
+│
+└── LICENSE
+```
+
+---
+
+# ⚙️ Getting Started
+
+## 📋 Prerequisites
+
+Before running the project, ensure the following software is installed:
+
+* Node.js (v18 or later)
+* Python 3.10+
+* MongoDB
+* Git
+* npm
+
+---
+
+# 🚀 Installation
+
+## 1️⃣ Clone Repository
+
+```bash id="clone"
+git clone https://github.com/<your-username>/StudyStream-AI.git
+
+cd StudyStream-AI
+```
+
+---
+
+## 2️⃣ Frontend
+
+```bash id="frontend"
+cd Frontend
+
+npm install
+
+npm run dev
+```
+
+Runs on:
+
+```
+http://localhost:5173
+```
+
+---
+
+## 3️⃣ Backend
+
+```bash id="backend"
+cd Backend
+
+npm install
+
+npm run dev
+```
+
+Runs on:
+
+```
+http://localhost:5000
+```
+
+---
+
+## 4️⃣ AI Server
+
+```bash id="ai"
+cd AI
+
+python -m venv .venv
+
+source .venv/bin/activate
+
+pip install -r requirements.txt
+
+python app.py
+```
+
+Runs on:
+
+```
+http://localhost:5500
+```
+
+---
+
+# 🔄 End-to-End Workflow
+
+```text id="workflow"
+Student
+   │
+   ▼
+Authentication
+   │
+   ▼
+Student Dashboard
+   │
+   ▼
+Adaptive Learning
+   │
+   ▼
+Retention Learning
+   │
+   ▼
+AI Prediction
+   │
+   ▼
+Analytics Dashboard
+   │
+   ▼
+Continuous Personalization
+```
+
+---
+
+# 🌟 Project Highlights
+
+StudyStream AI demonstrates the integration of **Full-Stack Web Development**, **Artificial Intelligence**, and **Educational Technology** into a unified intelligent platform.
+
+### Key Achievements
+
+* 🧠 AI-Driven Personalized Learning
+* 📚 Adaptive Question Generation
+* 📈 Learning Analytics Dashboard
+* 🎯 Intelligent Difficulty Adjustment
+* 🧠 Memory Retention Prediction
+* 🤖 Machine Learning Integration
+* 📊 Explainable AI
+* 👨‍🏫 Teacher Analytics
+* 👨‍💼 Admin Management
+* 🔐 Secure JWT Authentication
+* 📱 Responsive User Interface
+* ⚡ Modular & Scalable Architecture
+
+---
+
+# 🚀 Future Roadmap
+
+StudyStream AI is designed to evolve into a comprehensive AI-powered educational ecosystem.
+
+## 📅 Planned Enhancements
+
+### 🤖 Artificial Intelligence
+
+* Large Language Model Tutor
+* AI Study Assistant
+* Intelligent Question Generation
+* Automated Assignment Evaluation
+* Personalized Learning Recommendations
+
+---
+
+### 📈 Learning Analytics
+
+* Cognitive Load Analysis
+* Knowledge Graph Visualization
+* Learning Pattern Detection
+* AI-Based Career Guidance
+* Learning Risk Prediction
+
+---
+
+### 📱 Platform Expansion
+
+* Android Application
+* iOS Application
+* Progressive Web App (PWA)
+* Offline Learning Support
+
+---
+
+### 🌍 Collaboration Features
+
+* Live Collaborative Learning
+* AI Mentor
+* Discussion Forums
+* Smart Peer Matching
+* Virtual Study Groups
+
+---
+
+### ☁️ Cloud Infrastructure
+
+* Docker Deployment
+* Kubernetes Support
+* CI/CD Pipelines
+* AWS / Azure Deployment
+* Auto Scaling
+
+---
+
+# 🤝 Contributing
+
+Contributions are welcome and appreciated.
+
+If you would like to improve StudyStream AI:
+
+1. Fork the repository.
+2. Create a new feature branch.
+3. Commit your changes.
+4. Push your branch.
+5. Open a Pull Request.
+
+Every contribution—whether it is documentation, bug fixes, UI improvements, or new AI models—helps make the project better.
+
+---
+
+# ⭐ Support the Project
+
+If you found this repository useful, please consider supporting it.
+
+⭐ Star the repository
+
+🍴 Fork the project
+
+📢 Share it with others
+
+💡 Open issues for improvements
+
+🤝 Contribute new features
+
+---
+
+# 🌐 Live Application
+
+<p align="center">
+
+<a href="https://study-stream-jbtl59c07-bhisham-gahlauts-projects.vercel.app">
+
+<img src="https://img.shields.io/badge/🚀%20Launch%20StudyStream-Live%20Website-00C853?style=for-the-badge&logo=vercel&logoColor=white"/>
+
+</a>
+
+</p>
+
+---
+
+# 🧠 Adaptive Learning Architecture
+
+<p align="center">
+
+<a href="https://study-stream-jbtl59c07-bhisham-gahlauts-projects.vercel.app/design/adaptive">
+
+<img src="https://img.shields.io/badge/🧠%20View%20Adaptive%20Learning-System%20Architecture-1976D2?style=for-the-badge"/>
+
+</a>
+
+</p>
+
+---
+
+# 💻 Tech Stack Summary
+
+<p align="center">
+
+| Category          | Technologies                    |
 | ----------------- | ------------------------------- |
-| Model Type        | practice_difficulty             |
-| Backend           | random_forest_regressor         |
-| Sequence Length   | 10                              |
-| Features          | 12                              |
-| Evaluated Samples | 313                             |
-| Model File        | `practice_difficulty_model.pkl` |
+| 🎨 Frontend       | React, Vite, Redux Toolkit      |
+| ⚙️ Backend        | Node.js, Express.js             |
+| 🤖 AI             | TensorFlow, Keras, Scikit-learn |
+| 🧠 Deep Learning  | LSTM                            |
+| 🗄️ Database      | MongoDB                         |
+| 🔐 Authentication | JWT                             |
+| 📊 Analytics      | Pandas, NumPy                   |
+| 🚀 Deployment     | Vercel, Flask                   |
 
-| Evaluation Step       | Status                                                  |
-| --------------------- | ------------------------------------------------------- |
-| Metadata loaded       | OK                                                      |
-| Data prepared         | Sequences: 313, X shape: (313, 10, 12), y shape: (313,) |
-| Model loaded          | OK                                                      |
-| Predictions generated | 313                                                     |
-| Metrics calculated    | Completed                                               |
-
-The adaptive model is strong enough to support real difficulty decisions because the error is low and the R2 score is high. Its strongest signals are question difficulty and mastery, which is exactly what a difficulty adaptation system should care about.
-
-### 6.2 Retention Learning Results
-
-The retention deck reports two LSTM models: Micro and Macro.
-
-#### Micro LSTM results
-
-| Output             | MAE      | MSE      | RMSE     | R2       |
-| ------------------ | -------- | -------- | -------- | -------- |
-| current_retention  | 0.037404 | 0.002279 | 0.047742 | 0.666225 |
-| next_retention     | 0.037851 | 0.002408 | 0.049076 | 0.676631 |
-| stress_impact      | 0.013284 | 0.000390 | 0.019761 | nan      |
-| fatigue_prediction | 0.025714 | 0.007053 | 0.083982 | 0.284294 |
-| OVERALL            | 0.028563 | 0.003033 | 0.055071 | 0.865802 |
-
-| Micro model view   | Rating    | Why                                             |
-| ------------------ | --------- | ----------------------------------------------- |
-| Overall            | Excellent | Very low error with high explained variance     |
-| current_retention  | Good      | Low error and stable quality                    |
-| next_retention     | Good      | Reliable next-step prediction                   |
-| fatigue_prediction | Average   | Low absolute error, but weaker variance capture |
-
-#### Macro LSTM results
-
-| Output                              | MAE      | MSE      | RMSE     | R2       |
-| ----------------------------------- | -------- | -------- | -------- | -------- |
-| predicted_long_term_retention_score | 0.091694 | 0.015718 | 0.125372 | 0.147429 |
-| fatigue_risk_probability            | 0.062635 | 0.005946 | 0.077111 | 0.353628 |
-| OVERALL                             | 0.077164 | 0.010832 | 0.104077 | 0.809675 |
-
-| Macro model view    | Rating    | Why                                                       |
-| ------------------- | --------- | --------------------------------------------------------- |
-| Overall             | Excellent | Strong overall variance explanation with acceptable error |
-| long-term retention | Average   | Moderate error, but weak variance capture                 |
-| fatigue risk        | Average   | Useful but still needs improvement                        |
-
-#### Retention model architecture
-
-| Model      | Input Shape    | Output Shape      | Parameters | Encoder              |
-| ---------- | -------------- | ----------------- | ---------- | -------------------- |
-| Micro LSTM | (None, 20, 15) | Four output heads | 34,084     | LSTM(64) -> LSTM(32) |
-| Macro LSTM | (None, 14, 15) | Two output heads  | 19,946     | LSTM(48) -> LSTM(24) |
-
-The retention results matter because they show two different levels of learning intelligence:
-
-| Insight                      | What It Means                                                               |
-| ---------------------------- | --------------------------------------------------------------------------- |
-| Micro is stronger than Macro | Immediate recall is easier to model than long-term memory drift             |
-| Fatigue is harder to predict | Exhaustion depends on more hidden variables than correctness alone          |
-| Separate LSTMs are justified | Short-horizon and long-horizon behavior should not be forced into one model |
-
-## 7. Benefits and Importance
-
-### 7.1 Why the project is important
-
-| Problem in Traditional Learning      | StudyStream AI Response                                 |
-| ------------------------------------ | ------------------------------------------------------- |
-| Static difficulty                    | Adaptive difficulty changes with performance            |
-| Forgotten material                   | Retention modeling predicts when revision should happen |
-| One-size-fits-all pacing             | The platform adjusts based on actual learner state      |
-| Hidden intervention logic            | The architecture is explainable and metric-driven       |
-| Late identification of weak learners | Teachers can see analytics earlier and act sooner       |
-
-### 7.2 Practical benefits
-
-| Benefit                 | Description                                                       |
-| ----------------------- | ----------------------------------------------------------------- |
-| Personalized learning   | Every student gets a response based on their own behavior history |
-| Better study efficiency | Time is spent on the topics that need attention most              |
-| Reduced overload        | Fatigue-aware modeling helps avoid unnecessary strain             |
-| Stronger retention      | Revision happens before forgetting becomes severe                 |
-| Teacher visibility      | Teachers gain actionable student analytics                        |
-| Admin control           | Platform governance stays clear and role-based                    |
-| Explainability          | Feature importance and metric tables make the AI easier to trust  |
-
-### 7.3 Why the architecture is worth using
-
-| Reason                                   | Explanation                                                                  |
-| ---------------------------------------- | ---------------------------------------------------------------------------- |
-| Different problems need different models | Sequence retention and tabular adaptation are not the same task              |
-| The product is action-oriented           | The AI output directly influences the user experience                        |
-| The system supports growth               | The architecture can absorb more features, more subjects, and more models    |
-| It is easier to maintain                 | Clear separation between frontend, backend, and AI services reduces coupling |
-
-## 8. File Map
-
-| Area                     | Important Files                                                                                              |
-| ------------------------ | ------------------------------------------------------------------------------------------------------------ |
-| Architecture reference   | [architecture.md](architecture.md)                                                                           |
-| Adaptive presentation    | [Frontend/src/Pages/Design/DesignAdaptiveLearning.jsx](Frontend/src/Pages/Design/DesignAdaptiveLearning.jsx) |
-| Retention presentation   | [Frontend/src/Pages/Design/DesignRetention.jsx](Frontend/src/Pages/Design/DesignRetention.jsx)               |
-| Backend app entry        | [Backend/index.js](Backend/index.js)                                                                         |
-| Backend package manifest | [Backend/package.json](Backend/package.json)                                                                 |
-| AI entry point           | [AI/app.py](AI/app.py)                                                                                       |
-| AI config                | [AI/config.py](AI/config.py)                                                                                 |
-| AI services              | [AI/services](AI/services)                                                                                   |
-| AI models                | [AI/models](AI/models)                                                                                       |
-## 9. System Image Gallery
-
-The following screenshots are included in the `SystemImage` folder and document the main product surfaces, user roles, and learning flows.
+</p>
 
 ---
 
-### Home Page
-![HomePage](SystemImage/HomePage.png)
+# 📜 License
 
-Main landing page showing the core product message, adaptive learning, retention learning, teacher/student courses, and dashboard entry points.
+This project is released under the **MIT License**.
 
----
-
-### Home Page 2
-![HomePage2](SystemImage/HomePage2.png)
-
-Landing-style dashboard hub with shortcuts to Dashboard, Practice, Retention Learning, Create a Course, Architecture, and Course Overview.
+You are welcome to use, modify, and extend it in accordance with the license terms.
 
 ---
 
-### Login Page
-![LoginPage](SystemImage/LoginPage.png)
+# 👨‍💻 Author
 
-Authentication screen with login and register tabs, email/password input, and external sign-in options.
+### **Bhisham Gahlaut**
 
----
-
-### Student Dashboard 1
-![StudentDashboard1](SystemImage/StudentDashboard1.png)
-
-Student dashboard overview with performance cards, study metrics, streaks, and learning progress indicators.
+**AI • Machine Learning • MERN Stack • Deep Learning • Full-Stack Development**
 
 ---
 
-### Student Dashboard 2
-![StudentDashboard2](SystemImage/StudentDashboard2.png)
+<p align="center">
 
-Learning modes page comparing Adaptive Practice and Retention Learning with clear call-to-action buttons.
+### 🌟 *"Personalizing Education Through Artificial Intelligence."*
 
----
+### 🚀 *Making Learning Smarter, Adaptive, and Data-Driven.*
 
-### Adaptive Test 1
-![AdaptiveTest1](SystemImage/AdaptiveTest1.png)
+### ⭐ **If you enjoyed this project, don't forget to Star the Repository!**
 
-Active adaptive practice session with live question flow, difficulty lock, analytics panel, and answer controls.
+</p>
 
----
-
-### Adaptive Test 2
-![AdaptiveTest2](SystemImage/AdaptiveTest2.png)
-
-Adaptive practice results page showing accuracy, confidence, difficulty trend, weak topics, and performance analysis.
-
----
-
-### Practice Setup
-![PracticeSetup1](SystemImage/PracticeSetup1.png)
-
-Practice setup screen where the learner chooses between adaptive practice and real exam mode.
-
----
-
-### Real Test
-![Realtest](SystemImage/Realtest.png)
-
-Real exam interface with timer, question palette, section tracking, and answer submission controls.
-
----
-
-### Retention Learning 1
-![Retention1](SystemImage/Retention1.png)
-
-Retention session view showing due questions, repeat timing, retention scores, and question cards.
-
----
-
-### Retention Learning 2
-![Retention2](SystemImage/Retention2.png)
-
-Retention workspace with repeated items, concept mastery visualization, and retention score summaries.
-
----
-
-### Courses 1
-![Courses1](SystemImage/Courses1.png)
-
-Public course catalog displaying published courses, pricing, access labels, and detail buttons.
-
----
-
-### Courses 2
-![Courses2](SystemImage/Courses2.png)
-
-Course detail page showing the selected course overview, enrollment status, and continue-learning actions.
-
----
-
-### Admin Dashboard 1
-![AdminDashboard1](SystemImage/AdminDashboard1.png)
-
-Admin overview dashboard with verification counts, total users, teachers, and course intelligence summaries.
-
----
-
-### Admin Dashboard 2
-![AdminDashboard2](SystemImage/AdminDashboard2.png)
-
-Admin user control table for searching users, reviewing status, and removing accounts when needed.
-
----
-
-### Admin Dashboard 3
-![AdminDashboard3](SystemImage/AdminDashboard3.png)
-
-Admin profile screen with personal details, contact data, and account information for the platform administrator.
-
----
-
-### Teacher Dashboard 1
-![teacherDashboard1](SystemImage/teacherDashboard1.png)
-
-Teacher hub dashboard with class-wide performance summaries and analytics-oriented course navigation.
-
----
-
-### Teacher Dashboard 2
-![TeacherDashboard2](SystemImage/TeacherDashboard2.png)
-
-Teacher enrollment management view showing enrolled students and the courses attached to each learner.
-
----
-
-### Teacher Dashboard 3
-![Teacherdashboard3](SystemImage/Teacherdashboard3.png)
-
-Teacher course management page with course cards, student counts, ratings, and publish-state indicators.
-## 10. Conclusion
-
-StudyStream AI is built around one main philosophy: learning systems should not be static.
-
-The adaptive learning side handles the question of how hard the next step should be. The retention learning side handles the question of when the learner is likely to forget and when revision should happen. Together, they create a practical intelligence stack for studying, revision, readiness, and long-term improvement.
-
-In short, the project is important because it combines:
-
-| Capability             | Result                                                          |
-| ---------------------- | --------------------------------------------------------------- |
-| Adaptive difficulty    | Better question selection and pacing                            |
-| Retention modeling     | Better revision timing and memory support                       |
-| Role-based workflow    | Clear duties for students, teachers, and admins                 |
-| Explainable AI         | More trust in the predictions                                   |
-| Full-stack integration | The system can be used as a real product, not just a model demo |
-
-This makes StudyStream AI more than a learning dashboard. It becomes a learning companion that reacts to performance, protects against forgetting, and gives educators a stronger view of student progress.
